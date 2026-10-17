@@ -4,7 +4,7 @@ public class CoreConfigJuicityService(Config config)
 {
     public static int GetListenPort(Config config)
     {
-        var mixedPort = config.Inbound.FirstOrDefault(inbound => inbound.Protocol == nameof(EInboundProtocol.socks))?.LocalPort ?? 10808;
+        var mixedPort = config.Inbound.FirstOrDefault(inbound => inbound.Protocol == nameof(EInboundProtocol.socks))?.LocalPort ?? Global.DefaultLocalPort;
         return mixedPort + (int)EInboundProtocol.juicity;
     }
 

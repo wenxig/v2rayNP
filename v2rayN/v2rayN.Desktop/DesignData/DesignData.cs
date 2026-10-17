@@ -70,8 +70,8 @@ public static class DesignData
     private static StatusBarViewModel CreateStatusBar()
     {
         var vm = StatusBarViewModel.Instance;
-        vm.InboundDisplay = "socks:10808";
-        vm.InboundLanDisplay = "http:10809";
+        vm.InboundDisplay = "socks:20808";
+        vm.InboundLanDisplay = "http:20809";
         vm.RunningServerDisplay = "🚀 Design Server (Active)";
         vm.RunningInfoDisplay = "v2rayN Design Mode";
         vm.SpeedProxyDisplay = "↑ 1.2 MB/s";

@@ -13,6 +13,7 @@ Add complete SSR, Mieru, ShadowQUIC, and Juicity support using mihomo for the fi
 - [completed] 5. Review the diff and create a signed Conventional Commit.
 - [completed] 6. Reserve mixed-port +7 for Juicity, connect the managed SOCKS front end, validate, and sign the follow-up commit.
 - [completed] 7. Validate supplied nodes for connectivity and real HTTPS responses without recording credentials.
+- [completed] 8. Move the new-configuration mixed port to 20808 to avoid the original client's default port.
 
 ## Decisions
 
@@ -32,6 +33,14 @@ Add complete SSR, Mieru, ShadowQUIC, and Juicity support using mihomo for the fi
 ## Completion
 
 Implementation and signed commit are complete. Existing unrelated `agent.md` deletion and untracked `AGENTS.md` are preserved.
+
+## Default port follow-up
+
+- New configurations now use mixed port 20808; existing saved inbound ports are preserved.
+- Derived listeners move with the configured mixed port, including Juicity at mixed port +7 and PAC at mixed port +3.
+- The original v2rayN process was not stopped, restarted, or modified during this change.
+- The previous Juicity and ShadowQUIC timeouts are inconclusive because the original client stayed online for Codex networking; isolated listener ports remove direct local-port conflict as evidence, but do not eliminate concurrent network effects.
+- `dotnet test ... --no-restore` passes 147/147; ServiceLib and Avalonia Debug builds pass with 0 warnings and 0 errors.
 
 ## Errors Encountered
 

@@ -2,6 +2,10 @@
 
 ## 2026-10-17
 
+- Changed new-configuration mixed-port default to 20808; existing saved inbound ports remain unchanged. Juicity stays at mixed port +7 and PAC at mixed port +3.
+- Verified `git diff --check`, ServiceLib.Tests (147/147), ServiceLib Debug build, and Avalonia Debug build (0 warnings/errors). Original v2rayN was left running and untouched.
+- Clarified that prior Juicity/ShadowQUIC remote timeouts are inconclusive under concurrent original-client operation; isolated local listeners prevent assuming a direct port collision.
+
 - Read repository instructions and confirmed the cross-platform ServiceLib architecture.
 - Verified Juicity support status in Xray, mihomo, and sing-box; selected the official Juicity CLI.
 - Started implementation planning files.

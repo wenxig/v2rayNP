@@ -60,7 +60,7 @@ internal static class CoreConfigTestFactory
                 new InItem
                 {
                     Protocol = nameof(EInboundProtocol.socks),
-                    LocalPort = 10808,
+                    LocalPort = 20808,
                     UdpEnabled = true,
                     SniffingEnabled = true,
                     RouteOnly = false,

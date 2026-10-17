@@ -83,6 +83,7 @@ public class Global
     public const string GrpcGunMode = "gun";
     public const string GrpcMultiMode = "multi";
     public const int MaxPort = 65536;
+    public const int DefaultLocalPort = 20808;
     public const int MinFontSize = 8;
     public const int MinFontSizeCount = 13;
     public const string RebootAs = "rebootas";

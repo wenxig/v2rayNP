@@ -13,6 +13,18 @@ public class ExtendedProtocolConfigTests
     }
 
     [Test]
+    public async Task DefaultInboundPort_ShouldBe20808AndJuicityShouldUseOffset()
+    {
+        var config = CoreConfigTestFactory.CreateConfig();
+        config.Inbound = [];
+        CoreConfigTestFactory.BindAppManagerConfig(config);
+
+        await Global.DefaultLocalPort.Should().BeEqualTo(20808);
+        await CoreConfigJuicityService.GetListenPort(config).Should().BeEqualTo(20815);
+        await AppManager.Instance.GetLocalPort(EInboundProtocol.pac).Should().BeEqualTo(20811);
+    }
+
+    [Test]
     public async Task NodeValidator_ShouldRejectUnsupportedJuicityCore()
     {
         var node = CreateJuicityNode();
