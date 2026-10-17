@@ -14,3 +14,7 @@
 - Added URI field round-trip, malformed-input, capability, and config-generation tests; serial ServiceLib test run passes 141/141.
 - Added official Juicity v0.5.0 platform download mappings and synchronized README/package support descriptions.
 - Final desktop/WPF builds and diff review remain before signed commit.
+- Signed commit `a696d658` created after serial builds, tests, package-script syntax checks, and diff validation.
+- Re-ran `dotnet test v2rayN/ServiceLib.Tests/ServiceLib.Tests.csproj -c Debug --no-restore`: 141/141 passed.
+- Attempted to download mihomo v1.19.32 and Juicity v0.5.0 for real-core smoke tests; GitHub release metadata was reachable, but asset download failed with `curl: (35) LibreSSL SSL_connect: SSL_ERROR_SYSCALL` to `release-assets.githubusercontent.com`.
+- Marked implementation and commit phases complete. Real-core smoke tests and server connectivity remain unverified for the reasons above.

@@ -10,7 +10,7 @@ Add complete SSR, Mieru, ShadowQUIC, and Juicity support using mihomo for the fi
 - [completed] 2. Add core capability validation and mihomo/Juicity configuration generation.
 - [completed] 3. Add node editor fields, core filtering, and localized UI strings.
 - [completed] 4. Add focused tests, update support documentation, and run validation.
-- [in_progress] 5. Review the diff and create a signed Conventional Commit.
+- [completed] 5. Review the diff and create a signed Conventional Commit.
 
 ## Decisions
 
@@ -19,9 +19,16 @@ Add complete SSR, Mieru, ShadowQUIC, and Juicity support using mihomo for the fi
 - Xray and sing-box reject these protocols; no silent fallback or semantic mapping.
 - Existing user changes are preserved.
 
-## Next Step
+## Validation Limits
 
-Run final serial validation, inspect the diff, and commit only task files.
+- `dotnet test v2rayN/ServiceLib.Tests/ServiceLib.Tests.csproj -c Debug --no-restore` passes (141/141).
+- The desktop and WPF builds and package-script syntax checks passed before commit, as recorded in `progress.md`.
+- Real mihomo and Juicity smoke tests remain unavailable: GitHub release metadata is reachable, but downloading release assets fails during TLS connection to `release-assets.githubusercontent.com`.
+- Real server connectivity still requires a target platform and reachable test server.
+
+## Completion
+
+Implementation and signed commit are complete. Existing unrelated `agent.md` deletion and untracked `AGENTS.md` are preserved.
 
 ## Errors Encountered
 
