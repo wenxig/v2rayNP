@@ -2,6 +2,12 @@ namespace ServiceLib.Services.CoreConfig;
 
 public class CoreConfigJuicityService(Config config)
 {
+    public static int GetListenPort(Config config)
+    {
+        var mixedPort = config.Inbound.FirstOrDefault(inbound => inbound.Protocol == nameof(EInboundProtocol.socks))?.LocalPort ?? 10808;
+        return mixedPort + (int)EInboundProtocol.juicity;
+    }
+
     public RetResult GenerateClientConfig(ProfileItem node, int? listenPort = null)
     {
         var result = new RetResult { Msg = ResUI.InitialConfiguration };
@@ -9,10 +15,15 @@ public class CoreConfigJuicityService(Config config)
         {
             var validation = NodeValidator.Validate(node, ECoreType.juicity);
             if (!validation.Success) return new RetResult { Msg = string.Join(Environment.NewLine, validation.Errors) };
+            var port = listenPort ?? GetListenPort(config);
+            if (port is <= 0 or > 65535)
+            {
+                return new RetResult { Msg = ResUI.FillCorrectServerPort };
+            }
             var extra = node.GetProtocolExtra();
             var content = new Dictionary<string, object?>
             {
-                ["listen"] = $"{Global.Loopback}:{(listenPort ?? config.Inbound.First().LocalPort)}",
+                ["listen"] = $"{Global.Loopback}:{port}",
                 ["server"] = $"{FormatAddress(node.Address)}:{node.Port}",
                 ["uuid"] = extra.JuicityUuid ?? node.Username,
                 ["password"] = extra.JuicityPassword ?? node.Password,

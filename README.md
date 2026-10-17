@@ -2,7 +2,7 @@
 
 ### A GUI client for Windows, Linux and macOS. Support [Xray](https://github.com/XTLS/Xray-core), [sing-box](https://github.com/SagerNet/sing-box), [mihomo](https://github.com/MetaCubeX/mihomo), and the official [Juicity client](https://github.com/juicity/juicity).
 
-Supported share protocols include SSR, Mieru, ShadowQUIC, and Juicity. SSR, Mieru, and ShadowQUIC use mihomo; Juicity uses `juicity-client`. Juicity currently supports a single node with system proxy mode and does not support TUN or node groups.
+Supported share protocols include SSR, Mieru, ShadowQUIC, and Juicity. SSR, Mieru, and ShadowQUIC use mihomo; Juicity uses `juicity-client`. Juicity listens on loopback at the configured mixed port plus 7; a managed sing-box front end provides the mixed-port entry, routing, and TUN configuration. Juicity node groups remain unsupported. TUN traffic and real server connectivity require target-platform validation.
 
 > **🧹 去广告纯净版 / Ad-free Mod** \
 > 本版本移除了原版的推广/广告入口，「检查更新」与下载均指向本仓库。 \

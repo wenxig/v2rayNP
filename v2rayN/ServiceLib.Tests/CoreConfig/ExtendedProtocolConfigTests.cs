@@ -13,14 +13,22 @@ public class ExtendedProtocolConfigTests
     }
 
     [Test]
-    public async Task NodeValidator_ShouldRejectUnsupportedCoreAndJuicityTun()
+    public async Task NodeValidator_ShouldRejectUnsupportedJuicityCore()
     {
         var node = CreateJuicityNode();
         await NodeValidator.Validate(node, ECoreType.mihomo).Success.Should().BeFalse();
         await NodeValidator.Validate(node, ECoreType.juicity).Success.Should().BeTrue();
+    }
 
+    [Test]
+    [Arguments(false)]
+    [Arguments(true)]
+    public async Task Juicity_ShouldUseOffsetListenerBehindMixedPort(bool enableTun)
+    {
+        var node = CreateJuicityNode();
         var config = CoreConfigTestFactory.CreateConfig();
-        config.TunModeItem.EnableTun = true;
+        config.Inbound.First().LocalPort = 12080;
+        config.TunModeItem.EnableTun = enableTun;
         CoreConfigTestFactory.BindAppManagerConfig(config);
         SQLiteHelper.Instance.CreateTable<RoutingItem>();
         SQLiteHelper.Instance.CreateTable<FullConfigTemplateItem>();
@@ -33,9 +41,58 @@ public class ExtendedProtocolConfigTests
             DomainStrategy = Global.AsIs,
             DomainStrategy4Singbox = string.Empty,
         });
-        var result = await CoreConfigContextBuilder.Build(config, node);
-        await result.Success.Should().BeFalse();
-        await result.ValidatorResult.Errors.Should().Contain(error => error.Contains("TUN", StringComparison.OrdinalIgnoreCase));
+        var result = await CoreConfigContextBuilder.BuildAll(config, node);
+        await result.Success.Should().BeTrue();
+        await result.MainResult.Context.IsTunEnabled.Should().BeFalse();
+        var front = result.PreSocksResult!.Context;
+        await front.RunCoreType.Should().BeEqualTo(ECoreType.sing_box);
+        await front.Node.Address.Should().BeEqualTo(Global.Loopback);
+        await front.Node.Port.Should().BeEqualTo(12087);
+        await front.IsTunEnabled.Should().BeEqualTo(enableTun);
+        await front.ProtectCoreTypeList.Should().Contain(ECoreType.juicity);
+
+        var client = new CoreConfigJuicityService(config).GenerateClientConfig(node);
+        await client.Success.Should().BeTrue();
+        await JsonNode.Parse(client.Data!.ToString()!)!["listen"]!.GetValue<string>().Should().BeEqualTo("127.0.0.1:12087");
+        var frontResult = new CoreConfigSingboxService(front).GenerateClientConfigContent();
+        await frontResult.Success.Should().BeTrue();
+        var content = JsonNode.Parse(frontResult.Data!.ToString()!)!;
+        await content["inbounds"]!.AsArray().Should().Contain(inbound => inbound!["type"]!.GetValue<string>() == "mixed" && inbound["listen_port"]!.GetValue<int>() == 12080);
+        await content["inbounds"]!.AsArray().Any(inbound => inbound!["type"]!.GetValue<string>() == "tun").Should().BeEqualTo(enableTun);
+        await content["outbounds"]!.AsArray().Should().Contain(outbound => outbound!["type"]!.GetValue<string>() == "socks" && outbound["server"]!.GetValue<string>() == Global.Loopback && outbound["server_port"]!.GetValue<int>() == 12087);
+    }
+
+    [Test]
+    public async Task JuicitySpeedtest_ShouldUseAssignedPortWithoutListenerOffset()
+    {
+        var config = CoreConfigTestFactory.CreateConfig();
+        CoreConfigTestFactory.BindAppManagerConfig(config);
+        var node = CreateJuicityNode();
+        var context = CoreConfigTestFactory.CreateContext(config, node, ECoreType.juicity);
+        var testItem = new ServerTestItem { IndexId = node.IndexId, QueueNum = 3 };
+        var path = Path.GetTempFileName();
+        try
+        {
+            var result = await CoreConfigHandler.GenerateClientSpeedtestConfig(config, context, testItem, path);
+            await result.Success.Should().BeTrue();
+            var json = JsonNode.Parse(await File.ReadAllTextAsync(path))!;
+            await json["listen"]!.GetValue<string>().Should().BeEqualTo($"127.0.0.1:{testItem.Port}");
+        }
+        finally
+        {
+            File.Delete(path);
+        }
+    }
+
+    [Test]
+    [Arguments(65528, true)]
+    [Arguments(65529, false)]
+    public async Task JuicityConfig_ShouldValidateOffsetPortRange(int mixedPort, bool success)
+    {
+        var config = CoreConfigTestFactory.CreateConfig();
+        config.Inbound.First().LocalPort = mixedPort;
+        var result = new CoreConfigJuicityService(config).GenerateClientConfig(CreateJuicityNode());
+        await result.Success.Should().BeEqualTo(success);
     }
 
     [Test]

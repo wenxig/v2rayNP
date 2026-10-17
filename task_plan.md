@@ -11,6 +11,7 @@ Add complete SSR, Mieru, ShadowQUIC, and Juicity support using mihomo for the fi
 - [completed] 3. Add node editor fields, core filtering, and localized UI strings.
 - [completed] 4. Add focused tests, update support documentation, and run validation.
 - [completed] 5. Review the diff and create a signed Conventional Commit.
+- [completed] 6. Reserve mixed-port +7 for Juicity, connect the managed SOCKS front end, validate, and sign the follow-up commit.
 
 ## Decisions
 
@@ -21,10 +22,11 @@ Add complete SSR, Mieru, ShadowQUIC, and Juicity support using mihomo for the fi
 
 ## Validation Limits
 
-- `dotnet test v2rayN/ServiceLib.Tests/ServiceLib.Tests.csproj -c Debug --no-restore` passes (141/141).
+- `dotnet test v2rayN/ServiceLib.Tests/ServiceLib.Tests.csproj -c Debug --no-restore` passes (146/146).
 - The desktop and WPF builds and package-script syntax checks passed before commit, as recorded in `progress.md`.
-- Real mihomo and Juicity smoke tests remain unavailable: GitHub release metadata is reachable, but downloading release assets fails during TLS connection to `release-assets.githubusercontent.com`.
-- Real server connectivity still requires a target platform and reachable test server.
+- Download retry succeeded: mihomo v1.19.32 accepted all three generated YAML files; Juicity v0.5.0 started with generated JSON and returned SOCKS5 greeting `0500`.
+- sing-box v1.14.3 accepted generated ordinary and TUN front-end configurations; Juicity and sing-box ran together on ports 19087 and 19080 and each returned SOCKS5 greeting `0500`.
+- Real server connectivity, UDP forwarding, and actual TUN traffic remain unverified.
 
 ## Completion
 

@@ -92,7 +92,7 @@ public class CoreManager
         }
 
         await CoreStart(mainContext);
-        await WaitForProxyPort(preContext);
+        await WaitForProxyPort(preContext, mainContext.RunCoreType == ECoreType.juicity);
         await CoreStartPreService(preContext);
 
         AppManager.Instance.RunningCoreType = preContext?.RunCoreType ?? mainContext.RunCoreType;
@@ -222,13 +222,13 @@ public class CoreManager
         await _updateFunc?.Invoke(notify, msg);
     }
 
-    private static async Task WaitForProxyPort(CoreConfigContext? preContext)
+    private static async Task WaitForProxyPort(CoreConfigContext? preContext, bool requireReady = false)
     {
         if (preContext is null)
         {
             return;
         }
-        if (!preContext.IsTunEnabled)
+        if (!preContext.IsTunEnabled && !requireReady)
         {
             return;
         }

@@ -42,7 +42,7 @@ public class CoreConfigContextBuilder
             AllProxiesMap = [],
             AppConfig = config,
             FullConfigTemplate = await AppManager.Instance.GetFullConfigTemplateItem(coreType),
-            IsTunEnabled = config.TunModeItem.EnableTun,
+            IsTunEnabled = config.TunModeItem.EnableTun && runCoreType != ECoreType.juicity,
             SimpleDnsItem = config.SimpleDNSItem,
             ProtectDomainList = [],
             RawDnsItem = await AppManager.Instance.GetDNSItem(coreType),
@@ -69,9 +69,9 @@ public class CoreConfigContextBuilder
                 return new CoreConfigContextBuilderResult(context, validatorResult);
             }
         }
-        if (runCoreType == ECoreType.juicity && config.TunModeItem.EnableTun)
+        if (runCoreType == ECoreType.juicity && CoreConfigJuicityService.GetListenPort(config) is <= 0 or > 65535)
         {
-            validatorResult.Errors.Add(ProtocolCapabilities.Text("MsgJuicityTunUnsupported"));
+            validatorResult.Errors.Add(ResUI.FillCorrectServerPort);
             return new CoreConfigContextBuilderResult(context, validatorResult);
         }
         var (actNode, nodeValidatorResult) = await ResolveNodeAsync(context, node);

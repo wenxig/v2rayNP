@@ -17,3 +17,10 @@
 - Official Juicity v0.5.0 provides Windows x86_64/arm64, Linux x86_64/arm64/riscv64, and macOS x86_64/arm64 archives; CoreInfo now maps these release assets and uses `run -c {0}`.
 - Custom core settings retain the full legacy core list; protocol-specific filtering applies only to supported protocol types.
 - Groups containing extended-protocol children now fail validation instead of silently downgrading child errors to warnings.
+
+## Juicity listener integration
+
+- Reserved `EInboundProtocol.juicity = 7`: the official client listens at mixed-port +7 on loopback.
+- Reused the existing managed pre-SOCKS sing-box context for public mixed-port entry and routing/TUN generation; Juicity itself is never launched as a TUN core.
+- Startup waits for the internal listener before starting the front end; speed tests keep their explicitly allocated listener port.
+- Official mihomo v1.19.32, Juicity v0.5.0, and sing-box v1.14.3 local checks passed; these checks do not establish remote connectivity or actual TUN/UDP forwarding.

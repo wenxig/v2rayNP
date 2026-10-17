@@ -1583,7 +1583,17 @@ public static class ConfigHandler
     {
         ProfileItem? itemSocks = null;
         var enableLegacyProtect = config.TunModeItem.EnableLegacyProtect;
-        if (node.ConfigType != EConfigType.Custom
+        if (node.ConfigType == EConfigType.Juicity && coreType == ECoreType.juicity)
+        {
+            itemSocks = new ProfileItem
+            {
+                CoreType = ECoreType.sing_box,
+                ConfigType = EConfigType.SOCKS,
+                Address = Global.Loopback,
+                Port = CoreConfigJuicityService.GetListenPort(config),
+            };
+        }
+        else if (node.ConfigType != EConfigType.Custom
             && coreType is not ECoreType.sing_box and not ECoreType.mihomo
             && config.TunModeItem.EnableTun
             && enableLegacyProtect)
