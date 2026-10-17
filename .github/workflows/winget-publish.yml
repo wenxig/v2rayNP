@@ -19,7 +19,7 @@ jobs:
           $wingetPackage = "2dust.v2rayN"
           $gitToken = "${{ secrets.PT_WINGET }}"
 
-          $github = Invoke-RestMethod -uri "https://api.github.com/repos/2dust/v2rayN/releases" 
+          $github = Invoke-RestMethod -uri "https://api.github.com/repos/wenxig/v2rayNP/releases"
 
           $targetRelease = $github | Where-Object -Property prerelease -match 'False' | Select -First 1
           
