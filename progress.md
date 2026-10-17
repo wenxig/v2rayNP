@@ -30,3 +30,11 @@
 - Fixed sing-box inbound generation to read the context configuration snapshot rather than mutable global configuration after regression tests exposed mismatched ports.
 - The temporary harness needed its SQLite native library and a routing record; corrected only under `/tmp`. sing-box asset downloads timed out twice, then succeeded on retry.
 - Real server connectivity, UDP forwarding, and actual TUN traffic remain unverified.
+
+## Live node acceptance
+
+- User supplied local node files for connectivity and real-response tests. Inventory is stored only in a restricted temporary directory; configuration contents and credentials will not be committed.
+
+- Five client configurations passed real-core checks. Mieru, Hysteria, and Hysteria2 returned HTTP 200 with valid certificates and expected content from Example Domain and Cloudflare trace.
+- Juicity timed out through both the generated sing-box front end and the official client directly with the supplied original JSON; ShadowQUIC timed out through mihomo. These are recorded as failed acceptance, not successful protocol connectivity.
+- Added `live-node-validation.md` without credentials or server identifiers. All temporary live-test cores were stopped. System proxy and TUN were not enabled.

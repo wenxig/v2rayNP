@@ -12,6 +12,7 @@ Add complete SSR, Mieru, ShadowQUIC, and Juicity support using mihomo for the fi
 - [completed] 4. Add focused tests, update support documentation, and run validation.
 - [completed] 5. Review the diff and create a signed Conventional Commit.
 - [completed] 6. Reserve mixed-port +7 for Juicity, connect the managed SOCKS front end, validate, and sign the follow-up commit.
+- [completed] 7. Validate supplied nodes for connectivity and real HTTPS responses without recording credentials.
 
 ## Decisions
 
@@ -26,7 +27,7 @@ Add complete SSR, Mieru, ShadowQUIC, and Juicity support using mihomo for the fi
 - The desktop and WPF builds and package-script syntax checks passed before commit, as recorded in `progress.md`.
 - Download retry succeeded: mihomo v1.19.32 accepted all three generated YAML files; Juicity v0.5.0 started with generated JSON and returned SOCKS5 greeting `0500`.
 - sing-box v1.14.3 accepted generated ordinary and TUN front-end configurations; Juicity and sing-box ran together on ports 19087 and 19080 and each returned SOCKS5 greeting `0500`.
-- Real server connectivity, UDP forwarding, and actual TUN traffic remain unverified.
+- Supplied Mieru, Hysteria, and Hysteria2 nodes passed real HTTPS response checks; supplied Juicity and ShadowQUIC nodes timed out. See `live-node-validation.md`. UDP forwarding and actual TUN traffic remain unverified.
 
 ## Completion
 
