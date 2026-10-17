@@ -239,7 +239,17 @@ public sealed class CoreInfoManager
                     CoreType = ECoreType.juicity,
                     CoreExes = ["juicity-client", "juicity"],
                     Arguments = "run -c {0}",
-                    Url = GetCoreUrl(ECoreType.juicity)
+                    Url = GetCoreUrl(ECoreType.juicity),
+                    ReleaseApiUrl = GetCoreUrl(ECoreType.juicity).Replace(Global.GithubUrl, Global.GithubApiUrl),
+                    DownloadUrlWin64 = GetCoreUrl(ECoreType.juicity) + "/download/{0}/juicity-windows-x86_64.zip",
+                    DownloadUrlWinArm64 = GetCoreUrl(ECoreType.juicity) + "/download/{0}/juicity-windows-arm64.zip",
+                    DownloadUrlLinux64 = GetCoreUrl(ECoreType.juicity) + "/download/{0}/juicity-linux-x86_64.zip",
+                    DownloadUrlLinuxArm64 = GetCoreUrl(ECoreType.juicity) + "/download/{0}/juicity-linux-arm64.zip",
+                    DownloadUrlLinuxRiscV64 = GetCoreUrl(ECoreType.juicity) + "/download/{0}/juicity-linux-riscv64.zip",
+                    DownloadUrlOSX64 = GetCoreUrl(ECoreType.juicity) + "/download/{0}/juicity-macos-x86_64.zip",
+                    DownloadUrlOSXArm64 = GetCoreUrl(ECoreType.juicity) + "/download/{0}/juicity-macos-arm64.zip",
+                    Match = "Juicity",
+                    VersionArg = "version",
                 },
 
                 new CoreInfo

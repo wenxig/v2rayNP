@@ -520,7 +520,7 @@ Requires:       freetype >= 2.13
 
 %description
 v2rayN Linux for Red Hat Enterprise Linux
-Support vless / vmess / Trojan / http / socks / Anytls / Hysteria2 / Shadowsocks / tuic / WireGuard
+Support vless / vmess / Trojan / http / socks / Anytls / Hysteria2 / Shadowsocks / tuic / WireGuard / SSR / Mieru / ShadowQUIC / Juicity
 Support Red Hat Enterprise Linux / Fedora Linux / Rocky Linux / AlmaLinux / CentOS
 For more information, Please visit our website
 https://github.com/2dust/v2rayN

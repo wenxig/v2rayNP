@@ -34,7 +34,7 @@ public class CoreConfigContextBuilder
     public static async Task<CoreConfigContextBuilderResult> Build(Config config, ProfileItem node)
     {
         var runCoreType = AppManager.Instance.GetCoreType(node, node.ConfigType);
-        var coreType = runCoreType == ECoreType.sing_box ? ECoreType.sing_box : ECoreType.Xray;
+        var coreType = runCoreType is ECoreType.sing_box or ECoreType.mihomo or ECoreType.juicity ? ECoreType.sing_box : ECoreType.Xray;
         var context = new CoreConfigContext
         {
             Node = node,
@@ -54,6 +54,26 @@ public class CoreConfigContextBuilder
             ProtectCoreTypeList = config.TunModeItem.EnableTun ? [ECoreType.Xray, ECoreType.sing_box] : []
         };
         var validatorResult = NodeValidatorResult.Empty();
+        if (node.ConfigType.IsGroupType() && (runCoreType == ECoreType.juicity || (runCoreType == ECoreType.mihomo && node.ConfigType != EConfigType.PolicyGroup)))
+        {
+            validatorResult.Errors.Add(string.Format(ResUI.MsgCoreNotSupportProtocol, runCoreType, node.ConfigType));
+            return new CoreConfigContextBuilderResult(context, validatorResult);
+        }
+        if (node.ConfigType is EConfigType.SSR or EConfigType.Mieru or EConfigType.ShadowQUIC or EConfigType.Juicity
+            && node.Subid.IsNotEmpty())
+        {
+            var subItem = await AppManager.Instance.GetSubItem(node.Subid);
+            if (subItem?.PrevProfile.IsNotEmpty() == true || subItem?.NextProfile.IsNotEmpty() == true)
+            {
+                validatorResult.Errors.Add(string.Format(ResUI.MsgCoreNotSupportProtocol, runCoreType, EConfigType.ProxyChain));
+                return new CoreConfigContextBuilderResult(context, validatorResult);
+            }
+        }
+        if (runCoreType == ECoreType.juicity && config.TunModeItem.EnableTun)
+        {
+            validatorResult.Errors.Add(ProtocolCapabilities.Text("MsgJuicityTunUnsupported"));
+            return new CoreConfigContextBuilderResult(context, validatorResult);
+        }
         var (actNode, nodeValidatorResult) = await ResolveNodeAsync(context, node);
         if (!nodeValidatorResult.Success)
         {
@@ -224,7 +244,7 @@ public class CoreConfigContextBuilder
     {
         if (node.IndexId.IsNullOrEmpty())
         {
-            return (node, NodeValidatorResult.Empty());
+            return (node, NodeValidator.Validate(node, context.RunCoreType));
         }
 
         if (includeSubChain)
@@ -428,6 +448,8 @@ public class CoreConfigContextBuilder
             return NodeValidatorResult.Empty();
         }
 
+        var validation = NodeValidator.Validate(node, context.RunCoreType);
+        if (!validation.Success) return validation;
         HashSet<string> ancestors = [node.IndexId];
         HashSet<string> globalVisited = [node.IndexId];
         return await TraverseGroupNodeAsync(context, node, globalVisited, ancestors);
@@ -500,6 +522,9 @@ public class CoreConfigContextBuilder
             childNodeValidatorResult.Errors.Add(string.Format(ResUI.MsgGroupNoValidChildNode, node.Remarks));
             return childNodeValidatorResult;
         }
+        if ((context.RunCoreType is ECoreType.mihomo or ECoreType.juicity
+            || groupChildList.Any(child => ProtocolCapabilities.IsExtendedProtocol(child.ConfigType)))
+            && childNodeValidatorResult.Errors.Count > 0) return childNodeValidatorResult;
         childNodeValidatorResult.Warnings.AddRange(childNodeValidatorResult.Errors);
         childNodeValidatorResult.Errors.Clear();
 

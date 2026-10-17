@@ -16,6 +16,10 @@ public enum EConfigType
     Naive = 12,
     Outbound = 13,
     MASQUE = 14,
+    SSR = 15,
+    Mieru = 16,
+    ShadowQUIC = 17,
+    Juicity = 18,
     PolicyGroup = 101,
     ProxyChain = 102,
 }

@@ -16,7 +16,44 @@ public partial class AddServerWindow : WindowBase<AddServerViewModel>
         btnGUID.Click += btnGUID_Click;
         btnGUID5.Click += btnGUID_Click;
 
-        cmbCoreType.ItemsSource = Global.CoreTypes.AppendEmpty();
+        labelSSRField0.Text = ProtocolCapabilities.Text("TbId3");
+        labelSSRField1.Text = ProtocolCapabilities.Text("ProtocolSsrCipher");
+        labelSSRField2.Text = ProtocolCapabilities.Text("ProtocolSsrObfs");
+        labelSSRField3.Text = ProtocolCapabilities.Text("ProtocolSsrObfsParam");
+        labelSSRField4.Text = ProtocolCapabilities.Text("ProtocolSsrProtocol");
+        labelSSRField5.Text = ProtocolCapabilities.Text("ProtocolSsrProtocolParam");
+        labelSSRField6.Text = ProtocolCapabilities.Text("ProtocolUdp");
+        labelMieruField0.Text = ProtocolCapabilities.Text("TbUsername");
+        labelMieruField1.Text = ProtocolCapabilities.Text("TbId3");
+        labelMieruField2.Text = ProtocolCapabilities.Text("ProtocolMieruTransport");
+        labelMieruField3.Text = ProtocolCapabilities.Text("ProtocolMieruPortRange");
+        labelMieruField4.Text = ProtocolCapabilities.Text("ProtocolMieruMultiplexing");
+        labelMieruField5.Text = ProtocolCapabilities.Text("ProtocolMieruHandshakeMode");
+        labelMieruField6.Text = ProtocolCapabilities.Text("ProtocolMieruTrafficPattern");
+        labelMieruField7.Text = ProtocolCapabilities.Text("ProtocolUdp");
+        labelShadowQUICField0.Text = ProtocolCapabilities.Text("TbUsername");
+        labelShadowQUICField1.Text = ProtocolCapabilities.Text("TbId3");
+        labelShadowQUICField2.Text = ProtocolCapabilities.Text("ProtocolSni");
+        labelShadowQUICField3.Text = ProtocolCapabilities.Text("ProtocolAlpn");
+        labelShadowQUICField4.Text = ProtocolCapabilities.Text("ProtocolShadowquicQuicVersions");
+        labelShadowQUICField5.Text = ProtocolCapabilities.Text("ProtocolShadowquicCongestionControl");
+        labelShadowQUICField6.Text = ProtocolCapabilities.Text("ProtocolZeroRtt");
+        labelShadowQUICField7.Text = ProtocolCapabilities.Text("ProtocolUdpOverStream");
+        labelShadowQUICField8.Text = ProtocolCapabilities.Text("TbAllowInsecure");
+        labelShadowQUICField9.Text = ProtocolCapabilities.Text("ProtocolShadowquicUpMbps");
+        labelShadowQUICField10.Text = ProtocolCapabilities.Text("ProtocolShadowquicDownMbps");
+        labelShadowQUICField11.Text = ProtocolCapabilities.Text("ProtocolShadowquicCwnd");
+        labelShadowQUICField12.Text = ProtocolCapabilities.Text("ProtocolShadowquicMaxDatagramFrameSize");
+        labelShadowQUICField13.Text = ProtocolCapabilities.Text("ProtocolShadowquicMaxOpenStreams");
+        labelShadowQUICField14.Text = ProtocolCapabilities.Text("ProtocolShadowquicRecvWindowConn");
+        labelShadowQUICField15.Text = ProtocolCapabilities.Text("ProtocolShadowquicRecvWindow");
+        labelShadowQUICField16.Text = ProtocolCapabilities.Text("ProtocolDisableMtuDiscovery");
+        labelJuicityField0.Text = ProtocolCapabilities.Text("ProtocolJuicityUuid");
+        labelJuicityField1.Text = ProtocolCapabilities.Text("TbId3");
+        labelJuicityField2.Text = ProtocolCapabilities.Text("ProtocolJuicitySni");
+        labelJuicityField3.Text = ProtocolCapabilities.Text("TbAllowInsecure");
+        labelJuicityField4.Text = ProtocolCapabilities.Text("ProtocolJuicityCongestionControl");
+        labelJuicityField5.Text = ProtocolCapabilities.Text("ProtocolPinnedCertchainSha256");
         cmbNetwork.ItemsSource = Global.Networks;
 
         cmbHeaderTypeRaw.ItemsSource = new List<string> { Global.None, Global.RawHeaderHttp };
@@ -199,6 +236,45 @@ public partial class AddServerWindow : WindowBase<AddServerViewModel>
 
             this.BindCommand(ViewModel, vm => vm.FetchCertCmd, v => v.btnFetchCert).DisposeWith(disposables);
             this.BindCommand(ViewModel, vm => vm.FetchCertChainCmd, v => v.btnFetchCertChain).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.SelectedSource.Password, v => v.editSSRField0.Text).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.SsrCipher, v => v.editSSRField1.Text).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.SsrObfs, v => v.editSSRField2.Text).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.SsrObfsParam, v => v.editSSRField3.Text).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.SsrProtocol, v => v.editSSRField4.Text).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.SsrProtocolParam, v => v.editSSRField5.Text).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.SsrUdp, v => v.editSSRField6.IsChecked).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.SelectedSource.Username, v => v.editMieruField0.Text).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.SelectedSource.Password, v => v.editMieruField1.Text).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.MieruTransport, v => v.editMieruField2.Text).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.MieruPortRange, v => v.editMieruField3.Text).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.MieruMultiplexing, v => v.editMieruField4.Text).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.MieruHandshakeMode, v => v.editMieruField5.Text).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.MieruTrafficPattern, v => v.editMieruField6.Text).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.MieruUdp, v => v.editMieruField7.IsChecked).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.ShadowquicUsername, v => v.editShadowQUICField0.Text).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.ShadowquicPassword, v => v.editShadowQUICField1.Text).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.SelectedSource.Sni, v => v.editShadowQUICField2.Text).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.SelectedSource.Alpn, v => v.editShadowQUICField3.Text).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.ShadowquicQuicVersions, v => v.editShadowQUICField4.Text).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.ShadowquicCongestionControl, v => v.editShadowQUICField5.Text).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.ShadowquicZeroRtt, v => v.editShadowQUICField6.IsChecked).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.ShadowquicUdpOverStream, v => v.editShadowQUICField7.IsChecked).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.AllowInsecure, v => v.editShadowQUICField8.IsChecked).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.ShadowquicUpMbps, v => v.editShadowQUICField9.Text).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.ShadowquicDownMbps, v => v.editShadowQUICField10.Text).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.ShadowquicCwnd, v => v.editShadowQUICField11.Text).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.ShadowquicMaxDatagramFrameSize, v => v.editShadowQUICField12.Text).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.ShadowquicMaxOpenStreams, v => v.editShadowQUICField13.Text).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.ShadowquicRecvWindowConn, v => v.editShadowQUICField14.Text).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.ShadowquicRecvWindow, v => v.editShadowQUICField15.Text).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.ShadowquicDisableMtuDiscovery, v => v.editShadowQUICField16.IsChecked).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.JuicityUuid, v => v.editJuicityField0.Text).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.JuicityPassword, v => v.editJuicityField1.Text).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.JuicitySni, v => v.editJuicityField2.Text).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.AllowInsecure, v => v.editJuicityField3.IsChecked).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.JuicityCongestionControl, v => v.editJuicityField4.Text).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.JuicityPinnedCertchainSha256, v => v.editJuicityField5.Text).DisposeWith(disposables);
+
             this.BindCommand(ViewModel, vm => vm.SaveCmd, v => v.btnSave).DisposeWith(disposables);
         });
     }
@@ -206,6 +282,7 @@ public partial class AddServerWindow : WindowBase<AddServerViewModel>
     private void InitializeData(ProfileItem profileItem)
     {
         Title = $"{profileItem.ConfigType}";
+        cmbCoreType.ItemsSource = ProtocolCapabilities.AvailableCores(profileItem.ConfigType).ToList().AppendEmpty();
         var lstStreamSecurity = new List<string> { string.Empty, Global.StreamSecurity };
         switch (profileItem.ConfigType)
         {
@@ -297,6 +374,41 @@ public partial class AddServerWindow : WindowBase<AddServerViewModel>
                 gridTransport.IsVisible = false;
                 cmbFingerprint.IsEnabled = false;
                 cmbAlpn.IsEnabled = false;
+                break;
+            case EConfigType.SSR:
+                gridSSRExtra.IsVisible = true;
+                sepa2.IsVisible = false;
+                gridTransport.IsVisible = false;
+                gridTls.IsVisible = false;
+                gridTlsMore.IsVisible = false;
+                gridFinalmask.IsVisible = false;
+                break;
+
+            case EConfigType.Mieru:
+                gridMieruExtra.IsVisible = true;
+                sepa2.IsVisible = false;
+                gridTransport.IsVisible = false;
+                gridTls.IsVisible = false;
+                gridTlsMore.IsVisible = false;
+                gridFinalmask.IsVisible = false;
+                break;
+
+            case EConfigType.ShadowQUIC:
+                gridShadowQUICExtra.IsVisible = true;
+                sepa2.IsVisible = false;
+                gridTransport.IsVisible = false;
+                gridTls.IsVisible = false;
+                gridTlsMore.IsVisible = false;
+                gridFinalmask.IsVisible = false;
+                break;
+
+            case EConfigType.Juicity:
+                gridJuicityExtra.IsVisible = true;
+                sepa2.IsVisible = false;
+                gridTransport.IsVisible = false;
+                gridTls.IsVisible = false;
+                gridTlsMore.IsVisible = false;
+                gridFinalmask.IsVisible = false;
                 break;
         }
         cmbStreamSecurity.ItemsSource = lstStreamSecurity;

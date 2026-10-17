@@ -105,6 +105,8 @@ public class CoreManager
 
     public async Task<ProcessService?> LoadCoreConfigSpeedtest(List<ServerTestItem> selecteds)
     {
+        if (selecteds.Count == 1 && selecteds[0].CoreType is ECoreType.mihomo or ECoreType.juicity) return await LoadCoreConfigSpeedtest(selecteds[0]);
+        if (selecteds.Any(x => x.CoreType is ECoreType.mihomo or ECoreType.juicity)) return null;
         var coreType = selecteds.FirstOrDefault()?.CoreType == ECoreType.sing_box ? ECoreType.sing_box : ECoreType.Xray;
         var fileName = string.Format(Global.CoreSpeedtestConfigFileName, Utils.GetGuid(false));
         var configPath = Utils.GetBinConfigPath(fileName);
@@ -132,7 +134,11 @@ public class CoreManager
 
         var fileName = string.Format(Global.CoreSpeedtestConfigFileName, Utils.GetGuid(false));
         var configPath = Utils.GetBinConfigPath(fileName);
-        var (context, _) = await CoreConfigContextBuilder.Build(_config, node);
+        var testConfig = JsonUtils.DeepCopy(_config);
+        testConfig.TunModeItem.EnableTun = false;
+        var build = await CoreConfigContextBuilder.Build(testConfig, node);
+        if (!build.Success) { await UpdateFunc(false, string.Join(Environment.NewLine, build.ValidatorResult.Errors)); return null; }
+        var context = build.Context;
         var result = await CoreConfigHandler.GenerateClientSpeedtestConfig(_config, context, testItem, configPath);
         if (result.Success != true)
         {

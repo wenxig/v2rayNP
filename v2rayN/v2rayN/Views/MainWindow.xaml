@@ -137,6 +137,10 @@
                                     x:Name="menuAddNaiveServer"
                                     Height="{StaticResource MenuItemHeight}"
                                     Header="{x:Static resx:ResUI.menuAddNaiveServer}" />
+                        <MenuItem x:Name="menuAddSSRServer" />
+                        <MenuItem x:Name="menuAddMieruServer" />
+                        <MenuItem x:Name="menuAddShadowQUICServer" />
+                        <MenuItem x:Name="menuAddJuicityServer" />
                             </MenuItem>
                         </Menu>
                         <Separator />

@@ -293,6 +293,7 @@ public static class ConfigHandler
             EConfigType.Anytls => await AddAnytlsServer(config, item),
             EConfigType.Naive => await AddNaiveServer(config, item),
             EConfigType.MASQUE => await AddMasqueServer(config, item),
+            EConfigType.SSR or EConfigType.Mieru or EConfigType.ShadowQUIC or EConfigType.Juicity => await AddServerCommon(config, item),
             _ => -1,
         };
         return ret;
@@ -1224,6 +1225,8 @@ public static class ConfigHandler
     /// <returns>0 if successful</returns>
     public static async Task<int> AddServerCommon(Config config, ProfileItem profileItem, bool toFile = true)
     {
+        if (ProtocolCapabilities.IsExtendedProtocol(profileItem.ConfigType)
+            && !NodeValidator.Validate(profileItem, profileItem.CoreType ?? ProtocolCapabilities.DefaultCore(profileItem.ConfigType)).Success) return -1;
         profileItem.ConfigVersion = 4;
 
         if (profileItem.StreamSecurity.IsNotEmpty())
@@ -1581,7 +1584,7 @@ public static class ConfigHandler
         ProfileItem? itemSocks = null;
         var enableLegacyProtect = config.TunModeItem.EnableLegacyProtect;
         if (node.ConfigType != EConfigType.Custom
-            && coreType != ECoreType.sing_box
+            && coreType is not ECoreType.sing_box and not ECoreType.mihomo
             && config.TunModeItem.EnableTun
             && enableLegacyProtect)
         {
@@ -1709,6 +1712,7 @@ public static class ConfigHandler
                 EConfigType.Anytls => await AddAnytlsServer(config, profileItem, false),
                 EConfigType.Naive => await AddNaiveServer(config, profileItem, false),
                 EConfigType.MASQUE => await AddMasqueServer(config, profileItem, false),
+                EConfigType.SSR or EConfigType.Mieru or EConfigType.ShadowQUIC or EConfigType.Juicity => await AddServerCommon(config, profileItem, false),
                 _ => -1,
             };
 
@@ -2031,6 +2035,7 @@ public static class ConfigHandler
                     EConfigType.WireGuard => await AddWireguardServer(config, profileItem, false),
                     EConfigType.Anytls => await AddAnytlsServer(config, profileItem, false),
                     EConfigType.Naive => await AddNaiveServer(config, profileItem, false),
+                    EConfigType.SSR or EConfigType.Mieru or EConfigType.ShadowQUIC or EConfigType.Juicity => await AddServerCommon(config, profileItem, false),
                     EConfigType.PolicyGroup or EConfigType.ProxyChain => await AddServerCommon(config, profileItem, false),
                     EConfigType.Outbound => await AddCustomOutboundServer(config, profileItem, true, false),
                     _ => -1,

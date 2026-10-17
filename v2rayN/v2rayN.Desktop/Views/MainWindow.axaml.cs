@@ -44,6 +44,14 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
             this.BindCommand(ViewModel, vm => vm.AddTuicServerCmd, v => v.menuAddTuicServer).DisposeWith(disposables);
             this.BindCommand(ViewModel, vm => vm.AddWireguardServerCmd, v => v.menuAddWireguardServer).DisposeWith(disposables);
             this.BindCommand(ViewModel, vm => vm.AddAnytlsServerCmd, v => v.menuAddAnytlsServer).DisposeWith(disposables);
+            menuAddSSRServer.Header = ProtocolCapabilities.Text("menuAddSSRServer");
+            this.BindCommand(ViewModel, vm => vm.AddSSRServerCmd, v => v.menuAddSSRServer).DisposeWith(disposables);
+            menuAddMieruServer.Header = ProtocolCapabilities.Text("menuAddMieruServer");
+            this.BindCommand(ViewModel, vm => vm.AddMieruServerCmd, v => v.menuAddMieruServer).DisposeWith(disposables);
+            menuAddShadowQUICServer.Header = ProtocolCapabilities.Text("menuAddShadowQUICServer");
+            this.BindCommand(ViewModel, vm => vm.AddShadowQUICServerCmd, v => v.menuAddShadowQUICServer).DisposeWith(disposables);
+            menuAddJuicityServer.Header = ProtocolCapabilities.Text("menuAddJuicityServer");
+            this.BindCommand(ViewModel, vm => vm.AddJuicityServerCmd, v => v.menuAddJuicityServer).DisposeWith(disposables);
             this.BindCommand(ViewModel, vm => vm.AddNaiveServerCmd, v => v.menuAddNaiveServer).DisposeWith(disposables);
             this.BindCommand(ViewModel, vm => vm.AddMasqueServerCmd, v => v.menuAddMasqueServer).DisposeWith(disposables);
             this.BindCommand(ViewModel, vm => vm.AddCustomServerCmd, v => v.menuAddCustomServer).DisposeWith(disposables);

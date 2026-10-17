@@ -12,6 +12,165 @@ public class CoreConfigClashService(Config config, bool isTunEnabled)
 {
     private static readonly string _tag = "CoreConfigClashService";
 
+    public async Task<RetResult> GenerateClientNodeConfig(CoreConfigContext context, int? listenPort = null)
+    {
+        var ret = new RetResult { Msg = ResUI.InitialConfiguration };
+        try
+        {
+            var node = context.Node;
+            var validation = NodeValidator.Validate(node, ECoreType.mihomo);
+            if (!validation.Success) return new RetResult { Msg = string.Join(Environment.NewLine, validation.Errors) };
+            var proxyName = $"node-{node.IndexId}";
+            var content = new Dictionary<string, object>
+            {
+                ["mixed-port"] = listenPort ?? config.Inbound.First().LocalPort,
+                ["allow-lan"] = config.Inbound.FirstOrDefault()?.AllowLANConn == true,
+                ["mode"] = "rule",
+                ["log-level"] = GetLogLevel(config.CoreBasicItem.Loglevel),
+                ["proxies"] = new List<object>(),
+                ["proxy-groups"] = new List<object>
+                {
+                    new Dictionary<string, object>
+                    {
+                        ["name"] = Global.ProxyTag,
+                        ["type"] = "select",
+                        ["proxies"] = new List<string> { proxyName }
+                    }
+                }
+            };
+            var proxies = (List<object>)content["proxies"];
+            var groups = (List<object>)content["proxy-groups"];
+            foreach (var member in context.AllProxiesMap.Values.Append(node).DistinctBy(n => n.IndexId))
+            {
+                var check = NodeValidator.Validate(member, ECoreType.mihomo);
+                if (!check.Success) return new RetResult { Msg = string.Join(Environment.NewLine, check.Errors) };
+                if (member.ConfigType == EConfigType.PolicyGroup)
+                {
+                    groups.Add(new Dictionary<string, object> { ["name"] = $"node-{member.IndexId}", ["type"] = "select", ["proxies"] = Utils.String2List(member.GetProtocolExtra().ChildItems).Select(id => $"node-{id}").ToList() });
+                }
+                else
+                {
+                    var outbound = BuildProxy(member);
+                    outbound["name"] = $"node-{member.IndexId}";
+                    proxies.Add(outbound);
+                }
+            }
+            content["rules"] = BuildNodeRules(context);
+            content["bind-address"] = listenPort == null && config.Inbound.First().AllowLANConn ? "*" : Global.Loopback;
+            content["allow-lan"] = listenPort == null && config.Inbound.First().AllowLANConn;
+            content["ipv6"] = config.ClashUIItem.EnableIPv6;
+            if (listenPort == null)
+            {
+                content["external-controller"] = $"{Global.Loopback}:{AppManager.Instance.StatePort2}";
+                if (isTunEnabled)
+                {
+                    content["tun"] = new Dictionary<string, object> { ["enable"] = true, ["stack"] = config.TunModeItem.Stack.IsNotEmpty() ? config.TunModeItem.Stack : "gvisor", ["auto-route"] = config.TunModeItem.AutoRoute, ["strict-route"] = config.TunModeItem.StrictRoute, ["auto-detect-interface"] = true, ["dns-hijack"] = new[] { "any:53" } };
+                    content["dns"] = new Dictionary<string, object> { ["enable"] = true, ["enhanced-mode"] = "fake-ip", ["nameserver"] = new[] { "1.1.1.1" } };
+                }
+                await MixinContent(content, node);
+            }
+            ret.Data = YamlUtils.ToYaml(content);
+            ret.Msg = string.Format(ResUI.SuccessfulConfiguration, node.GetSummary());
+            ret.Success = ret.Data is string text && text.IsNotEmpty();
+        }
+        catch (Exception ex)
+        {
+            Logging.SaveLog(_tag, ex);
+            ret.Msg = ResUI.FailedGenDefaultConfiguration;
+        }
+        return ret;
+    }
+
+    private static List<string> BuildNodeRules(CoreConfigContext context)
+    {
+        var result = new List<string>();
+        foreach (var rule in JsonUtils.Deserialize<List<RulesItem>>(context.RoutingItem?.RuleSet) ?? [])
+        {
+            if (!rule.Enabled || rule.RuleType == ERuleType.DNS) continue;
+            var target = rule.OutboundTag switch
+            {
+                null or "" => Global.ProxyTag,
+                var t when t == Global.ProxyTag => Global.ProxyTag,
+                var t when t == Global.DirectTag => "DIRECT",
+                var t when t == Global.BlockTag => "REJECT",
+                var t => context.AllProxiesMap.TryGetValue($"remark:{t}", out var node) ? $"node-{node.IndexId}" : throw new InvalidOperationException()
+            };
+            var dimensions = new List<List<string>>();
+            if (rule.Domain is { Count: > 0 }) dimensions.Add(rule.Domain.Select(domain => domain switch
+            {
+                var d when d.StartsWith("domain:") => $"DOMAIN-SUFFIX,{d[7..]}",
+                var d when d.StartsWith("full:") => $"DOMAIN,{d[5..]}",
+                var d when d.StartsWith("keyword:") => $"DOMAIN-KEYWORD,{d[8..]}",
+                var d when d.StartsWith("regexp:") => $"DOMAIN-REGEX,{d[7..]}",
+                var d when d.StartsWith("geosite:") => $"GEOSITE,{d[8..]}",
+                var d => $"DOMAIN-KEYWORD,{d}"
+            }).ToList());
+            if (rule.Ip is { Count: > 0 }) dimensions.Add(rule.Ip.SelectMany(ip => ip == "geoip:private"
+                ? new[] { "IP-CIDR,10.0.0.0/8", "IP-CIDR,172.16.0.0/12", "IP-CIDR,192.168.0.0/16", "IP-CIDR,127.0.0.0/8", "IP-CIDR6,fc00::/7", "IP-CIDR6,::1/128" }
+                : new[] { ip.StartsWith("geoip:") ? $"GEOIP,{ip[6..]}" : $"{(ip.Contains(':') ? "IP-CIDR6" : "IP-CIDR")},{ip}" }).ToList());
+            if (rule.Network.IsNotEmpty()) dimensions.Add(rule.Network.Split(',').Select(x => $"NETWORK,{x.Trim().ToUpperInvariant()}").ToList());
+            if (rule.Port.IsNotEmpty()) dimensions.Add(rule.Port.Split(',').Select(x => $"DST-PORT,{x.Trim().Replace(':', '-')}").ToList());
+            if (rule.Process is { Count: > 0 }) dimensions.Add(rule.Process.Select(x => $"PROCESS-NAME,{x}").ToList());
+            if (rule.Protocol is { Count: > 0 }) dimensions.Add(rule.Protocol.Select(x => $"PROTOCOL,{x}").ToList());
+            if (rule.InboundTag is { Count: > 0 }) throw new InvalidOperationException(ProtocolCapabilities.Text("MsgMihomoInboundRuleUnsupported"));
+            var conditions = dimensions.Select(values => values.Count == 1 ? values[0] : $"OR,({string.Join(',', values.Select(x => $"({x})"))})").ToList();
+            if (conditions.Count == 0) result.Add($"MATCH,{target}");
+            else if (conditions.Count == 1) result.Add($"{conditions[0]},{target}");
+            else result.Add($"AND,({string.Join(',', conditions.Select(x => $"({x})"))}),{target}");
+        }
+        result.Add($"MATCH,{Global.ProxyTag}");
+        return result;
+    }
+
+    private static Dictionary<string, object> BuildProxy(ProfileItem node)
+    {
+        var e = node.GetProtocolExtra();
+        var proxy = new Dictionary<string, object>
+        {
+            ["name"] = node.Remarks,
+            ["type"] = Global.ProtocolTypes[node.ConfigType],
+            ["server"] = node.Address,
+            ["port"] = node.Port,
+        };
+        switch (node.ConfigType)
+        {
+            case EConfigType.SSR:
+                proxy["cipher"] = e.SsrCipher ?? "chacha20-ietf";
+                proxy["password"] = node.Password;
+                proxy["obfs"] = e.SsrObfs ?? "plain";
+                proxy["protocol"] = e.SsrProtocol ?? "origin";
+                Add(proxy, "obfs-param", e.SsrObfsParam); Add(proxy, "protocol-param", e.SsrProtocolParam);
+                if (e.SsrUdp == true) proxy["udp"] = true;
+                break;
+            case EConfigType.Mieru:
+                proxy["username"] = node.Username; proxy["password"] = node.Password;
+                proxy["transport"] = e.MieruTransport.IsNotEmpty() ? e.MieruTransport : "TCP";
+                if (e.MieruPortRange.IsNotEmpty()) { proxy.Remove("port"); proxy["port-range"] = e.MieruPortRange; }
+                if (e.MieruUdp == true) proxy["udp"] = true;
+                Add(proxy, "multiplexing", e.MieruMultiplexing); Add(proxy, "handshake-mode", e.MieruHandshakeMode); Add(proxy, "traffic-pattern", e.MieruTrafficPattern);
+                break;
+            case EConfigType.ShadowQUIC:
+                proxy["username"] = e.ShadowquicUsername ?? node.Username; proxy["password"] = e.ShadowquicPassword ?? node.Password;
+                Add(proxy, "sni", node.Sni);
+                if (node.Alpn.IsNotEmpty()) proxy["alpn"] = node.GetAlpn();
+                if (e.ShadowquicQuicVersions.IsNotEmpty()) proxy["quic-versions"] = Utils.String2List(e.ShadowquicQuicVersions);
+                if (e.ShadowquicUpMbps is > 0) proxy["up"] = $"{e.ShadowquicUpMbps} Mbps";
+                if (e.ShadowquicDownMbps is > 0) proxy["down"] = $"{e.ShadowquicDownMbps} Mbps";
+                if (e.ShadowquicZeroRtt == true) proxy["zero-rtt"] = true;
+                if (e.ShadowquicUdpOverStream == true) proxy["udp-over-stream"] = true;
+                Add(proxy, "congestion-controller", e.ShadowquicCongestionControl); AddInt(proxy, "cwnd", e.ShadowquicCwnd);
+                AddInt(proxy, "max-datagram-frame-size", e.ShadowquicMaxDatagramFrameSize); AddInt(proxy, "max-open-streams", e.ShadowquicMaxOpenStreams);
+                AddInt(proxy, "recv-window-conn", e.ShadowquicRecvWindowConn); AddInt(proxy, "recv-window", e.ShadowquicRecvWindow);
+                if (e.ShadowquicDisableMtuDiscovery == true) proxy["disable-mtu-discovery"] = true;
+
+                break;
+        }
+        return proxy;
+    }
+
+    private static void Add(Dictionary<string, object> target, string key, string? value) { if (value.IsNotEmpty()) target[key] = value; }
+    private static void AddInt(Dictionary<string, object> target, string key, int? value) { if (value is > 0) target[key] = value.Value; }
+
     public async Task<RetResult> GenerateClientCustomConfig(ProfileItem node, string? fileName)
     {
         var ret = new RetResult();

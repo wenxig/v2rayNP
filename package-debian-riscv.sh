@@ -655,7 +655,7 @@ Priority: optional
 Depends: ${final_depends}
 Description: v2rayN (Avalonia) GUI client for Linux
  Support vless / vmess / Trojan / http / socks / Anytls / Hysteria2 /
- Shadowsocks / tuic / WireGuard.
+ Shadowsocks / tuic / WireGuard / SSR / Mieru / ShadowQUIC / Juicity.
 EOF
 
   find "$stage/opt/v2rayN" -type d -exec chmod 0755 {} +

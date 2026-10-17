@@ -34,15 +34,15 @@ public partial class OptionSettingWindow
         cmbIpv6Address.ItemsSource = Global.TunIPv6Address;
         cmbFragmentPackets.ItemsSource = Global.FragmentPacketsOptions;
 
-        cmbCoreType1.ItemsSource = Global.CoreTypes;
-        cmbCoreType2.ItemsSource = Global.CoreTypes;
-        cmbCoreType3.ItemsSource = Global.CoreTypes;
-        cmbCoreType4.ItemsSource = Global.CoreTypes;
-        cmbCoreType5.ItemsSource = Global.CoreTypes;
-        cmbCoreType6.ItemsSource = Global.CoreTypes;
-        cmbCoreType7.ItemsSource = Global.CoreTypes;
-        cmbCoreType9.ItemsSource = Global.CoreTypes;
-        cmbCoreType14.ItemsSource = Global.CoreTypes;
+        cmbCoreType1.ItemsSource = ProtocolCapabilities.AvailableCores((EConfigType)1).ToList();
+        cmbCoreType2.ItemsSource = ProtocolCapabilities.AvailableCores((EConfigType)2).ToList();
+        cmbCoreType3.ItemsSource = ProtocolCapabilities.AvailableCores((EConfigType)3).ToList();
+        cmbCoreType4.ItemsSource = ProtocolCapabilities.AvailableCores((EConfigType)4).ToList();
+        cmbCoreType5.ItemsSource = ProtocolCapabilities.AvailableCores((EConfigType)5).ToList();
+        cmbCoreType6.ItemsSource = ProtocolCapabilities.AvailableCores((EConfigType)6).ToList();
+        cmbCoreType7.ItemsSource = ProtocolCapabilities.AvailableCores((EConfigType)7).ToList();
+        cmbCoreType9.ItemsSource = ProtocolCapabilities.AvailableCores((EConfigType)9).ToList();
+        cmbCoreType14.ItemsSource = ProtocolCapabilities.AvailableCores((EConfigType)14).ToList();
 
         cmbMixedConcurrencyCount.ItemsSource = Enumerable.Range(Global.SpeedTestConcurrencyCountMin, 20).ToList();
         cmbSpeedTestTimeout.ItemsSource = Enumerable.Range(2, 5).Select(i => i * 5).ToList();

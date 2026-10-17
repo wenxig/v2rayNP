@@ -671,7 +671,12 @@ public sealed class AppManager
         }
 
         var item = _config.CoreTypeItem?.FirstOrDefault(it => it.ConfigType == eConfigType);
-        return item?.CoreType ?? ECoreType.Xray;
+        return item?.CoreType ?? (eConfigType switch
+        {
+            EConfigType.SSR or EConfigType.Mieru or EConfigType.ShadowQUIC => ECoreType.mihomo,
+            EConfigType.Juicity => ECoreType.juicity,
+            _ => ECoreType.Xray,
+        });
     }
 
     #endregion Core Type

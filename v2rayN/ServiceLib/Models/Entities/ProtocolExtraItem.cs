@@ -46,6 +46,46 @@ public record ProtocolExtraItem
     public int? InsecureConcurrency { get; init; }
     public bool? NaiveQuic { get; init; }
 
+    // ShadowsocksR
+    public string? SsrCipher { get; init; }
+    public string? SsrObfs { get; init; }
+    public string? SsrObfsParam { get; init; }
+    public string? SsrProtocol { get; init; }
+    public string? SsrProtocolParam { get; init; }
+    public bool? SsrUdp { get; init; }
+
+    // Mieru
+    public string? MieruTransport { get; init; }
+    public string? MieruPortRange { get; init; }
+    public bool? MieruUdp { get; init; }
+    public string? MieruMultiplexing { get; init; }
+    public string? MieruHandshakeMode { get; init; }
+    public string? MieruTrafficPattern { get; init; }
+
+    // ShadowQUIC
+    public string? ShadowquicUsername { get; init; }
+    public string? ShadowquicPassword { get; init; }
+    public string? ShadowquicQuicVersions { get; init; }
+    public bool? ShadowquicZeroRtt { get; init; }
+    public bool? ShadowquicUdpOverStream { get; init; }
+    public string? ShadowquicCongestionControl { get; init; }
+    public int? ShadowquicUpMbps { get; init; }
+    public int? ShadowquicDownMbps { get; init; }
+    public int? ShadowquicCwnd { get; init; }
+    public int? ShadowquicMaxDatagramFrameSize { get; init; }
+    public int? ShadowquicMaxOpenStreams { get; init; }
+    public int? ShadowquicRecvWindowConn { get; init; }
+    public int? ShadowquicRecvWindow { get; init; }
+    public bool? ShadowquicDisableMtuDiscovery { get; init; }
+
+    // Juicity
+    public string? JuicityUuid { get; init; }
+    public string? JuicityPassword { get; init; }
+    public string? JuicitySni { get; init; }
+    public bool? JuicityAllowInsecure { get; init; }
+    public string? JuicityCongestionControl { get; init; }
+    public string? JuicityPinnedCertchainSha256 { get; init; }
+
     // MASQUE
     public string? MasquePath { get; init; }
     public string? MasqueHeaders { get; init; }

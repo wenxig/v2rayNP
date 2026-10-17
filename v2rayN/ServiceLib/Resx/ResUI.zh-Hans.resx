@@ -1897,4 +1897,40 @@
   <data name="menuAddMasqueServer" xml:space="preserve">
     <value>添加 [MASQUE]</value>
   </data>
+  <data name="ProtocolSsrCipher" xml:space="preserve"><value>SSR 加密方式</value></data>
+  <data name="ProtocolSsrObfs" xml:space="preserve"><value>SSR 混淆</value></data>
+  <data name="ProtocolSsrProtocol" xml:space="preserve"><value>SSR 协议</value></data>
+  <data name="ProtocolSsrObfsParam" xml:space="preserve"><value>混淆参数</value></data>
+  <data name="ProtocolSsrProtocolParam" xml:space="preserve"><value>协议参数</value></data>
+  <data name="ProtocolMieruTransport" xml:space="preserve"><value>Mieru 传输方式</value></data>
+  <data name="ProtocolMieruPortRange" xml:space="preserve"><value>Mieru 端口范围</value></data>
+  <data name="ProtocolMieruMultiplexing" xml:space="preserve"><value>Mieru 多路复用</value></data>
+  <data name="ProtocolMieruHandshakeMode" xml:space="preserve"><value>握手模式</value></data>
+  <data name="ProtocolMieruTrafficPattern" xml:space="preserve"><value>流量模式</value></data>
+  <data name="ProtocolShadowquicQuicVersions" xml:space="preserve"><value>QUIC 版本</value></data>
+  <data name="ProtocolShadowquicCongestionControl" xml:space="preserve"><value>拥塞控制</value></data>
+  <data name="ProtocolJuicityUuid" xml:space="preserve"><value>Juicity UUID</value></data>
+  <data name="ProtocolJuicitySni" xml:space="preserve"><value>Juicity SNI</value></data>
+  <data name="ProtocolJuicityCongestionControl" xml:space="preserve"><value>拥塞控制</value></data>
+  <data name="ProtocolPinnedCertchainSha256" xml:space="preserve"><value>证书链 SHA-256 指纹</value></data>
+  <data name="ProtocolUdp" xml:space="preserve"><value>UDP</value></data>
+  <data name="ProtocolSni" xml:space="preserve"><value>SNI</value></data>
+  <data name="ProtocolAlpn" xml:space="preserve"><value>ALPN（逗号分隔）</value></data>
+  <data name="ProtocolZeroRtt" xml:space="preserve"><value>零 RTT</value></data>
+  <data name="ProtocolUdpOverStream" xml:space="preserve"><value>通过流传输 UDP</value></data>
+  <data name="ProtocolDisableMtuDiscovery" xml:space="preserve"><value>Shadowquic Disable Mtu Discovery</value></data>
+  <data name="MsgJuicityTunUnsupported" xml:space="preserve"><value>本应用中的官方 Juicity 客户端不支持 TUN 模式。</value></data>
+  <data name="MsgShadowquicInsecureUnsupported" xml:space="preserve"><value>mihomo 的 ShadowQUIC 使用 JLS，不支持 allow-insecure。</value></data>
+  <data name="MsgMihomoInboundRuleUnsupported" xml:space="preserve"><value>mihomo 节点路由不支持入站标签。</value></data>
+  <data name="menuAddSSRServer" xml:space="preserve"><value>添加 [SSR]</value></data>
+  <data name="menuAddMieruServer" xml:space="preserve"><value>添加 [Mieru]</value></data>
+  <data name="menuAddShadowQUICServer" xml:space="preserve"><value>添加 [ShadowQUIC]</value></data>
+  <data name="menuAddJuicityServer" xml:space="preserve"><value>添加 [Juicity]</value></data>
+  <data name="ProtocolShadowquicUpMbps" xml:space="preserve"><value>Shadowquic Up Mbps</value></data>
+  <data name="ProtocolShadowquicDownMbps" xml:space="preserve"><value>Shadowquic Down Mbps</value></data>
+  <data name="ProtocolShadowquicCwnd" xml:space="preserve"><value>Shadowquic Cwnd</value></data>
+  <data name="ProtocolShadowquicMaxDatagramFrameSize" xml:space="preserve"><value>Shadowquic Max Datagram Frame Size</value></data>
+  <data name="ProtocolShadowquicMaxOpenStreams" xml:space="preserve"><value>Shadowquic Max Open Streams</value></data>
+  <data name="ProtocolShadowquicRecvWindowConn" xml:space="preserve"><value>Shadowquic Recv Window Conn</value></data>
+  <data name="ProtocolShadowquicRecvWindow" xml:space="preserve"><value>Shadowquic Recv Window</value></data>
 </root>

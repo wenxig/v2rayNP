@@ -246,7 +246,11 @@ public class Global
         { EConfigType.TUIC, "tuic://" },
         { EConfigType.WireGuard, "wireguard://" },
         { EConfigType.Anytls, "anytls://" },
-        { EConfigType.Naive, "naive://" }
+        { EConfigType.Naive, "naive://" },
+        { EConfigType.SSR, "ssr://" },
+        { EConfigType.Mieru, "mieru://" },
+        { EConfigType.ShadowQUIC, "shadowquic://" },
+        { EConfigType.Juicity, "juicity://" }
     };
 
     public static readonly Dictionary<EConfigType, string> ProtocolTypes = new()
@@ -263,6 +267,10 @@ public class Global
         { EConfigType.Anytls, "anytls" },
         { EConfigType.Naive, "naive" },
         { EConfigType.MASQUE, "masque" },
+        { EConfigType.SSR, "ssr" },
+        { EConfigType.Mieru, "mieru" },
+        { EConfigType.ShadowQUIC, "shadowquic" },
+        { EConfigType.Juicity, "juicity" },
     };
 
     public static readonly List<string> VmessSecurities =
@@ -361,7 +369,9 @@ public class Global
     public static readonly List<string> CoreTypes =
     [
         "Xray",
-        "sing_box"
+        "mihomo",
+        "sing_box",
+        "juicity"
     ];
 
     public static readonly HashSet<EConfigType> XraySupportConfigType =
@@ -394,6 +404,16 @@ public class Global
     ];
 
     public static readonly HashSet<EConfigType> SingboxOnlyConfigType = SingboxSupportConfigType.Except(XraySupportConfigType).ToHashSet();
+
+    public static readonly HashSet<EConfigType> MihomoSupportConfigType =
+    [
+        EConfigType.SSR,
+        EConfigType.Mieru,
+        EConfigType.ShadowQUIC,
+    ];
+
+    public static readonly HashSet<EConfigType> JuicitySupportConfigType =
+    [EConfigType.Juicity];
 
     public static readonly List<string> DomainStrategies =
     [

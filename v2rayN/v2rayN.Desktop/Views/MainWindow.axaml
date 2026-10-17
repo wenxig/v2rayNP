@@ -61,6 +61,10 @@
                         <MenuItem x:Name="menuAddTuicServer" Header="{x:Static resx:ResUI.menuAddTuicServer}" />
                         <MenuItem x:Name="menuAddAnytlsServer" Header="{x:Static resx:ResUI.menuAddAnytlsServer}" />
                         <MenuItem x:Name="menuAddNaiveServer" Header="{x:Static resx:ResUI.menuAddNaiveServer}" />
+                        <MenuItem x:Name="menuAddSSRServer" />
+                        <MenuItem x:Name="menuAddMieruServer" />
+                        <MenuItem x:Name="menuAddShadowQUICServer" />
+                        <MenuItem x:Name="menuAddJuicityServer" />
                     </MenuItem>
 
                     <MenuItem Header="{x:Static resx:ResUI.menuSubscription}">

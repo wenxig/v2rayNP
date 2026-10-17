@@ -593,16 +593,10 @@ public class SpeedtestService(Config config, Func<SpeedTestResult, Task> updateF
         }
 
         pageSize = Math.Max(pageSize, 1);
-        var lst1 = lstSelected.Where(t => t.CoreType == ECoreType.Xray).ToList();
-        var lst2 = lstSelected.Where(t => t.CoreType == ECoreType.sing_box).ToList();
-
-        for (var num = 0; num < (int)Math.Ceiling(lst1.Count * 1.0 / pageSize); num++)
+        foreach (var group in lstSelected.GroupBy(t => t.CoreType))
         {
-            lstTest.Add(lst1.Skip(num * pageSize).Take(pageSize).ToList());
-        }
-        for (var num = 0; num < (int)Math.Ceiling(lst2.Count * 1.0 / pageSize); num++)
-        {
-            lstTest.Add(lst2.Skip(num * pageSize).Take(pageSize).ToList());
+            var size = group.Key is ECoreType.mihomo or ECoreType.juicity ? 1 : pageSize;
+            lstTest.AddRange(group.Chunk(size).Select(chunk => chunk.ToList()));
         }
 
         return lstTest;

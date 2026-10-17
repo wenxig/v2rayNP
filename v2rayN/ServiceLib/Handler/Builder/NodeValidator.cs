@@ -29,6 +29,20 @@ public class NodeValidator
         return v.ToResult();
     }
 
+    private static bool IsPortRange(string? range)
+    {
+        if (range.IsNullOrEmpty()) return true;
+        var parts = range.Split('-');
+        return parts.Length == 2 && int.TryParse(parts[0], out var from) && int.TryParse(parts[1], out var to) && from > 0 && to >= from && to <= 65535;
+    }
+
+    private static bool IsBase64(string? value, int? length = null)
+    {
+        if (value.IsNullOrEmpty()) return true;
+        try { var bytes = Convert.FromBase64String(value); return length == null || bytes.Length == length; }
+        catch (FormatException) { return false; }
+    }
+
     private static void ValidateNodeAndCoreSupport(ProfileItem item, ECoreType coreType, ValidationContext v)
     {
         if (item.ConfigType is EConfigType.Custom)
@@ -47,7 +61,10 @@ public class NodeValidator
 
         if (item.ConfigType.IsGroupType())
         {
-            // Group logic is handled in ValidateGroupNode
+            if (coreType == ECoreType.juicity || (coreType == ECoreType.mihomo && item.ConfigType != EConfigType.PolicyGroup))
+            {
+                v.Error(string.Format(ResUI.MsgCoreNotSupportProtocol, coreType, item.ConfigType));
+            }
             return;
         }
 
@@ -77,11 +94,43 @@ public class NodeValidator
                 v.Error(string.Format(ResUI.MsgCoreNotSupportProtocol, nameof(ECoreType.Xray), item.ConfigType));
             }
         }
+        else if (coreType == ECoreType.mihomo && !Global.MihomoSupportConfigType.Contains(item.ConfigType))
+        {
+            v.Error(string.Format(ResUI.MsgCoreNotSupportProtocol, nameof(ECoreType.mihomo), item.ConfigType));
+        }
+        else if (coreType == ECoreType.juicity && item.ConfigType != EConfigType.Juicity)
+        {
+            v.Error(string.Format(ResUI.MsgCoreNotSupportProtocol, nameof(ECoreType.juicity), item.ConfigType));
+        }
 
         // Protocol Specifics
         var protocolExtra = item.GetProtocolExtra();
         switch (item.ConfigType)
         {
+            case EConfigType.SSR:
+                v.Assert(item.Password.IsNotEmpty() && protocolExtra.SsrCipher.IsNotEmpty(), ResUI.CheckServerSettings);
+                break;
+            case EConfigType.Mieru:
+                v.Assert(item.Username.IsNotEmpty() && item.Password.IsNotEmpty(), ResUI.FillPassword);
+                v.Assert(protocolExtra.MieruTransport is null or "" or "TCP" or "UDP", ResUI.CheckServerSettings);
+                v.Assert(IsPortRange(protocolExtra.MieruPortRange), ResUI.FillCorrectServerPort);
+                v.Assert(protocolExtra.MieruMultiplexing is null or "" or "MULTIPLEXING_DEFAULT" or "MULTIPLEXING_OFF" or "MULTIPLEXING_LOW" or "MULTIPLEXING_MIDDLE" or "MULTIPLEXING_HIGH", ResUI.CheckServerSettings);
+                v.Assert(protocolExtra.MieruHandshakeMode is null or "" or "HANDSHAKE_DEFAULT" or "HANDSHAKE_STANDARD" or "HANDSHAKE_NO_WAIT", ResUI.CheckServerSettings);
+                v.Assert(IsBase64(protocolExtra.MieruTrafficPattern), ResUI.CheckServerSettings);
+                break;
+            case EConfigType.ShadowQUIC:
+                v.Assert((protocolExtra.ShadowquicUsername ?? item.Username).IsNotEmpty() && (protocolExtra.ShadowquicPassword ?? item.Password).IsNotEmpty(), ResUI.FillPassword);
+                v.Assert(protocolExtra.ShadowquicCongestionControl is null or "" or "cubic" or "bbr" or "new_reno", ResUI.CheckServerSettings);
+                v.Assert((protocolExtra.ShadowquicQuicVersions ?? "v1").Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries).All(x => x is "v1" or "v2"), ResUI.CheckServerSettings);
+                v.Assert(!item.GetAllowInsecure(), ProtocolCapabilities.Text("MsgShadowquicInsecureUnsupported"));
+                v.Assert(new[] { protocolExtra.ShadowquicUpMbps, protocolExtra.ShadowquicDownMbps, protocolExtra.ShadowquicCwnd, protocolExtra.ShadowquicMaxDatagramFrameSize, protocolExtra.ShadowquicMaxOpenStreams, protocolExtra.ShadowquicRecvWindowConn, protocolExtra.ShadowquicRecvWindow }.All(x => x is null or >= 0), ResUI.CheckServerSettings);
+                break;
+            case EConfigType.Juicity:
+                v.Assert(Guid.TryParse(protocolExtra.JuicityUuid ?? item.Username, out _), ResUI.FillUUID);
+                v.Assert((protocolExtra.JuicityPassword ?? item.Password).IsNotEmpty(), ResUI.FillPassword);
+                v.Assert(protocolExtra.JuicityCongestionControl is null or "" or "cubic" or "bbr" or "new_reno", ResUI.CheckServerSettings);
+                v.Assert(IsBase64(protocolExtra.JuicityPinnedCertchainSha256, 32), ResUI.CheckServerSettings);
+                break;
             case EConfigType.VMess:
                 v.Assert(!item.Password.IsNullOrEmpty() && Utils.IsGuidByParse(item.Password),
                     string.Format(ResUI.MsgInvalidProperty, ResUI.TbId));

@@ -19,6 +19,10 @@ public class FmtHandlerTests
         [EConfigType.WireGuard] = CreateWireguardProfile,
         [EConfigType.Anytls] = CreateAnytlsProfile,
         [EConfigType.Naive] = () => CreateNaiveProfile(false),
+        [EConfigType.SSR] = CreateSsrProfile,
+        [EConfigType.Mieru] = CreateMieruProfile,
+        [EConfigType.ShadowQUIC] = CreateShadowquicProfile,
+        [EConfigType.Juicity] = CreateJuicityProfile,
     };
 
     [Test]
@@ -39,6 +43,57 @@ public class FmtHandlerTests
             await resolved.ConfigType.Should().BeEqualTo(configType);
             await resolved.Address.Should().BeEqualTo(source.Address);
             await resolved.Port.Should().BeEqualTo(source.Port);
+        }
+    }
+
+    [Test]
+    public async Task ShareUri_NewProtocols_ShouldRoundTripProtocolFields()
+    {
+        var ssr = CreateSsrProfile();
+        var ssrResolved = await ExportThenImport(ssr);
+        await ssrResolved.Password.Should().BeEqualTo(ssr.Password);
+        await ssrResolved.GetProtocolExtra().SsrCipher.Should().BeEqualTo(ssr.GetProtocolExtra().SsrCipher);
+        await ssrResolved.GetProtocolExtra().SsrObfsParam.Should().BeEqualTo(ssr.GetProtocolExtra().SsrObfsParam);
+        await ssrResolved.GetProtocolExtra().SsrProtocolParam.Should().BeEqualTo(ssr.GetProtocolExtra().SsrProtocolParam);
+        await ssrResolved.GetProtocolExtra().SsrUdp.Should().BeEqualTo(ssr.GetProtocolExtra().SsrUdp);
+
+        var mieru = CreateMieruProfile();
+        var mieruResolved = await ExportThenImport(mieru);
+        await mieruResolved.Username.Should().BeEqualTo(mieru.Username);
+        await mieruResolved.Password.Should().BeEqualTo(mieru.Password);
+        await mieruResolved.GetProtocolExtra().MieruTransport.Should().BeEqualTo(mieru.GetProtocolExtra().MieruTransport);
+        await mieruResolved.GetProtocolExtra().MieruMultiplexing.Should().BeEqualTo(mieru.GetProtocolExtra().MieruMultiplexing);
+
+        var shadowquic = CreateShadowquicProfile();
+        var shadowquicResolved = await ExportThenImport(shadowquic);
+        await shadowquicResolved.Sni.Should().BeEqualTo(shadowquic.Sni);
+        await shadowquicResolved.GetProtocolExtra().ShadowquicQuicVersions.Should().BeEqualTo(shadowquic.GetProtocolExtra().ShadowquicQuicVersions);
+        await shadowquicResolved.GetProtocolExtra().ShadowquicZeroRtt.Should().BeEqualTo(shadowquic.GetProtocolExtra().ShadowquicZeroRtt);
+        await shadowquicResolved.GetProtocolExtra().ShadowquicCongestionControl.Should().BeEqualTo(shadowquic.GetProtocolExtra().ShadowquicCongestionControl);
+
+        var juicity = CreateJuicityProfile();
+        var juicityResolved = await ExportThenImport(juicity);
+        await juicityResolved.GetProtocolExtra().JuicityUuid.Should().BeEqualTo(juicity.GetProtocolExtra().JuicityUuid);
+        await juicityResolved.GetProtocolExtra().JuicityPassword.Should().BeEqualTo(juicity.GetProtocolExtra().JuicityPassword);
+        await juicityResolved.GetProtocolExtra().JuicitySni.Should().BeEqualTo(juicity.GetProtocolExtra().JuicitySni);
+    }
+
+    [Test]
+    public async Task ShareUri_NewProtocols_ShouldRejectMalformedRequiredValues()
+    {
+        var invalidLinks = new[]
+        {
+            "juicity://not-a-uuid:password@example.com:443",
+            "juicity://01234567-89ab-cdef-0123-456789abcdef:password@example.com:443?allow_insecure=2",
+            "shadowquic://user:password@example.com:443?zero-rtt=2",
+            "ssr://%%%",
+            "mierus://user:password@example.com:443?profile=demo&port=443&protocol=TCP%ZZ",
+        };
+
+        foreach (var link in invalidLinks)
+        {
+            var resolved = FmtHandler.ResolveConfig(link, out _);
+            await resolved.Should().BeNull();
         }
     }
 
@@ -557,6 +612,95 @@ public class FmtHandlerTests
         item.SetProtocolExtra(new ProtocolExtraItem { NaiveQuic = quic, InsecureConcurrency = 4, });
         item.SetTransportExtra(new TransportExtraItem { RawHeaderType = Global.None, });
 
+        return item;
+    }
+
+    private static ProfileItem CreateSsrProfile()
+    {
+        var item = new ProfileItem
+        {
+            ConfigType = EConfigType.SSR,
+            Remarks = "SSR demo 東京",
+            Address = "2001:db8::41",
+            Port = 443,
+            Password = "ssr pass",
+        };
+        item.SetProtocolExtra(new ProtocolExtraItem
+        {
+            SsrCipher = "chacha20-ietf",
+            SsrObfs = "tls1.2_ticket_auth",
+            SsrProtocol = "auth_aes128_md5",
+            SsrObfsParam = "obfs param",
+            SsrProtocolParam = "protocol param",
+            SsrUdp = true,
+        });
+        return item;
+    }
+
+    private static ProfileItem CreateMieruProfile()
+    {
+        var item = new ProfileItem
+        {
+            ConfigType = EConfigType.Mieru,
+            Remarks = "Mieru demo",
+            Address = "mieru.example",
+            Port = 8443,
+            Username = "mieru-user",
+            Password = "mieru-pass",
+        };
+        item.SetProtocolExtra(new ProtocolExtraItem
+        {
+            MieruTransport = "TCP",
+            MieruMultiplexing = "MULTIPLEXING_LOW",
+            MieruHandshakeMode = "HANDSHAKE_STANDARD",
+        });
+        return item;
+    }
+
+    private static ProfileItem CreateShadowquicProfile()
+    {
+        var item = new ProfileItem
+        {
+            ConfigType = EConfigType.ShadowQUIC,
+            Remarks = "ShadowQUIC demo",
+            Address = "shadowquic.example",
+            Port = 443,
+            Username = "shadow-user",
+            Password = "shadow-pass",
+            Sni = "sni.shadowquic.example",
+            Alpn = "h3",
+        };
+        item.SetProtocolExtra(new ProtocolExtraItem
+        {
+            ShadowquicUsername = item.Username,
+            ShadowquicPassword = item.Password,
+            ShadowquicQuicVersions = "v1,v2",
+            ShadowquicCongestionControl = "bbr",
+            ShadowquicZeroRtt = true,
+            ShadowquicUdpOverStream = true,
+        });
+        return item;
+    }
+
+    private static ProfileItem CreateJuicityProfile()
+    {
+        var item = new ProfileItem
+        {
+            ConfigType = EConfigType.Juicity,
+            Remarks = "Juicity demo",
+            Address = "2001:db8::42",
+            Port = 443,
+            Username = "01234567-89ab-cdef-0123-456789abcdef",
+            Password = "juicity pass",
+            Sni = "sni.juicity.example",
+        };
+        item.SetProtocolExtra(new ProtocolExtraItem
+        {
+            JuicityUuid = item.Username,
+            JuicityPassword = item.Password,
+            JuicitySni = item.Sni,
+            JuicityCongestionControl = "bbr",
+        });
         return item;
     }
 }

@@ -85,6 +85,38 @@ public partial class AddServerViewModel : MyReactiveObject, ICloseable
     [Reactive]
     public partial bool NaiveQuic { get; set; }
 
+    [Reactive] public partial string SsrCipher { get; set; }
+    [Reactive] public partial string SsrObfs { get; set; }
+    [Reactive] public partial string SsrObfsParam { get; set; }
+    [Reactive] public partial string SsrProtocol { get; set; }
+    [Reactive] public partial string SsrProtocolParam { get; set; }
+    [Reactive] public partial bool SsrUdp { get; set; }
+    [Reactive] public partial string MieruTransport { get; set; }
+    [Reactive] public partial string MieruPortRange { get; set; }
+    [Reactive] public partial bool MieruUdp { get; set; }
+    [Reactive] public partial string MieruMultiplexing { get; set; }
+    [Reactive] public partial string MieruHandshakeMode { get; set; }
+    [Reactive] public partial string MieruTrafficPattern { get; set; }
+    [Reactive] public partial string ShadowquicUsername { get; set; }
+    [Reactive] public partial string ShadowquicPassword { get; set; }
+    [Reactive] public partial string ShadowquicQuicVersions { get; set; }
+    [Reactive] public partial bool ShadowquicZeroRtt { get; set; }
+    [Reactive] public partial bool ShadowquicUdpOverStream { get; set; }
+    [Reactive] public partial string ShadowquicCongestionControl { get; set; }
+    [Reactive] public partial int? ShadowquicUpMbps { get; set; }
+    [Reactive] public partial int? ShadowquicDownMbps { get; set; }
+    [Reactive] public partial int? ShadowquicCwnd { get; set; }
+    [Reactive] public partial int? ShadowquicMaxDatagramFrameSize { get; set; }
+    [Reactive] public partial int? ShadowquicMaxOpenStreams { get; set; }
+    [Reactive] public partial int? ShadowquicRecvWindowConn { get; set; }
+    [Reactive] public partial int? ShadowquicRecvWindow { get; set; }
+    [Reactive] public partial bool ShadowquicDisableMtuDiscovery { get; set; }
+    [Reactive] public partial string JuicityUuid { get; set; }
+    [Reactive] public partial string JuicityPassword { get; set; }
+    [Reactive] public partial string JuicitySni { get; set; }
+    [Reactive] public partial string JuicityCongestionControl { get; set; }
+    [Reactive] public partial string JuicityPinnedCertchainSha256 { get; set; }
+
     [Reactive]
     public partial string HttpHeadersJson { get; set; }
 
@@ -296,7 +328,7 @@ public partial class AddServerViewModel : MyReactiveObject, ICloseable
         {
             SelectedSource = JsonUtils.DeepCopy(profileItem);
         }
-        CoreType = SelectedSource?.CoreType?.ToString();
+        CoreType = SelectedSource.CoreType?.ToString();
         AllowInsecure = SelectedSource?.GetAllowInsecure() == true;
         MuxEnabled = SelectedSource?.MuxEnabled == true;
         Cert = SelectedSource?.Cert ?? string.Empty;
@@ -324,6 +356,37 @@ public partial class AddServerViewModel : MyReactiveObject, ICloseable
         CongestionControl = protocolExtra.CongestionControl ?? string.Empty;
         InsecureConcurrency = protocolExtra.InsecureConcurrency > 0 ? protocolExtra.InsecureConcurrency : null;
         NaiveQuic = protocolExtra.NaiveQuic ?? false;
+        SsrCipher = protocolExtra.SsrCipher ?? "chacha20-ietf";
+        SsrObfs = protocolExtra.SsrObfs ?? "plain";
+        SsrObfsParam = protocolExtra.SsrObfsParam ?? string.Empty;
+        SsrProtocol = protocolExtra.SsrProtocol ?? "origin";
+        SsrProtocolParam = protocolExtra.SsrProtocolParam ?? string.Empty;
+        SsrUdp = protocolExtra.SsrUdp ?? false;
+        MieruTransport = protocolExtra.MieruTransport ?? "TCP";
+        MieruPortRange = protocolExtra.MieruPortRange ?? string.Empty;
+        MieruUdp = protocolExtra.MieruUdp ?? false;
+        MieruMultiplexing = protocolExtra.MieruMultiplexing ?? string.Empty;
+        MieruHandshakeMode = protocolExtra.MieruHandshakeMode ?? string.Empty;
+        MieruTrafficPattern = protocolExtra.MieruTrafficPattern ?? string.Empty;
+        ShadowquicUpMbps = protocolExtra.ShadowquicUpMbps;
+        ShadowquicDownMbps = protocolExtra.ShadowquicDownMbps;
+        ShadowquicCwnd = protocolExtra.ShadowquicCwnd;
+        ShadowquicMaxDatagramFrameSize = protocolExtra.ShadowquicMaxDatagramFrameSize;
+        ShadowquicMaxOpenStreams = protocolExtra.ShadowquicMaxOpenStreams;
+        ShadowquicRecvWindowConn = protocolExtra.ShadowquicRecvWindowConn;
+        ShadowquicRecvWindow = protocolExtra.ShadowquicRecvWindow;
+        ShadowquicDisableMtuDiscovery = protocolExtra.ShadowquicDisableMtuDiscovery ?? false;
+        ShadowquicUsername = protocolExtra.ShadowquicUsername ?? SelectedSource.Username;
+        ShadowquicPassword = protocolExtra.ShadowquicPassword ?? SelectedSource.Password;
+        ShadowquicQuicVersions = protocolExtra.ShadowquicQuicVersions ?? string.Empty;
+        ShadowquicZeroRtt = protocolExtra.ShadowquicZeroRtt ?? false;
+        ShadowquicUdpOverStream = protocolExtra.ShadowquicUdpOverStream ?? false;
+        ShadowquicCongestionControl = protocolExtra.ShadowquicCongestionControl ?? string.Empty;
+        JuicityUuid = protocolExtra.JuicityUuid ?? SelectedSource.Username;
+        JuicityPassword = protocolExtra.JuicityPassword ?? SelectedSource.Password;
+        JuicitySni = protocolExtra.JuicitySni ?? SelectedSource.Sni;
+        JuicityCongestionControl = protocolExtra.JuicityCongestionControl ?? string.Empty;
+        JuicityPinnedCertchainSha256 = protocolExtra.JuicityPinnedCertchainSha256 ?? string.Empty;
         HttpHeadersJson = protocolExtra.HttpHeaders ?? string.Empty;
         Hy2RealmUrl = protocolExtra.Hy2RealmUrl ?? string.Empty;
         GeckoMinPacketSize = protocolExtra.GeckoMinPacketSize.ToInt();
@@ -377,13 +440,28 @@ public partial class AddServerViewModel : MyReactiveObject, ICloseable
                 return;
             }
         }
-        if (SelectedSource.ConfigType is not EConfigType.SOCKS and not EConfigType.HTTP)
+        if (SelectedSource.ConfigType is not EConfigType.SOCKS and not EConfigType.HTTP and not EConfigType.SSR and not EConfigType.ShadowQUIC and not EConfigType.Juicity)
         {
             if (SelectedSource.Password.IsNullOrEmpty())
             {
                 NoticeManager.Instance.Enqueue(ResUI.FillUUID);
                 return;
             }
+        }
+        if (SelectedSource.ConfigType == EConfigType.Mieru && (SelectedSource.Username.IsNullOrEmpty() || SelectedSource.Password.IsNullOrEmpty()))
+        {
+            NoticeManager.Instance.Enqueue(ResUI.FillPassword);
+            return;
+        }
+        if (SelectedSource.ConfigType == EConfigType.ShadowQUIC && (ShadowquicUsername.IsNullOrEmpty() || ShadowquicPassword.IsNullOrEmpty()))
+        {
+            NoticeManager.Instance.Enqueue(ResUI.FillPassword);
+            return;
+        }
+        if (SelectedSource.ConfigType == EConfigType.Juicity && (!Guid.TryParse(JuicityUuid, out _) || JuicityPassword.IsNullOrEmpty()))
+        {
+            NoticeManager.Instance.Enqueue(ResUI.CheckServerSettings);
+            return;
         }
         HyRealm? realm = null;
         if (!Hy2RealmUrl.IsNullOrEmpty())
@@ -401,6 +479,17 @@ public partial class AddServerViewModel : MyReactiveObject, ICloseable
             return;
         }
         SelectedSource.CoreType = CoreType.IsNullOrEmpty() ? null : Enum.Parse<ECoreType>(CoreType);
+        if (SelectedSource.ConfigType == EConfigType.ShadowQUIC)
+        {
+            SelectedSource.Username = ShadowquicUsername;
+            SelectedSource.Password = ShadowquicPassword;
+        }
+        else if (SelectedSource.ConfigType == EConfigType.Juicity)
+        {
+            SelectedSource.Username = JuicityUuid;
+            SelectedSource.Password = JuicityPassword;
+            SelectedSource.Sni = JuicitySni;
+        }
         SelectedSource.AllowInsecure = AllowInsecure ? Global.StringTrue : Global.StringFalse;
         SelectedSource.MuxEnabled = MuxEnabled;
         SelectedSource.Cert = Cert.IsNullOrEmpty() ? string.Empty : Cert;
@@ -427,6 +516,21 @@ public partial class AddServerViewModel : MyReactiveObject, ICloseable
 
         SelectedSource.SetProtocolExtra(SelectedSource.GetProtocolExtra() with
         {
+            SsrCipher = SsrCipher.NullIfEmpty(), SsrObfs = SsrObfs.NullIfEmpty(), SsrObfsParam = SsrObfsParam.NullIfEmpty(),
+            SsrProtocol = SsrProtocol.NullIfEmpty(), SsrProtocolParam = SsrProtocolParam.NullIfEmpty(), SsrUdp = SsrUdp ? true : null,
+            MieruTransport = MieruTransport.NullIfEmpty(), MieruPortRange = MieruPortRange.NullIfEmpty(), MieruUdp = MieruUdp ? true : null,
+            MieruMultiplexing = MieruMultiplexing.NullIfEmpty(), MieruHandshakeMode = MieruHandshakeMode.NullIfEmpty(), MieruTrafficPattern = MieruTrafficPattern.NullIfEmpty(),
+            ShadowquicUpMbps = ShadowquicUpMbps,
+            ShadowquicDownMbps = ShadowquicDownMbps,
+            ShadowquicCwnd = ShadowquicCwnd,
+            ShadowquicMaxDatagramFrameSize = ShadowquicMaxDatagramFrameSize,
+            ShadowquicMaxOpenStreams = ShadowquicMaxOpenStreams,
+            ShadowquicRecvWindowConn = ShadowquicRecvWindowConn,
+            ShadowquicRecvWindow = ShadowquicRecvWindow,
+            ShadowquicDisableMtuDiscovery = ShadowquicDisableMtuDiscovery,
+            ShadowquicUsername = ShadowquicUsername.NullIfEmpty(), ShadowquicPassword = ShadowquicPassword.NullIfEmpty(), ShadowquicQuicVersions = ShadowquicQuicVersions.NullIfEmpty(),
+            ShadowquicZeroRtt = ShadowquicZeroRtt ? true : null, ShadowquicUdpOverStream = ShadowquicUdpOverStream ? true : null, ShadowquicCongestionControl = ShadowquicCongestionControl.NullIfEmpty(),
+            JuicityAllowInsecure = AllowInsecure, JuicityUuid = JuicityUuid.NullIfEmpty(), JuicityPassword = JuicityPassword.NullIfEmpty(), JuicitySni = JuicitySni.NullIfEmpty(), JuicityCongestionControl = JuicityCongestionControl.NullIfEmpty(), JuicityPinnedCertchainSha256 = JuicityPinnedCertchainSha256.NullIfEmpty(),
             Ports = Ports.NullIfEmpty(),
             AlterId = AlterId > 0 ? AlterId.ToString() : null,
             Flow = Flow.NullIfEmpty(),
@@ -455,6 +559,15 @@ public partial class AddServerViewModel : MyReactiveObject, ICloseable
             MasqueHeaders = MasqueHeaders.NullIfEmpty(),
         });
         SelectedSource.SetTransportExtra(transport);
+        if (ProtocolCapabilities.IsExtendedProtocol(SelectedSource.ConfigType))
+        {
+            var validation = NodeValidator.Validate(SelectedSource, SelectedSource.CoreType ?? ProtocolCapabilities.DefaultCore(SelectedSource.ConfigType));
+            if (!validation.Success)
+            {
+                NoticeManager.Instance.Enqueue(string.Join(Environment.NewLine, validation.Errors));
+                return;
+            }
+        }
 
         if (await ConfigHandler.AddServer(_config, SelectedSource) == 0)
         {

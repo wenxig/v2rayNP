@@ -245,7 +245,12 @@ public partial class OptionSettingViewModel : MyReactiveObject, ICloseable
             _config.CoreTypeItem.Add(new CoreTypeItem()
             {
                 ConfigType = it,
-                CoreType = ECoreType.Xray
+                CoreType = it switch
+                {
+                    EConfigType.SSR or EConfigType.Mieru or EConfigType.ShadowQUIC => ECoreType.mihomo,
+                    EConfigType.Juicity => ECoreType.juicity,
+                    _ => ECoreType.Xray
+                }
             });
         }
         _config.CoreTypeItem.ForEach(it =>

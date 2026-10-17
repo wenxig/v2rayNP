@@ -1083,6 +1083,56 @@
                         TextWrapping="Wrap" />
                 </Grid>
 
+                <StackPanel x:Name="gridSSRExtra" Grid.Row="2" Visibility="Collapsed">
+                    <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelSSRField0" Width="300" VerticalAlignment="Center" /><TextBox x:Name="editSSRField0" Width="400" /></StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelSSRField1" Width="300" VerticalAlignment="Center" /><TextBox x:Name="editSSRField1" Width="400" /></StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelSSRField2" Width="300" VerticalAlignment="Center" /><TextBox x:Name="editSSRField2" Width="400" /></StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelSSRField3" Width="300" VerticalAlignment="Center" /><TextBox x:Name="editSSRField3" Width="400" /></StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelSSRField4" Width="300" VerticalAlignment="Center" /><TextBox x:Name="editSSRField4" Width="400" /></StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelSSRField5" Width="300" VerticalAlignment="Center" /><TextBox x:Name="editSSRField5" Width="400" /></StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelSSRField6" Width="300" VerticalAlignment="Center" /><CheckBox x:Name="editSSRField6" Width="400" /></StackPanel>
+                </StackPanel>
+
+                <StackPanel x:Name="gridMieruExtra" Grid.Row="2" Visibility="Collapsed">
+                    <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelMieruField0" Width="300" VerticalAlignment="Center" /><TextBox x:Name="editMieruField0" Width="400" /></StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelMieruField1" Width="300" VerticalAlignment="Center" /><TextBox x:Name="editMieruField1" Width="400" /></StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelMieruField2" Width="300" VerticalAlignment="Center" /><TextBox x:Name="editMieruField2" Width="400" /></StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelMieruField3" Width="300" VerticalAlignment="Center" /><TextBox x:Name="editMieruField3" Width="400" /></StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelMieruField4" Width="300" VerticalAlignment="Center" /><TextBox x:Name="editMieruField4" Width="400" /></StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelMieruField5" Width="300" VerticalAlignment="Center" /><TextBox x:Name="editMieruField5" Width="400" /></StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelMieruField6" Width="300" VerticalAlignment="Center" /><TextBox x:Name="editMieruField6" Width="400" /></StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelMieruField7" Width="300" VerticalAlignment="Center" /><CheckBox x:Name="editMieruField7" Width="400" /></StackPanel>
+                </StackPanel>
+
+                <StackPanel x:Name="gridShadowQUICExtra" Grid.Row="2" Visibility="Collapsed">
+                    <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelShadowQUICField0" Width="300" VerticalAlignment="Center" /><TextBox x:Name="editShadowQUICField0" Width="400" /></StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelShadowQUICField1" Width="300" VerticalAlignment="Center" /><TextBox x:Name="editShadowQUICField1" Width="400" /></StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelShadowQUICField2" Width="300" VerticalAlignment="Center" /><TextBox x:Name="editShadowQUICField2" Width="400" /></StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelShadowQUICField3" Width="300" VerticalAlignment="Center" /><TextBox x:Name="editShadowQUICField3" Width="400" /></StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelShadowQUICField4" Width="300" VerticalAlignment="Center" /><TextBox x:Name="editShadowQUICField4" Width="400" /></StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelShadowQUICField5" Width="300" VerticalAlignment="Center" /><TextBox x:Name="editShadowQUICField5" Width="400" /></StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelShadowQUICField6" Width="300" VerticalAlignment="Center" /><CheckBox x:Name="editShadowQUICField6" Width="400" /></StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelShadowQUICField7" Width="300" VerticalAlignment="Center" /><CheckBox x:Name="editShadowQUICField7" Width="400" /></StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelShadowQUICField8" Width="300" VerticalAlignment="Center" /><CheckBox x:Name="editShadowQUICField8" Width="400" /></StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelShadowQUICField9" Width="300" VerticalAlignment="Center" /><TextBox x:Name="editShadowQUICField9" Width="400" /></StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelShadowQUICField10" Width="300" VerticalAlignment="Center" /><TextBox x:Name="editShadowQUICField10" Width="400" /></StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelShadowQUICField11" Width="300" VerticalAlignment="Center" /><TextBox x:Name="editShadowQUICField11" Width="400" /></StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelShadowQUICField12" Width="300" VerticalAlignment="Center" /><TextBox x:Name="editShadowQUICField12" Width="400" /></StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelShadowQUICField13" Width="300" VerticalAlignment="Center" /><TextBox x:Name="editShadowQUICField13" Width="400" /></StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelShadowQUICField14" Width="300" VerticalAlignment="Center" /><TextBox x:Name="editShadowQUICField14" Width="400" /></StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelShadowQUICField15" Width="300" VerticalAlignment="Center" /><TextBox x:Name="editShadowQUICField15" Width="400" /></StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelShadowQUICField16" Width="300" VerticalAlignment="Center" /><CheckBox x:Name="editShadowQUICField16" Width="400" /></StackPanel>
+                </StackPanel>
+
+                <StackPanel x:Name="gridJuicityExtra" Grid.Row="2" Visibility="Collapsed">
+                    <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelJuicityField0" Width="300" VerticalAlignment="Center" /><TextBox x:Name="editJuicityField0" Width="400" /></StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelJuicityField1" Width="300" VerticalAlignment="Center" /><TextBox x:Name="editJuicityField1" Width="400" /></StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelJuicityField2" Width="300" VerticalAlignment="Center" /><TextBox x:Name="editJuicityField2" Width="400" /></StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelJuicityField3" Width="300" VerticalAlignment="Center" /><CheckBox x:Name="editJuicityField3" Width="400" /></StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelJuicityField4" Width="300" VerticalAlignment="Center" /><TextBox x:Name="editJuicityField4" Width="400" /></StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelJuicityField5" Width="300" VerticalAlignment="Center" /><TextBox x:Name="editJuicityField5" Width="400" /></StackPanel>
+                </StackPanel>
+
                 <Separator
                     x:Name="sepa2"
                     Grid.Row="3"

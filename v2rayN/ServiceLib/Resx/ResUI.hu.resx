@@ -1770,4 +1770,40 @@ The "Get Certificate" action may fail if a self-signed certificate is used or if
   <data name="menuNewUpdate" xml:space="preserve">
     <value>New Update</value>
   </data>
+  <data name="ProtocolUdp" xml:space="preserve"><value>UDP</value></data>
+  <data name="ProtocolSni" xml:space="preserve"><value>SNI</value></data>
+  <data name="ProtocolAlpn" xml:space="preserve"><value>ALPN (comma separated)</value></data>
+  <data name="ProtocolZeroRtt" xml:space="preserve"><value>Zero RTT</value></data>
+  <data name="ProtocolUdpOverStream" xml:space="preserve"><value>UDP over stream</value></data>
+  <data name="ProtocolDisableMtuDiscovery" xml:space="preserve"><value>Shadowquic Disable Mtu Discovery</value></data>
+  <data name="MsgJuicityTunUnsupported" xml:space="preserve"><value>The official Juicity client does not support TUN mode in this application.</value></data>
+  <data name="MsgShadowquicInsecureUnsupported" xml:space="preserve"><value>The mihomo ShadowQUIC adapter uses JLS and does not support allow-insecure.</value></data>
+  <data name="MsgMihomoInboundRuleUnsupported" xml:space="preserve"><value>Mihomo node routing cannot use inbound tags.</value></data>
+  <data name="menuAddSSRServer" xml:space="preserve"><value>Add [SSR]</value></data>
+  <data name="menuAddMieruServer" xml:space="preserve"><value>Add [Mieru]</value></data>
+  <data name="menuAddShadowQUICServer" xml:space="preserve"><value>Add [ShadowQUIC]</value></data>
+  <data name="menuAddJuicityServer" xml:space="preserve"><value>Add [Juicity]</value></data>
+  <data name="ProtocolShadowquicUpMbps" xml:space="preserve"><value>Shadowquic Up Mbps</value></data>
+  <data name="ProtocolShadowquicDownMbps" xml:space="preserve"><value>Shadowquic Down Mbps</value></data>
+  <data name="ProtocolShadowquicCwnd" xml:space="preserve"><value>Shadowquic Cwnd</value></data>
+  <data name="ProtocolShadowquicMaxDatagramFrameSize" xml:space="preserve"><value>Shadowquic Max Datagram Frame Size</value></data>
+  <data name="ProtocolShadowquicMaxOpenStreams" xml:space="preserve"><value>Shadowquic Max Open Streams</value></data>
+  <data name="ProtocolShadowquicRecvWindowConn" xml:space="preserve"><value>Shadowquic Recv Window Conn</value></data>
+  <data name="ProtocolShadowquicRecvWindow" xml:space="preserve"><value>Shadowquic Recv Window</value></data>
+  <data name="ProtocolSsrCipher" xml:space="preserve"><value>SSR cipher</value></data>
+  <data name="ProtocolSsrObfs" xml:space="preserve"><value>SSR obfs</value></data>
+  <data name="ProtocolSsrProtocol" xml:space="preserve"><value>SSR protocol</value></data>
+  <data name="ProtocolSsrObfsParam" xml:space="preserve"><value>Obfs parameter</value></data>
+  <data name="ProtocolSsrProtocolParam" xml:space="preserve"><value>Protocol parameter</value></data>
+  <data name="ProtocolMieruTransport" xml:space="preserve"><value>Mieru transport</value></data>
+  <data name="ProtocolMieruPortRange" xml:space="preserve"><value>Mieru port range</value></data>
+  <data name="ProtocolMieruMultiplexing" xml:space="preserve"><value>Mieru multiplexing</value></data>
+  <data name="ProtocolMieruHandshakeMode" xml:space="preserve"><value>Handshake mode</value></data>
+  <data name="ProtocolMieruTrafficPattern" xml:space="preserve"><value>Traffic pattern</value></data>
+  <data name="ProtocolShadowquicQuicVersions" xml:space="preserve"><value>QUIC versions</value></data>
+  <data name="ProtocolShadowquicCongestionControl" xml:space="preserve"><value>Congestion control</value></data>
+  <data name="ProtocolJuicityUuid" xml:space="preserve"><value>Juicity UUID</value></data>
+  <data name="ProtocolJuicitySni" xml:space="preserve"><value>Juicity SNI</value></data>
+  <data name="ProtocolJuicityCongestionControl" xml:space="preserve"><value>Congestion control</value></data>
+  <data name="ProtocolPinnedCertchainSha256" xml:space="preserve"><value>Certificate chain SHA-256 pin</value></data>
 </root>

@@ -9,7 +9,7 @@ public static class CoreConfigHandler
 
     public static async Task<RetResult> GenerateClientConfig(CoreConfigContext context, string? fileName)
     {
-        var config = AppManager.Instance.Config;
+        var config = context.AppConfig;
         var result = new RetResult();
         var node = context.Node;
 
@@ -20,6 +20,14 @@ public static class CoreConfigHandler
                 ECoreType.mihomo => await new CoreConfigClashService(config, context.IsTunEnabled).GenerateClientCustomConfig(node, fileName),
                 _ => await GenerateClientCustomConfig(node, fileName)
             };
+        }
+        else if (context.RunCoreType == ECoreType.mihomo)
+        {
+            result = await new CoreConfigClashService(config, context.IsTunEnabled).GenerateClientNodeConfig(context);
+        }
+        else if (context.RunCoreType == ECoreType.juicity)
+        {
+            result = new CoreConfigJuicityService(config).GenerateClientConfig(node);
         }
         else if (context.RunCoreType == ECoreType.sing_box)
         {
@@ -132,7 +140,15 @@ public static class CoreConfigHandler
         var port = Utils.GetFreePort(initPort + testItem.QueueNum);
         testItem.Port = port;
 
-        if (context.RunCoreType == ECoreType.sing_box)
+        if (context.RunCoreType == ECoreType.mihomo)
+        {
+            result = await new CoreConfigClashService(config, false).GenerateClientNodeConfig(context, port);
+        }
+        else if (context.RunCoreType == ECoreType.juicity)
+        {
+            result = new CoreConfigJuicityService(config).GenerateClientConfig(context.Node, port);
+        }
+        else if (context.RunCoreType == ECoreType.sing_box)
         {
             result = new CoreConfigSingboxService(context).GenerateClientSpeedtestConfig(port);
         }

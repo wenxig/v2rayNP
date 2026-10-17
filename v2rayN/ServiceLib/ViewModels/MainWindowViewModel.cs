@@ -32,6 +32,10 @@ public partial class MainWindowViewModel : MyReactiveObject
     public ReactiveCommand<RxVoid, RxVoid> AddWireguardServerCmd { get; }
     public ReactiveCommand<RxVoid, RxVoid> AddAnytlsServerCmd { get; }
     public ReactiveCommand<RxVoid, RxVoid> AddNaiveServerCmd { get; }
+    public ReactiveCommand<RxVoid, RxVoid> AddSSRServerCmd { get; }
+    public ReactiveCommand<RxVoid, RxVoid> AddMieruServerCmd { get; }
+    public ReactiveCommand<RxVoid, RxVoid> AddShadowQUICServerCmd { get; }
+    public ReactiveCommand<RxVoid, RxVoid> AddJuicityServerCmd { get; }
     public ReactiveCommand<RxVoid, RxVoid> AddMasqueServerCmd { get; }
     public ReactiveCommand<RxVoid, RxVoid> AddCustomServerCmd { get; }
     public ReactiveCommand<RxVoid, RxVoid> AddCustomOutboundServerCmd { get; }
@@ -141,6 +145,10 @@ public partial class MainWindowViewModel : MyReactiveObject
         {
             await AddServerAsync(EConfigType.Naive);
         });
+        AddSSRServerCmd = ReactiveCommand.CreateFromTask(async () => await AddServerAsync(EConfigType.SSR));
+        AddMieruServerCmd = ReactiveCommand.CreateFromTask(async () => await AddServerAsync(EConfigType.Mieru));
+        AddShadowQUICServerCmd = ReactiveCommand.CreateFromTask(async () => await AddServerAsync(EConfigType.ShadowQUIC));
+        AddJuicityServerCmd = ReactiveCommand.CreateFromTask(async () => await AddServerAsync(EConfigType.Juicity));
         AddMasqueServerCmd = ReactiveCommand.CreateFromTask(async () =>
         {
             await AddServerAsync(EConfigType.MASQUE);
