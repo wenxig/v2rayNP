@@ -27,6 +27,6 @@ public static class ProxySettingLinux
         // TODO: temporarily notify which script is being used
         NoticeManager.Instance.SendMessage(fileName);
 
-        await Utils.GetCliWrapOutput(fileName, args);
+        if (await Utils.GetCliWrapOutput(fileName, args) == null) throw new InvalidOperationException(ResUI.MsgNotSupport);
     }
 }

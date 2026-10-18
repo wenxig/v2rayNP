@@ -13,7 +13,7 @@ public class CoreManager
     private WindowsJobService? _processJob;
 
     private readonly CoreLifecycleService _lifecycle;
-    private bool _proxyApplied;
+    private SystemProxyLease? _proxyLease;
     private readonly SemaphoreSlim _managedSpeedtestGate = new(1, 1);
 
     public CoreManager()
@@ -21,10 +21,9 @@ public class CoreManager
         _lifecycle = new CoreLifecycleService(async (core, failure) =>
         {
             AppManager.Instance.RunningCoreType = core;
-            if (core == null && _proxyApplied)
+            if (core == null && _proxyLease != null)
             {
-                await SysProxyHandler.UpdateSysProxy(_config, true);
-                _proxyApplied = false;
+                await _proxyLease.ReleaseAsync();
             }
             if (failure != null) await UpdateFunc(true, failure.Message);
         });
@@ -35,8 +34,10 @@ public class CoreManager
 
     public Task<bool> ApplySystemProxyAsync() => _lifecycle.WhenRunningAsync(async () =>
     {
-        var applied = await SysProxyHandler.UpdateSysProxy(_config, false);
-        _proxyApplied = applied && _config.SystemProxyItem.SysProxyType is ESysProxyType.ForcedChange or ESysProxyType.Pac;
+        var config = JsonUtils.DeepCopy(_config);
+        if (config.SystemProxyItem.SysProxyType is not (ESysProxyType.ForcedChange or ESysProxyType.Pac)) return;
+        _proxyLease ??= new SystemProxyLease(SystemProxySnapshot.ReadAsync, () => SysProxyHandler.UpdateSysProxy(config, true));
+        await _proxyLease.ApplyAsync(() => SysProxyHandler.UpdateSysProxy(config, false));
     });
     private Func<bool, string, Task>? _updateFunc;
     private const string _tag = "CoreHandler";
@@ -235,6 +236,7 @@ public class CoreManager
     }
 
     public Task CoreStop() => _lifecycle.StopAsync();
+    public Task ShutdownAsync() => _lifecycle.ShutdownAsync();
 
     private Task UpdateFunc(bool notify, string msg) => _updateFunc?.Invoke(notify, msg) ?? Task.CompletedTask;
 

@@ -18,6 +18,27 @@ public class CoreLifecycleServiceTests
     private static Task<CoreLaunchPlan> Plan(params CoreLaunchStep[] steps) => Task.FromResult(new CoreLaunchPlan(steps, () => Task.CompletedTask));
 
     [Test]
+    public async Task ShutdownCancelsPendingAndRejectsAnyLaterLoad()
+    {
+        var preparing = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var lifecycle = new CoreLifecycleService((_, _) => Task.CompletedTask);
+        var pending = lifecycle.LoadAsync(async token =>
+        {
+            preparing.SetResult();
+            await Task.Delay(Timeout.Infinite, token);
+            return await Plan();
+        });
+        await preparing.Task;
+        await lifecycle.ShutdownAsync();
+        await (await pending).Failure.Should().BeEqualTo(CoreStartFailure.Cancelled);
+        var prepared = false;
+        var result = await lifecycle.LoadAsync(_ => { prepared = true; return Plan(); });
+        await result.Failure.Should().BeEqualTo(CoreStartFailure.Cancelled);
+        await prepared.Should().BeFalse();
+        await lifecycle.IsRunning.Should().BeFalse();
+    }
+
+    [Test]
     public async Task BackendExitDuringFrontendStartupRollsBackEvenWhenOptionalAfterReady()
     {
         var stopped = new List<string>();

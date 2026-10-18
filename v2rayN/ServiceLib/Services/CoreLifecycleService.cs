@@ -25,6 +25,7 @@ public sealed class CoreLifecycleService(Func<ECoreType?, CoreStartResult?, Task
     private readonly List<ICoreProcess> _processes = [];
     private readonly HashSet<ICoreProcess> _optional = [];
     private CoreLaunchPlan? _plan;
+    private bool _shuttingDown;
     public bool IsRunning { get; private set; }
 
     public async Task<CoreStartResult> LoadAsync(Func<CancellationToken, Task<CoreLaunchPlan>> prepare, CancellationToken cancellationToken = default)
@@ -32,6 +33,7 @@ public sealed class CoreLifecycleService(Func<ECoreType?, CoreStartResult?, Task
         using var request = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         lock (_requestLock)
         {
+            if (_shuttingDown) return new(CoreStartFailure.Cancelled, "Configuration");
             _pending?.Cancel();
             _pending = request;
         }
@@ -118,12 +120,18 @@ public sealed class CoreLifecycleService(Func<ECoreType?, CoreStartResult?, Task
         finally { _gate.Release(); }
     }
 
+    public Task ShutdownAsync()
+    {
+        lock (_requestLock) _shuttingDown = true;
+        return StopAsync();
+    }
+
     public async Task<bool> WhenRunningAsync(Func<Task> action)
     {
         await _gate.WaitAsync();
         try
         {
-            if (!IsRunning || _processes.Any(p => !_optional.Contains(p) && p.HasExited)) return false;
+            if (_shuttingDown || !IsRunning || _processes.Any(p => !_optional.Contains(p) && p.HasExited)) return false;
             await action();
             return true;
         }
