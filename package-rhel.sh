@@ -480,7 +480,8 @@ publish_binary() {
 
 write_spec_file() {
   local specfile="$1"
-  local rpm_version="${VERSION//-/~}"
+  local rpm_tilde='~'
+  local rpm_version="${VERSION//-/$rpm_tilde}"
 
   cat > "$specfile" <<'SPEC'
 %global debug_package %{nil}
