@@ -5,10 +5,10 @@ public enum CoreStartFailure
     None, Configuration, MissingCore, PortInUse, ProcessExited, Handshake, Timeout, Cancelled, Launch
 }
 
-public record CoreStartResult(CoreStartFailure Failure, string Stage, ECoreType? CoreType = null, bool PreviousChainPreserved = false)
+public record CoreStartResult(CoreStartFailure Failure, string Stage, ECoreType? CoreType = null, bool PreviousChainPreserved = false, string? Guidance = null)
 {
     public bool Success => Failure == CoreStartFailure.None;
     public string Message => string.Format(ProtocolCapabilities.Text("MsgCoreStartResult"),
         CoreType?.ToString() ?? "", ProtocolCapabilities.Text($"CoreStage{Stage}"),
-        ProtocolCapabilities.Text($"CoreFailure{Failure}"));
+        ProtocolCapabilities.Text($"CoreFailure{Failure}")) + (Guidance == null ? string.Empty : Environment.NewLine + Guidance);
 }

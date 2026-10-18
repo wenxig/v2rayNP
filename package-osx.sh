@@ -1,15 +1,14 @@
 #!/bin/bash
+set -euo pipefail
 
-Arch="$1"
-OutputPath="$2"
-Version="$3"
+Arch="${1:?architecture is required}"
+OutputPath="${2:?publish directory is required}"
+Version="${3:?version is required}"
 
-FileName="v2rayN-${Arch}.zip"
-wget -nv -O $FileName "https://github.com/2dust/v2rayN-core-bin/raw/refs/heads/master/$FileName"
-7z x $FileName
-cp -rf v2rayN-${Arch}/* $OutputPath
-
+[ -d "$OutputPath" ] && [ -f "$OutputPath/v2rayN" ] || { echo "Published application is missing" >&2; exit 1; }
+# Standard packages use in-app core downloads, matching the ZIP release.
 PackagePath="v2rayN-Package-${Arch}"
+[ ! -e "$PackagePath" ] || { echo "Package staging directory already exists" >&2; exit 1; }
 mkdir -p "$PackagePath/v2rayN.app/Contents/Resources"
 cp -rf "$OutputPath" "$PackagePath/v2rayN.app/Contents/MacOS"
 cp -f "$PackagePath/v2rayN.app/Contents/MacOS/v2rayN.icns" "$PackagePath/v2rayN.app/Contents/Resources/AppIcon.icns"

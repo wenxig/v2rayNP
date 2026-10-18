@@ -134,7 +134,7 @@ The repair design is ready for review in remediation-plan.md. Product implementa
 **Status:** complete (local config checks; platform runtime gates remain in F)
 
 ### Phase F: Distribution and acceptance evidence
-**Status:** pending
+**Status:** in_progress (distribution fixed; runtime evidence pending)
 
 ### Phase E: Managed combinations and capability boundaries
 **Status:** pending

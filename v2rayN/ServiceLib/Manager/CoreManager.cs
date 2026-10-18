@@ -97,8 +97,8 @@ public class CoreManager
                     token.ThrowIfCancellationRequested();
                     var stage = ReferenceEquals(context, mainContext) ? "Backend" : "Frontend";
                     var info = CoreInfoManager.Instance.GetCoreInfo(context.RunCoreType);
-                    if (CoreInfoManager.Instance.GetCoreExecFile(info, out _).IsNullOrEmpty())
-                        throw new CoreLaunchException(new(CoreStartFailure.MissingCore, stage, context.RunCoreType));
+                    if (CoreInfoManager.Instance.GetCoreExecFile(info, out var missingCoreMessage).IsNullOrEmpty())
+                        throw new CoreLaunchException(new(CoreStartFailure.MissingCore, stage, context.RunCoreType, Guidance: missingCoreMessage));
                     var file = $"launch-{Utils.GetGuid(false)}.json";
                     files.Add(Utils.GetBinConfigPath(file));
                     var generated = await CoreConfigHandler.GenerateClientConfig(context, files[^1]);

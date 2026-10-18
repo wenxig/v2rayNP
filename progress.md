@@ -130,3 +130,6 @@
 - Stage D: shared capability preflight filters UI strategies/members and validates nested groups. Mihomo maps LeastPing/Fallback/RoundRobin to url-test/fallback/round-robin. Unsupported rule dimensions reject before launch. Canonical builtin black template omits bittorrent bypass with an explicit warning; custom rules remain errors.
 - Regression 229/229 passed; both host builds passed with zero warnings/errors. Real mihomo v1.19.32 accepted six generated configs (three strategies and white/black/global). No proxy/TUN or user process changed; diff check passed.
 - Documentation update initially failed due to Python string escaping; corrected immediately.
+
+- Stage F distribution: four workflows use .NET 10 and WPF initializes its submodule. ZIP/DMG no longer overlay legacy core-bin. Missing-core feedback includes download path/official URL.
+- macOS x64 clean self-contained publish passed (existing GlobalHotKeys CS8625 warning). ZIP structure, executable permissions and invalid-input checks passed; four YAML files parsed, bash syntax/diff checks passed; shared tests 229/229 passed. Juicity v0.5.0 has no loong64 asset; ShadowQUIC v0.4.4 has all eight desktop mappings. DMG execution, installer/update/download, other OS runtime, TUN/UDP and long operation remain pending.

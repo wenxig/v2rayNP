@@ -87,3 +87,5 @@
 - Confirmed local official ShadowQUIC source is tag v0.4.4 with clean checkout. min-mtu defaults 1290, initial-mtu 1300, minimum QUIC packet limit 1200; keep-alive-interval is milliseconds. Unknown native options reject editable conversion; explicit raw custom mode retains original config.
 
 - Mihomo is v1.19.32. Protocol/inbound matching has no established equivalent in the current generated listener design; reject these dimensions before replacing the old chain. LeastPing, Fallback, RoundRobin map to url-test/fallback/load-balance round-robin; Random and LeastLoad have no equivalent and are rejected. Existing sing-box implements only urltest semantics, so its advertised strategy list is restricted accordingly.
+
+- Standard ZIP/DMG implicitly merged old 2dust core-bin downloads. Standard artifacts now consistently use in-app core downloads. Juicity v0.5.0 lacks loong64; ShadowQUIC v0.4.4 provides loongarch64.
