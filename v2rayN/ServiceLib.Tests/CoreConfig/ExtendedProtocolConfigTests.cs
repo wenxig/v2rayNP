@@ -77,6 +77,71 @@ public class ExtendedProtocolConfigTests
     }
 
     [Test]
+    [Arguments(EConfigType.SSR)]
+    [Arguments(EConfigType.Mieru)]
+    [Arguments(EConfigType.ShadowQUIC)]
+    [Arguments(EConfigType.Juicity)]
+    public async Task SingleNodeSpeedtest_ShouldEnableTestingAfterConfigIsWritten(EConfigType configType)
+    {
+        var coreType = configType == EConfigType.Juicity ? ECoreType.juicity : ECoreType.mihomo;
+        var config = CoreConfigTestFactory.CreateConfig(coreType);
+        CoreConfigTestFactory.BindAppManagerConfig(config);
+        var node = configType == EConfigType.Juicity ? CreateJuicityNode() : CreateMihomoNode(configType);
+        var context = CoreConfigTestFactory.CreateContext(config, node, coreType);
+        var testItem = new ServerTestItem { IndexId = node.IndexId, QueueNum = 3 };
+        var path = Path.GetTempFileName();
+        try
+        {
+            var result = await CoreConfigHandler.GenerateClientSpeedtestConfig(config, context, testItem, path);
+            await result.Success.Should().BeTrue();
+            await testItem.AllowTest.Should().BeTrue();
+            if (coreType == ECoreType.juicity)
+            {
+                var json = JsonNode.Parse(await File.ReadAllTextAsync(path))!;
+                await json["listen"]!.GetValue<string>().Should().BeEqualTo($"127.0.0.1:{testItem.Port}");
+            }
+            else
+            {
+                var yaml = new YamlStream();
+                yaml.Load(new StringReader(await File.ReadAllTextAsync(path)));
+                var root = (YamlMappingNode)yaml.Documents[0].RootNode;
+                await root["mixed-port"].ToString().Should().BeEqualTo(testItem.Port.ToString());
+                await root["bind-address"].ToString().Should().BeEqualTo(Global.Loopback);
+            }
+        }
+        finally
+        {
+            File.Delete(path);
+        }
+    }
+
+    [Test]
+    [Arguments(EConfigType.ShadowQUIC)]
+    [Arguments(EConfigType.Juicity)]
+    public async Task SingleNodeSpeedtest_InvalidConfigShouldClearEligibility(EConfigType configType)
+    {
+        var coreType = configType == EConfigType.Juicity ? ECoreType.juicity : ECoreType.mihomo;
+        var config = CoreConfigTestFactory.CreateConfig(coreType);
+        CoreConfigTestFactory.BindAppManagerConfig(config);
+        var node = configType == EConfigType.Juicity ? CreateJuicityNode() : CreateMihomoNode(configType);
+        node.Port = 0;
+        var context = CoreConfigTestFactory.CreateContext(config, node, coreType);
+        var testItem = new ServerTestItem { IndexId = node.IndexId, AllowTest = true };
+        var path = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".json");
+        try
+        {
+            var result = await CoreConfigHandler.GenerateClientSpeedtestConfig(config, context, testItem, path);
+            await result.Success.Should().BeFalse();
+            await testItem.AllowTest.Should().BeFalse();
+            await File.Exists(path).Should().BeFalse();
+        }
+        finally
+        {
+            File.Delete(path);
+        }
+    }
+
+    [Test]
     public async Task JuicitySpeedtest_ShouldUseAssignedPortWithoutListenerOffset()
     {
         var config = CoreConfigTestFactory.CreateConfig();

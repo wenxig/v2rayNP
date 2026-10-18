@@ -135,6 +135,7 @@ public static class CoreConfigHandler
 
     public static async Task<RetResult> GenerateClientSpeedtestConfig(Config config, CoreConfigContext context, ServerTestItem testItem, string fileName)
     {
+        testItem.AllowTest = false;
         var result = new RetResult();
         var initPort = AppManager.Instance.GetLocalPort(EInboundProtocol.speedtest);
         var port = Utils.GetFreePort(initPort + testItem.QueueNum);
@@ -162,6 +163,7 @@ public static class CoreConfigHandler
         }
 
         await File.WriteAllTextAsync(fileName, result.Data.ToString());
+        testItem.AllowTest = true;
         return result;
     }
 }

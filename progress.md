@@ -53,3 +53,9 @@
 - Serial tests passed 154/154. Real mihomo -t passed 4 white/global configs; 2 black configs fail on existing unsupported PROTOCOL,bittorrent. Temporary harness needed built DLL references after an external project-reference error. No client/system proxy was started or changed. Documentation update script had quoting errors; corrected.
 
 - Avalonia Debug build passed with 0 warnings/errors; git diff --check passed. Fix limited to mihomo IP rule generation and 6 routing regression cases; unrelated user changes preserved.
+
+## 2026-10-18 Single-node speed-test skip
+
+- Traced skip to missing AllowTest transition in the single-node config generation overload; preserving original client processes/configuration and unrelated workspace changes.
+
+- Six regression cases reproduced the missing eligibility transition before the fix. After resetting AllowTest at entry and enabling it only after successful config write, all 160 tests passed serially. Avalonia Debug build passed with 0 warnings/errors; git diff --check passed. Actual remote latency was not retested.

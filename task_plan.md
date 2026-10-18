@@ -53,4 +53,8 @@ Implementation and signed commit are complete. Existing unrelated `agent.md` del
 
 ## Next Step
 
-Completed: host-prefix fix, routing regression coverage, real-core checks, and desktop build. Black-template PROTOCOL compatibility remains a separate limitation.
+Completed single-node speed-test eligibility fix and validation; restart the rebuilt desktop to retest actual node latency.
+
+## Single-node speed-test skip regression (2026-10-18)
+
+- [completed] 10. Mark successfully written single-node speed-test configurations eligible; cover mihomo/Juicity success and failure, run tests/build, and sign the fix.

@@ -31,3 +31,7 @@
 - Existing sing-box code already handles single-address prefixes. The mihomo fix must preserve existing subnet prefixes and GEOIP/private rules.
 
 - Real mihomo accepts generated white/global templates for both normal and speed-test configs (4/4). Black template separately fails on unsupported PROTOCOL,bittorrent; no approximation introduced.
+
+## Single-node speed-test eligibility
+
+- RunRealPingAsync/RunUdpTestAsync skip items with AllowTest=false. Existing Xray/sing-box batch generators set AllowTest=true after generating each eligible node; the single-node CoreConfigHandler overload used by mihomo/Juicity never sets the flag. The core can parse its config while the request is still skipped.
