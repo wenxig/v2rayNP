@@ -574,8 +574,11 @@ install -m0644 %{_builddir}/__PKGROOT__/v2rayn.png %{buildroot}%{_datadir}/icons
 %{_datadir}/icons/hicolor/256x256/apps/v2rayn.png
 SPEC
 
-  sed -i "s/__VERSION__/${rpm_version}/g" "$specfile"
-  sed -i "s/__PKGROOT__/${PKGROOT}/g" "$specfile"
+  local rendered_spec="${specfile}.tmp"
+  awk -v version="$rpm_version" -v pkgroot="$PKGROOT" \
+    '{ gsub(/__VERSION__/, version); gsub(/__PKGROOT__/, pkgroot); print }' \
+    "$specfile" > "$rendered_spec"
+  mv "$rendered_spec" "$specfile"
 }
 
 package_binary() {
