@@ -9,6 +9,17 @@ public static class ConfigHandler
 
     #region ConfigHandler
 
+    public static void MigrateShadowquicCore(Config config)
+    {
+        foreach (var item in config.CoreTypeItem ?? [])
+        {
+            if (item.ConfigType == EConfigType.ShadowQUIC && item.CoreType == ECoreType.mihomo)
+            {
+                item.CoreType = ECoreType.shadowquic;
+            }
+        }
+    }
+
     /// <summary>
     /// Load the application configuration file
     /// If the file exists, deserialize it from JSON
@@ -34,6 +45,7 @@ public static class ConfigHandler
         }
 
         config ??= new Config();
+        MigrateShadowquicCore(config);
 
         config.CoreBasicItem ??= new()
         {
@@ -1225,6 +1237,10 @@ public static class ConfigHandler
     /// <returns>0 if successful</returns>
     public static async Task<int> AddServerCommon(Config config, ProfileItem profileItem, bool toFile = true)
     {
+        if (profileItem.ConfigType == EConfigType.ShadowQUIC && profileItem.CoreType == ECoreType.mihomo)
+        {
+            profileItem.CoreType = ECoreType.shadowquic;
+        }
         if (ProtocolCapabilities.IsExtendedProtocol(profileItem.ConfigType)
             && !NodeValidator.Validate(profileItem, profileItem.CoreType ?? ProtocolCapabilities.DefaultCore(profileItem.ConfigType)).Success) return -1;
         profileItem.ConfigVersion = 4;
@@ -1583,14 +1599,17 @@ public static class ConfigHandler
     {
         ProfileItem? itemSocks = null;
         var enableLegacyProtect = config.TunModeItem.EnableLegacyProtect;
-        if (node.ConfigType == EConfigType.Juicity && coreType == ECoreType.juicity)
+        if ((node.ConfigType == EConfigType.Juicity && coreType == ECoreType.juicity)
+            || (node.ConfigType == EConfigType.ShadowQUIC && coreType == ECoreType.shadowquic))
         {
             itemSocks = new ProfileItem
             {
                 CoreType = ECoreType.sing_box,
                 ConfigType = EConfigType.SOCKS,
                 Address = Global.Loopback,
-                Port = CoreConfigJuicityService.GetListenPort(config),
+                Port = coreType == ECoreType.shadowquic
+                    ? CoreConfigShadowquicService.GetListenPort(config)
+                    : CoreConfigJuicityService.GetListenPort(config),
             };
         }
         else if (node.ConfigType != EConfigType.Custom

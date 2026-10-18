@@ -1920,7 +1920,7 @@
   <data name="ProtocolUdpOverStream" xml:space="preserve"><value>通过流传输 UDP</value></data>
   <data name="ProtocolDisableMtuDiscovery" xml:space="preserve"><value>Shadowquic Disable Mtu Discovery</value></data>
   <data name="MsgJuicityTunUnsupported" xml:space="preserve"><value>本应用中的官方 Juicity 客户端不支持 TUN 模式。</value></data>
-  <data name="MsgShadowquicInsecureUnsupported" xml:space="preserve"><value>mihomo 的 ShadowQUIC 使用 JLS，不支持 allow-insecure。</value></data>
+  <data name="MsgShadowquicInsecureUnsupported" xml:space="preserve"><value>官方 ShadowQUIC 客户端 使用 JLS，不支持 allow-insecure。</value></data>
   <data name="MsgMihomoInboundRuleUnsupported" xml:space="preserve"><value>mihomo 节点路由不支持入站标签。</value></data>
   <data name="menuAddSSRServer" xml:space="preserve"><value>添加 [SSR]</value></data>
   <data name="menuAddMieruServer" xml:space="preserve"><value>添加 [Mieru]</value></data>
@@ -1933,4 +1933,6 @@
   <data name="ProtocolShadowquicMaxOpenStreams" xml:space="preserve"><value>Shadowquic Max Open Streams</value></data>
   <data name="ProtocolShadowquicRecvWindowConn" xml:space="preserve"><value>Shadowquic Recv Window Conn</value></data>
   <data name="ProtocolShadowquicRecvWindow" xml:space="preserve"><value>Shadowquic Recv Window</value></data>
+  <data name="ProtocolShadowquicInitialMtu" xml:space="preserve"><value>初始 MTU</value></data>
+  <data name="MsgShadowquicOptionsUnsupported" xml:space="preserve"><value>官方 ShadowQUIC 客户端不支持此 QUIC 版本或带宽、窗口参数，请清空这些选项。</value></data>
 </root>

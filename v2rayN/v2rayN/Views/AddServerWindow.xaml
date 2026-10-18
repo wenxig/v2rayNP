@@ -1121,6 +1121,7 @@
                     <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelShadowQUICField13" Width="300" VerticalAlignment="Center" /><TextBox x:Name="editShadowQUICField13" Width="400" /></StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelShadowQUICField14" Width="300" VerticalAlignment="Center" /><TextBox x:Name="editShadowQUICField14" Width="400" /></StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelShadowQUICField15" Width="300" VerticalAlignment="Center" /><TextBox x:Name="editShadowQUICField15" Width="400" /></StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelShadowQUICField17" Width="300" VerticalAlignment="Center" /><TextBox x:Name="editShadowQUICField17" Width="400" /></StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelShadowQUICField16" Width="300" VerticalAlignment="Center" /><CheckBox x:Name="editShadowQUICField16" Width="400" /></StackPanel>
                 </StackPanel>
 

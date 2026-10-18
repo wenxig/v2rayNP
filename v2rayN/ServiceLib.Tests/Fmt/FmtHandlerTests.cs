@@ -68,6 +68,7 @@ public class FmtHandlerTests
         var shadowquicResolved = await ExportThenImport(shadowquic);
         await shadowquicResolved.Sni.Should().BeEqualTo(shadowquic.Sni);
         await shadowquicResolved.GetProtocolExtra().ShadowquicQuicVersions.Should().BeEqualTo(shadowquic.GetProtocolExtra().ShadowquicQuicVersions);
+        await shadowquicResolved.GetProtocolExtra().ShadowquicInitialMtu.Should().BeEqualTo(1400);
         await shadowquicResolved.GetProtocolExtra().ShadowquicZeroRtt.Should().BeEqualTo(shadowquic.GetProtocolExtra().ShadowquicZeroRtt);
         await shadowquicResolved.GetProtocolExtra().ShadowquicCongestionControl.Should().BeEqualTo(shadowquic.GetProtocolExtra().ShadowquicCongestionControl);
 
@@ -674,7 +675,8 @@ public class FmtHandlerTests
         {
             ShadowquicUsername = item.Username,
             ShadowquicPassword = item.Password,
-            ShadowquicQuicVersions = "v1,v2",
+            ShadowquicQuicVersions = "v1",
+            ShadowquicInitialMtu = 1400,
             ShadowquicCongestionControl = "bbr",
             ShadowquicZeroRtt = true,
             ShadowquicUdpOverStream = true,

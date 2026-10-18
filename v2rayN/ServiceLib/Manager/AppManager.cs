@@ -327,11 +327,18 @@ public sealed class AppManager
 
     public async Task MigrateProfileExtra()
     {
+        await MigrateShadowquicProfiles();
         await MigrateProfileExtraGroupV2ToV3();
 
         await MigrateProfileExtraV2ToV3();
 
         await MigrateProfileTransportV3ToV4();
+    }
+
+    public async Task MigrateShadowquicProfiles()
+    {
+        await SQLiteHelper.Instance.ExecuteAsync(
+            $"UPDATE ProfileItem SET CoreType = {(int)ECoreType.shadowquic} WHERE ConfigType = {(int)EConfigType.ShadowQUIC} AND CoreType = {(int)ECoreType.mihomo}");
     }
 
     private async Task MigrateProfileExtraV2ToV3()
@@ -673,7 +680,8 @@ public sealed class AppManager
         var item = _config.CoreTypeItem?.FirstOrDefault(it => it.ConfigType == eConfigType);
         return item?.CoreType ?? (eConfigType switch
         {
-            EConfigType.SSR or EConfigType.Mieru or EConfigType.ShadowQUIC => ECoreType.mihomo,
+            EConfigType.SSR or EConfigType.Mieru => ECoreType.mihomo,
+            EConfigType.ShadowQUIC => ECoreType.shadowquic,
             EConfigType.Juicity => ECoreType.juicity,
             _ => ECoreType.Xray,
         });

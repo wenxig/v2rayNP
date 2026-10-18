@@ -1,10 +1,10 @@
 # v2rayN
 
-### A GUI client for Windows, Linux and macOS. Support [Xray](https://github.com/XTLS/Xray-core), [sing-box](https://github.com/SagerNet/sing-box), [mihomo](https://github.com/MetaCubeX/mihomo), and the official [Juicity client](https://github.com/juicity/juicity).
+### A GUI client for Windows, Linux and macOS. Support [Xray](https://github.com/XTLS/Xray-core), [sing-box](https://github.com/SagerNet/sing-box), [mihomo](https://github.com/MetaCubeX/mihomo), and the official [Juicity](https://github.com/juicity/juicity) and [ShadowQUIC](https://github.com/spongebob888/shadowquic) clients.
 
-Supported share protocols include SSR, Mieru, ShadowQUIC, and Juicity. SSR, Mieru, and ShadowQUIC use mihomo; Juicity uses `juicity-client`. Juicity listens on loopback at the configured mixed port plus 7; a managed sing-box front end provides the mixed-port entry, routing, and TUN configuration. Juicity node groups remain unsupported. TUN traffic and real server connectivity require target-platform validation.
+Supported share protocols include SSR, Mieru, ShadowQUIC, and Juicity. SSR and Mieru use mihomo; Juicity uses `juicity-client`, and ShadowQUIC uses the official `shadowquic` client. Their loopback SOCKS listeners use the configured mixed port plus 7 and plus 8, respectively; a managed sing-box front end provides the mixed-port entry, routing, and TUN configuration. Juicity and ShadowQUIC node groups remain unsupported. Existing ShadowQUIC mihomo mappings migrate to the official client. The official ShadowQUIC client does not expose QUIC version selection or mihomo bandwidth/window settings; non-default values are rejected instead of silently discarded. TUN traffic and real server connectivity require target-platform validation.
 
-New configurations use mixed port `20808`; existing configurations retain their saved port. The Juicity listener uses mixed port +7.
+New configurations use mixed port `20808`; existing configurations retain their saved port. Juicity uses mixed port +7 and ShadowQUIC uses mixed port +8.
 
 > **🧹 去广告纯净版 / Ad-free Mod** \
 > 本版本移除了原版的推广/广告入口，「检查更新」与下载均指向本仓库。 \

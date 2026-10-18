@@ -66,6 +66,7 @@ public sealed class CoreInfoManager
                 lst.Add(ECoreType.Xray);
                 lst.Add(ECoreType.mihomo);
                 lst.Add(ECoreType.sing_box);
+                lst.Add(ECoreType.shadowquic);
             }
         }
 
@@ -80,6 +81,7 @@ public sealed class CoreInfoManager
             ECoreType.Xray => true,
             ECoreType.mihomo => true,
             ECoreType.sing_box => true,
+            ECoreType.shadowquic => true,
             _ => false,
         };
     }
@@ -283,7 +285,18 @@ public sealed class CoreInfoManager
                     CoreType = ECoreType.shadowquic,
                     CoreExes = [ "shadowquic" ],
                     Arguments = "-c {0}",
-                    Url =  GetCoreUrl(ECoreType.shadowquic),
+                    Url = GetCoreUrl(ECoreType.shadowquic),
+                    ReleaseApiUrl = GetCoreUrl(ECoreType.shadowquic).Replace(Global.GithubUrl, Global.GithubApiUrl),
+                    DownloadUrlWin64 = GetCoreUrl(ECoreType.shadowquic) + "/download/{0}/shadowquic-x86_64-windows.exe",
+                    DownloadUrlWinArm64 = GetCoreUrl(ECoreType.shadowquic) + "/download/{0}/shadowquic-aarch64-windows.exe",
+                    DownloadUrlLinux64 = GetCoreUrl(ECoreType.shadowquic) + "/download/{0}/shadowquic-x86_64-linux",
+                    DownloadUrlLinuxArm64 = GetCoreUrl(ECoreType.shadowquic) + "/download/{0}/shadowquic-aarch64-linux",
+                    DownloadUrlLinuxRiscV64 = GetCoreUrl(ECoreType.shadowquic) + "/download/{0}/shadowquic-riscv64gc-linux",
+                    DownloadUrlLinuxLoong64 = GetCoreUrl(ECoreType.shadowquic) + "/download/{0}/shadowquic-loongarch64-linux",
+                    DownloadUrlOSX64 = GetCoreUrl(ECoreType.shadowquic) + "/download/{0}/shadowquic-x86_64-darwin",
+                    DownloadUrlOSXArm64 = GetCoreUrl(ECoreType.shadowquic) + "/download/{0}/shadowquic-aarch64-darwin",
+                    Match = "shadowquic",
+                    VersionArg = "--version",
                     AbsolutePath = false,
                 },
 

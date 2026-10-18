@@ -166,27 +166,12 @@ public class CoreConfigClashService(Config config, bool isTunEnabled)
                 if (e.MieruUdp == true) proxy["udp"] = true;
                 Add(proxy, "multiplexing", e.MieruMultiplexing); Add(proxy, "handshake-mode", e.MieruHandshakeMode); Add(proxy, "traffic-pattern", e.MieruTrafficPattern);
                 break;
-            case EConfigType.ShadowQUIC:
-                proxy["username"] = e.ShadowquicUsername ?? node.Username; proxy["password"] = e.ShadowquicPassword ?? node.Password;
-                Add(proxy, "sni", node.Sni);
-                if (node.Alpn.IsNotEmpty()) proxy["alpn"] = node.GetAlpn();
-                if (e.ShadowquicQuicVersions.IsNotEmpty()) proxy["quic-versions"] = Utils.String2List(e.ShadowquicQuicVersions);
-                if (e.ShadowquicUpMbps is > 0) proxy["up"] = $"{e.ShadowquicUpMbps} Mbps";
-                if (e.ShadowquicDownMbps is > 0) proxy["down"] = $"{e.ShadowquicDownMbps} Mbps";
-                if (e.ShadowquicZeroRtt == true) proxy["zero-rtt"] = true;
-                if (e.ShadowquicUdpOverStream == true) proxy["udp-over-stream"] = true;
-                Add(proxy, "congestion-controller", e.ShadowquicCongestionControl); AddInt(proxy, "cwnd", e.ShadowquicCwnd);
-                AddInt(proxy, "max-datagram-frame-size", e.ShadowquicMaxDatagramFrameSize); AddInt(proxy, "max-open-streams", e.ShadowquicMaxOpenStreams);
-                AddInt(proxy, "recv-window-conn", e.ShadowquicRecvWindowConn); AddInt(proxy, "recv-window", e.ShadowquicRecvWindow);
-                if (e.ShadowquicDisableMtuDiscovery == true) proxy["disable-mtu-discovery"] = true;
 
-                break;
         }
         return proxy;
     }
 
     private static void Add(Dictionary<string, object> target, string key, string? value) { if (value.IsNotEmpty()) target[key] = value; }
-    private static void AddInt(Dictionary<string, object> target, string key, int? value) { if (value is > 0) target[key] = value.Value; }
 
     public async Task<RetResult> GenerateClientCustomConfig(ProfileItem node, string? fileName)
     {

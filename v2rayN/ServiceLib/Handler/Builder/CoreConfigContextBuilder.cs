@@ -34,7 +34,7 @@ public class CoreConfigContextBuilder
     public static async Task<CoreConfigContextBuilderResult> Build(Config config, ProfileItem node)
     {
         var runCoreType = AppManager.Instance.GetCoreType(node, node.ConfigType);
-        var coreType = runCoreType is ECoreType.sing_box or ECoreType.mihomo or ECoreType.juicity ? ECoreType.sing_box : ECoreType.Xray;
+        var coreType = runCoreType is ECoreType.sing_box or ECoreType.mihomo or ECoreType.juicity or ECoreType.shadowquic ? ECoreType.sing_box : ECoreType.Xray;
         var context = new CoreConfigContext
         {
             Node = node,
@@ -42,7 +42,7 @@ public class CoreConfigContextBuilder
             AllProxiesMap = [],
             AppConfig = config,
             FullConfigTemplate = await AppManager.Instance.GetFullConfigTemplateItem(coreType),
-            IsTunEnabled = config.TunModeItem.EnableTun && runCoreType != ECoreType.juicity,
+            IsTunEnabled = config.TunModeItem.EnableTun && !ProtocolCapabilities.IsStandaloneCore(runCoreType),
             SimpleDnsItem = config.SimpleDNSItem,
             ProtectDomainList = [],
             RawDnsItem = await AppManager.Instance.GetDNSItem(coreType),
@@ -54,7 +54,7 @@ public class CoreConfigContextBuilder
             ProtectCoreTypeList = config.TunModeItem.EnableTun ? [ECoreType.Xray, ECoreType.sing_box] : []
         };
         var validatorResult = NodeValidatorResult.Empty();
-        if (node.ConfigType.IsGroupType() && (runCoreType == ECoreType.juicity || (runCoreType == ECoreType.mihomo && node.ConfigType != EConfigType.PolicyGroup)))
+        if (node.ConfigType.IsGroupType() && (ProtocolCapabilities.IsStandaloneCore(runCoreType) || (runCoreType == ECoreType.mihomo && node.ConfigType != EConfigType.PolicyGroup)))
         {
             validatorResult.Errors.Add(string.Format(ResUI.MsgCoreNotSupportProtocol, runCoreType, node.ConfigType));
             return new CoreConfigContextBuilderResult(context, validatorResult);
@@ -69,7 +69,8 @@ public class CoreConfigContextBuilder
                 return new CoreConfigContextBuilderResult(context, validatorResult);
             }
         }
-        if (runCoreType == ECoreType.juicity && CoreConfigJuicityService.GetListenPort(config) is <= 0 or > 65535)
+        if ((runCoreType == ECoreType.juicity && CoreConfigJuicityService.GetListenPort(config) is <= 0 or > 65535)
+            || (runCoreType == ECoreType.shadowquic && CoreConfigShadowquicService.GetListenPort(config) is <= 0 or > 65535))
         {
             validatorResult.Errors.Add(ResUI.FillCorrectServerPort);
             return new CoreConfigContextBuilderResult(context, validatorResult);
@@ -522,7 +523,7 @@ public class CoreConfigContextBuilder
             childNodeValidatorResult.Errors.Add(string.Format(ResUI.MsgGroupNoValidChildNode, node.Remarks));
             return childNodeValidatorResult;
         }
-        if ((context.RunCoreType is ECoreType.mihomo or ECoreType.juicity
+        if ((context.RunCoreType is ECoreType.mihomo or ECoreType.juicity or ECoreType.shadowquic
             || groupChildList.Any(child => ProtocolCapabilities.IsExtendedProtocol(child.ConfigType)))
             && childNodeValidatorResult.Errors.Count > 0) return childNodeValidatorResult;
         childNodeValidatorResult.Warnings.AddRange(childNodeValidatorResult.Errors);

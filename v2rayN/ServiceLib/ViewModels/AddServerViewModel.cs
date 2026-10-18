@@ -97,6 +97,7 @@ public partial class AddServerViewModel : MyReactiveObject, ICloseable
     [Reactive] public partial string MieruMultiplexing { get; set; }
     [Reactive] public partial string MieruHandshakeMode { get; set; }
     [Reactive] public partial string MieruTrafficPattern { get; set; }
+    [Reactive] public partial int? ShadowquicInitialMtu { get; set; }
     [Reactive] public partial string ShadowquicUsername { get; set; }
     [Reactive] public partial string ShadowquicPassword { get; set; }
     [Reactive] public partial string ShadowquicQuicVersions { get; set; }
@@ -368,6 +369,7 @@ public partial class AddServerViewModel : MyReactiveObject, ICloseable
         MieruMultiplexing = protocolExtra.MieruMultiplexing ?? string.Empty;
         MieruHandshakeMode = protocolExtra.MieruHandshakeMode ?? string.Empty;
         MieruTrafficPattern = protocolExtra.MieruTrafficPattern ?? string.Empty;
+        ShadowquicInitialMtu = protocolExtra.ShadowquicInitialMtu;
         ShadowquicUpMbps = protocolExtra.ShadowquicUpMbps;
         ShadowquicDownMbps = protocolExtra.ShadowquicDownMbps;
         ShadowquicCwnd = protocolExtra.ShadowquicCwnd;
@@ -520,6 +522,7 @@ public partial class AddServerViewModel : MyReactiveObject, ICloseable
             SsrProtocol = SsrProtocol.NullIfEmpty(), SsrProtocolParam = SsrProtocolParam.NullIfEmpty(), SsrUdp = SsrUdp ? true : null,
             MieruTransport = MieruTransport.NullIfEmpty(), MieruPortRange = MieruPortRange.NullIfEmpty(), MieruUdp = MieruUdp ? true : null,
             MieruMultiplexing = MieruMultiplexing.NullIfEmpty(), MieruHandshakeMode = MieruHandshakeMode.NullIfEmpty(), MieruTrafficPattern = MieruTrafficPattern.NullIfEmpty(),
+            ShadowquicInitialMtu = ShadowquicInitialMtu,
             ShadowquicUpMbps = ShadowquicUpMbps,
             ShadowquicDownMbps = ShadowquicDownMbps,
             ShadowquicCwnd = ShadowquicCwnd,

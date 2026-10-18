@@ -65,3 +65,18 @@
 - Verified mihomo v1.19.32 and upstream adapter source. All local tests cleared common proxy environment variables, used an explicit temporary loopback SOCKS port, and left the active正版 v2rayN process and system proxy untouched.
 - The supplied remote node worked with official ShadowQUIC v0.4.4 (HTTP 204/200), while mihomo timed out. Local official-server testing showed generated mihomo could return the expected HTTP body. Fresh-client rapid-restart tests had two isolated mihomo authentication misses; persistent-client repeat passed 20/20 for both mihomo and official client with zero-RTT disabled.
 - Result: confirmed a remote-node interoperability gap, but not a broad severe mihomo defect. Keep alternate-engine introduction deferred pending isolation of the remote node's configuration differences, especially unsupported `initial-mtu`.
+
+## Official ShadowQUIC engine integration
+
+- Added native client YAML, mixed-port +8, sing-box front end and process/test dispatch, official release mappings and raw-binary update installation. Added deterministic startup/import migration from the retired ShadowQUIC/mihomo pair.
+- Added initial-MTU model/editor/URI support in both hosts and explicit validation of unsupported legacy options. Validation in progress; first build exposed a SQLite helper argument mismatch, corrected to its array contract.
+
+- Final shared tests: `dotnet test v2rayN/ServiceLib.Tests/ServiceLib.Tests.csproj -c Debug --no-restore -- --maximum-parallel-tests 1` passed 173/173.
+- `dotnet build v2rayN/v2rayN.Desktop/v2rayN.Desktop.csproj -c Debug` passed; after Release restore a Debug `--no-restore` attempt missed conditional Avalonia diagnostics, resolved by the normal restore-enabled Debug build. Existing GlobalHotKeys CS8625 warning remains (submodule unchanged).
+- `dotnet build v2rayN/v2rayN/v2rayN.csproj -c Debug --no-restore -p:EnableWindowsTargeting=true` passed; Windows runtime behavior remains untested on macOS.
+- `dotnet publish v2rayN/v2rayN.Desktop/v2rayN.Desktop.csproj -c Release -r osx-x64 -p:SelfContained=true -o /private/tmp/v2raynp-shadowquic-publish` passed (existing GlobalHotKeys warning).
+- Generated normal and speed-test YAML through CoreConfigHandler; official v0.4.4 parsed and ran them. `sing-box check -c generated-front.json` passed. Initial integration returned expected local HTTP bodies (4/4) and remote HTTP 204/200 (5/5) through native and sing-box listeners. Application ProcessService + ConnectionHandler.GetRealPingTime returned 222 ms.
+- Repeated integration: local 4/4 still passed; all 5 remote requests timed out. Final control tested original upstream client YAML and generated YAML with the same official binary; original returned curl 35 (TLS failure), generated returned curl 28 (timeout). Remote reliability remains unverified; success in one run is not treated as a stability guarantee.
+- All core processes used only task-owned loopback ports; common proxy environment variables were cleared and curl used explicit proxies. System proxy, TUN, and the original v2rayN process were not modified. All temporary test processes were stopped.
+- Verified release asset SHA-256 and placed the official binary at `v2rayN/v2rayN.Desktop/bin/Debug/net10.0/bin/shadowquic/shadowquic` for the user's manual retest; this ignored binary and all credential-bearing smoke inputs are excluded from Git.
+- `git diff --check` passed. TUN/UDP live forwarding, Windows/Linux execution and long-term remote stability remain unverified. Unrelated `agent.md`, `AGENTS.md`, and `live-node-validation.md` edits are preserved.

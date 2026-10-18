@@ -1906,7 +1906,7 @@ Təyin edildikdə sertifikat sabitlənəcək və "Təhlükəsiz olmayan əlaqəy
   <data name="ProtocolUdpOverStream" xml:space="preserve"><value>UDP over stream</value></data>
   <data name="ProtocolDisableMtuDiscovery" xml:space="preserve"><value>Shadowquic Disable Mtu Discovery</value></data>
   <data name="MsgJuicityTunUnsupported" xml:space="preserve"><value>The official Juicity client does not support TUN mode in this application.</value></data>
-  <data name="MsgShadowquicInsecureUnsupported" xml:space="preserve"><value>The mihomo ShadowQUIC adapter uses JLS and does not support allow-insecure.</value></data>
+  <data name="MsgShadowquicInsecureUnsupported" xml:space="preserve"><value>The official ShadowQUIC client uses JLS and does not support allow-insecure.</value></data>
   <data name="MsgMihomoInboundRuleUnsupported" xml:space="preserve"><value>Mihomo node routing cannot use inbound tags.</value></data>
   <data name="menuAddSSRServer" xml:space="preserve"><value>Add [SSR]</value></data>
   <data name="menuAddMieruServer" xml:space="preserve"><value>Add [Mieru]</value></data>
@@ -1935,4 +1935,6 @@ Təyin edildikdə sertifikat sabitlənəcək və "Təhlükəsiz olmayan əlaqəy
   <data name="ProtocolJuicitySni" xml:space="preserve"><value>Juicity SNI</value></data>
   <data name="ProtocolJuicityCongestionControl" xml:space="preserve"><value>Congestion control</value></data>
   <data name="ProtocolPinnedCertchainSha256" xml:space="preserve"><value>Certificate chain SHA-256 pin</value></data>
+  <data name="ProtocolShadowquicInitialMtu" xml:space="preserve"><value>Initial MTU</value></data>
+  <data name="MsgShadowquicOptionsUnsupported" xml:space="preserve"><value>The official ShadowQUIC client does not support this QUIC version or bandwidth/window options. Clear these options.</value></data>
 </root>

@@ -61,7 +61,7 @@ public class NodeValidator
 
         if (item.ConfigType.IsGroupType())
         {
-            if (coreType == ECoreType.juicity || (coreType == ECoreType.mihomo && item.ConfigType != EConfigType.PolicyGroup))
+            if (ProtocolCapabilities.IsStandaloneCore(coreType) || (coreType == ECoreType.mihomo && item.ConfigType != EConfigType.PolicyGroup))
             {
                 v.Error(string.Format(ResUI.MsgCoreNotSupportProtocol, coreType, item.ConfigType));
             }
@@ -103,6 +103,11 @@ public class NodeValidator
             v.Error(string.Format(ResUI.MsgCoreNotSupportProtocol, nameof(ECoreType.juicity), item.ConfigType));
         }
 
+        else if (coreType == ECoreType.shadowquic && item.ConfigType != EConfigType.ShadowQUIC)
+        {
+            v.Error(string.Format(ResUI.MsgCoreNotSupportProtocol, coreType, item.ConfigType));
+        }
+
         // Protocol Specifics
         var protocolExtra = item.GetProtocolExtra();
         switch (item.ConfigType)
@@ -120,10 +125,11 @@ public class NodeValidator
                 break;
             case EConfigType.ShadowQUIC:
                 v.Assert((protocolExtra.ShadowquicUsername ?? item.Username).IsNotEmpty() && (protocolExtra.ShadowquicPassword ?? item.Password).IsNotEmpty(), ResUI.FillPassword);
-                v.Assert(protocolExtra.ShadowquicCongestionControl is null or "" or "cubic" or "bbr" or "new_reno", ResUI.CheckServerSettings);
-                v.Assert((protocolExtra.ShadowquicQuicVersions ?? "v1").Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries).All(x => x is "v1" or "v2"), ResUI.CheckServerSettings);
+                v.Assert(protocolExtra.ShadowquicCongestionControl is null or "" or "cubic" or "bbr" or "new_reno" or "new-reno" or "bbr3", ResUI.CheckServerSettings);
+                v.Assert(protocolExtra.ShadowquicQuicVersions is null or "" or "v1", ProtocolCapabilities.Text("MsgShadowquicOptionsUnsupported"));
+                v.Assert(protocolExtra.ShadowquicInitialMtu is null or >= 1290 and <= 65527, ResUI.CheckServerSettings);
+                v.Assert(new[] { protocolExtra.ShadowquicUpMbps, protocolExtra.ShadowquicDownMbps, protocolExtra.ShadowquicCwnd, protocolExtra.ShadowquicMaxDatagramFrameSize, protocolExtra.ShadowquicMaxOpenStreams, protocolExtra.ShadowquicRecvWindowConn, protocolExtra.ShadowquicRecvWindow }.All(x => x is null or 0), ProtocolCapabilities.Text("MsgShadowquicOptionsUnsupported"));
                 v.Assert(!item.GetAllowInsecure(), ProtocolCapabilities.Text("MsgShadowquicInsecureUnsupported"));
-                v.Assert(new[] { protocolExtra.ShadowquicUpMbps, protocolExtra.ShadowquicDownMbps, protocolExtra.ShadowquicCwnd, protocolExtra.ShadowquicMaxDatagramFrameSize, protocolExtra.ShadowquicMaxOpenStreams, protocolExtra.ShadowquicRecvWindowConn, protocolExtra.ShadowquicRecvWindow }.All(x => x is null or >= 0), ResUI.CheckServerSettings);
                 break;
             case EConfigType.Juicity:
                 v.Assert(Guid.TryParse(protocolExtra.JuicityUuid ?? item.Username, out _), ResUI.FillUUID);

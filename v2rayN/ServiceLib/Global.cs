@@ -372,7 +372,8 @@ public class Global
         "Xray",
         "mihomo",
         "sing_box",
-        "juicity"
+        "juicity",
+        "shadowquic"
     ];
 
     public static readonly HashSet<EConfigType> XraySupportConfigType =
@@ -410,7 +411,6 @@ public class Global
     [
         EConfigType.SSR,
         EConfigType.Mieru,
-        EConfigType.ShadowQUIC,
     ];
 
     public static readonly HashSet<EConfigType> JuicitySupportConfigType =

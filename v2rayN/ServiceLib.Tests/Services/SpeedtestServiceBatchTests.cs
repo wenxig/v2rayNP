@@ -41,6 +41,18 @@ public class SpeedtestServiceBatchTests
         }
     }
 
+    [Test]
+    public async Task StandaloneCores_ShouldUseOneProcessPerProfile()
+    {
+        var profiles = new List<ServerTestItem>
+        {
+            new() { CoreType = ECoreType.shadowquic }, new() { CoreType = ECoreType.shadowquic },
+            new() { CoreType = ECoreType.juicity }, new() { CoreType = ECoreType.juicity },
+        };
+        await GetBatches(profiles, 100).All(batch => batch.Count == 1).Should().BeTrue();
+        await GetBatches(profiles, 100).SelectMany(batch => batch).Count().Should().BeEqualTo(4);
+    }
+
     private static List<ServerTestItem> CreateProfiles() =>
     [
         new() { CoreType = ECoreType.Xray },

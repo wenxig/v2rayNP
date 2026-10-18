@@ -1928,7 +1928,7 @@ The "Get Certificate" action may fail if a self-signed certificate is used or if
   <data name="ProtocolUdpOverStream" xml:space="preserve"><value>UDP over stream</value></data>
   <data name="ProtocolDisableMtuDiscovery" xml:space="preserve"><value>Shadowquic Disable Mtu Discovery</value></data>
   <data name="MsgJuicityTunUnsupported" xml:space="preserve"><value>The official Juicity client does not support TUN mode in this application.</value></data>
-  <data name="MsgShadowquicInsecureUnsupported" xml:space="preserve"><value>The mihomo ShadowQUIC adapter uses JLS and does not support allow-insecure.</value></data>
+  <data name="MsgShadowquicInsecureUnsupported" xml:space="preserve"><value>The official ShadowQUIC client uses JLS and does not support allow-insecure.</value></data>
   <data name="MsgMihomoInboundRuleUnsupported" xml:space="preserve"><value>Mihomo node routing cannot use inbound tags.</value></data>
   <data name="menuAddSSRServer" xml:space="preserve"><value>Add [SSR]</value></data>
   <data name="menuAddMieruServer" xml:space="preserve"><value>Add [Mieru]</value></data>
@@ -1941,4 +1941,6 @@ The "Get Certificate" action may fail if a self-signed certificate is used or if
   <data name="ProtocolShadowquicMaxOpenStreams" xml:space="preserve"><value>Shadowquic Max Open Streams</value></data>
   <data name="ProtocolShadowquicRecvWindowConn" xml:space="preserve"><value>Shadowquic Recv Window Conn</value></data>
   <data name="ProtocolShadowquicRecvWindow" xml:space="preserve"><value>Shadowquic Recv Window</value></data>
+  <data name="ProtocolShadowquicInitialMtu" xml:space="preserve"><value>Initial MTU</value></data>
+  <data name="MsgShadowquicOptionsUnsupported" xml:space="preserve"><value>The official ShadowQUIC client does not support this QUIC version or bandwidth/window options. Clear these options.</value></data>
 </root>

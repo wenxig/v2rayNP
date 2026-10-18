@@ -16,14 +16,14 @@ public static class ShadowquicFmt
         item.AllowInsecure = ShareLinkValidation.Boolean(q["insecure"]) == true ? Global.StringTrue : Global.StringFalse;
         item.SetProtocolExtra(item.GetProtocolExtra() with
         {
-            ShadowquicUsername = userInfo[0], ShadowquicPassword = userInfo[1], ShadowquicQuicVersions = q["quic-versions"],
+            ShadowquicUsername = userInfo[0], ShadowquicPassword = userInfo[1], ShadowquicQuicVersions = q["quic-versions"], ShadowquicInitialMtu = ParseInt(q["initial-mtu"]),
             ShadowquicZeroRtt = ShareLinkValidation.Boolean(q["zero-rtt"]), ShadowquicUdpOverStream = ShareLinkValidation.Boolean(q["udp-over-stream"]),
             ShadowquicCongestionControl = q["congestion-control"], ShadowquicUpMbps = ParseInt(q["up"]), ShadowquicDownMbps = ParseInt(q["down"]),
             ShadowquicCwnd = ParseInt(q["cwnd"]), ShadowquicMaxDatagramFrameSize = ParseInt(q["max-datagram-frame-size"]),
             ShadowquicMaxOpenStreams = ParseInt(q["max-open-streams"]), ShadowquicRecvWindowConn = ParseInt(q["recv-window-conn"]),
             ShadowquicRecvWindow = ParseInt(q["recv-window"]), ShadowquicDisableMtuDiscovery = ShareLinkValidation.Boolean(q["disable-mtu-discovery"])
         });
-        if (!NodeValidator.Validate(item, ECoreType.mihomo).Success) return null;
+        if (!NodeValidator.Validate(item, ECoreType.shadowquic).Success) return null;
         msg = string.Empty; return item;
     }
 
@@ -32,6 +32,7 @@ public static class ShadowquicFmt
         if (item == null) return null;
         var e = item.GetProtocolExtra(); var q = new List<string>();
         Add(q, "sni", item.Sni); Add(q, "alpn", item.Alpn); if (item.GetAllowInsecure()) q.Add("insecure=1");
+        AddInt(q, "initial-mtu", e.ShadowquicInitialMtu);
         Add(q, "quic-versions", e.ShadowquicQuicVersions); if (e.ShadowquicZeroRtt == true) q.Add("zero-rtt=1"); if (e.ShadowquicUdpOverStream == true) q.Add("udp-over-stream=1");
         Add(q, "congestion-control", e.ShadowquicCongestionControl); AddInt(q, "up", e.ShadowquicUpMbps); AddInt(q, "down", e.ShadowquicDownMbps); AddInt(q, "cwnd", e.ShadowquicCwnd);
         AddInt(q, "max-datagram-frame-size", e.ShadowquicMaxDatagramFrameSize); AddInt(q, "max-open-streams", e.ShadowquicMaxOpenStreams); AddInt(q, "recv-window-conn", e.ShadowquicRecvWindowConn); AddInt(q, "recv-window", e.ShadowquicRecvWindow);

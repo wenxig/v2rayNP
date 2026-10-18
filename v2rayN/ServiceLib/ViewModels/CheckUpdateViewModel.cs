@@ -369,7 +369,12 @@ public partial class CheckUpdateViewModel : MyReactiveObject
             var coreTypeStr = item.CoreType?.ToString() ?? "";
             var toPath = Utils.GetBinPath("", coreTypeStr);
 
-            if (fileName.Contains(".tar.gz"))
+            if (item.CoreType == ECoreType.shadowquic)
+            {
+                Directory.CreateDirectory(toPath);
+                File.Copy(fileName, Path.Combine(toPath, Utils.GetExeName("shadowquic")), true);
+            }
+            else if (fileName.Contains(".tar.gz"))
             {
                 FileUtils.DecompressTarFile(fileName, toPath);
                 var dir = new DirectoryInfo(toPath);

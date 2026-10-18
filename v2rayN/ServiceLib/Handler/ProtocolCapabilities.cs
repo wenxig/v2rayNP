@@ -2,11 +2,14 @@ namespace ServiceLib.Handler;
 
 public static class ProtocolCapabilities
 {
+    public static bool IsStandaloneCore(ECoreType type) => type is ECoreType.juicity or ECoreType.shadowquic;
+
     public static bool IsExtendedProtocol(EConfigType type) => type is EConfigType.SSR or EConfigType.Mieru or EConfigType.ShadowQUIC or EConfigType.Juicity;
 
     public static ECoreType DefaultCore(EConfigType type) => type switch
     {
-        EConfigType.SSR or EConfigType.Mieru or EConfigType.ShadowQUIC => ECoreType.mihomo,
+        EConfigType.SSR or EConfigType.Mieru => ECoreType.mihomo,
+        EConfigType.ShadowQUIC => ECoreType.shadowquic,
         EConfigType.Juicity => ECoreType.juicity,
         _ => ECoreType.Xray
     };

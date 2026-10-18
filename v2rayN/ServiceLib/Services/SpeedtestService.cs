@@ -595,7 +595,7 @@ public class SpeedtestService(Config config, Func<SpeedTestResult, Task> updateF
         pageSize = Math.Max(pageSize, 1);
         foreach (var group in lstSelected.GroupBy(t => t.CoreType))
         {
-            var size = group.Key is ECoreType.mihomo or ECoreType.juicity ? 1 : pageSize;
+            var size = group.Key is ECoreType.mihomo or ECoreType.juicity or ECoreType.shadowquic ? 1 : pageSize;
             lstTest.AddRange(group.Chunk(size).Select(chunk => chunk.ToList()));
         }
 

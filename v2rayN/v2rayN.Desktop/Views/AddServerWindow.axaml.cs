@@ -47,6 +47,7 @@ public partial class AddServerWindow : WindowBase<AddServerViewModel>
         labelShadowQUICField13.Text = ProtocolCapabilities.Text("ProtocolShadowquicMaxOpenStreams");
         labelShadowQUICField14.Text = ProtocolCapabilities.Text("ProtocolShadowquicRecvWindowConn");
         labelShadowQUICField15.Text = ProtocolCapabilities.Text("ProtocolShadowquicRecvWindow");
+        labelShadowQUICField17.Text = ProtocolCapabilities.Text("ProtocolShadowquicInitialMtu");
         labelShadowQUICField16.Text = ProtocolCapabilities.Text("ProtocolDisableMtuDiscovery");
         labelJuicityField0.Text = ProtocolCapabilities.Text("ProtocolJuicityUuid");
         labelJuicityField1.Text = ProtocolCapabilities.Text("TbId3");
@@ -251,6 +252,7 @@ public partial class AddServerWindow : WindowBase<AddServerViewModel>
             this.Bind(ViewModel, vm => vm.MieruHandshakeMode, v => v.editMieruField5.Text).DisposeWith(disposables);
             this.Bind(ViewModel, vm => vm.MieruTrafficPattern, v => v.editMieruField6.Text).DisposeWith(disposables);
             this.Bind(ViewModel, vm => vm.MieruUdp, v => v.editMieruField7.IsChecked).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.ShadowquicInitialMtu, v => v.editShadowQUICField17.Text).DisposeWith(disposables);
             this.Bind(ViewModel, vm => vm.ShadowquicUsername, v => v.editShadowQUICField0.Text).DisposeWith(disposables);
             this.Bind(ViewModel, vm => vm.ShadowquicPassword, v => v.editShadowQUICField1.Text).DisposeWith(disposables);
             this.Bind(ViewModel, vm => vm.SelectedSource.Sni, v => v.editShadowQUICField2.Text).DisposeWith(disposables);

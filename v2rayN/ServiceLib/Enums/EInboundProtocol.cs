@@ -10,5 +10,6 @@ public enum EInboundProtocol
     api2,
     mixed,
     juicity = 7,
+    shadowquic = 8,
     speedtest = 21
 }

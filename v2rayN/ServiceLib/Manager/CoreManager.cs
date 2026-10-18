@@ -93,7 +93,7 @@ public class CoreManager
         }
 
         await CoreStart(mainContext);
-        await WaitForProxyPort(preContext, mainContext.RunCoreType == ECoreType.juicity);
+        await WaitForProxyPort(preContext, ProtocolCapabilities.IsStandaloneCore(mainContext.RunCoreType));
         await CoreStartPreService(preContext);
 
         AppManager.Instance.RunningCoreType = preContext?.RunCoreType ?? mainContext.RunCoreType;
@@ -106,8 +106,8 @@ public class CoreManager
 
     public async Task<ProcessService?> LoadCoreConfigSpeedtest(List<ServerTestItem> selecteds)
     {
-        if (selecteds.Count == 1 && selecteds[0].CoreType is ECoreType.mihomo or ECoreType.juicity) return await LoadCoreConfigSpeedtest(selecteds[0]);
-        if (selecteds.Any(x => x.CoreType is ECoreType.mihomo or ECoreType.juicity)) return null;
+        if (selecteds.Count == 1 && selecteds[0].CoreType is ECoreType.mihomo or ECoreType.juicity or ECoreType.shadowquic) return await LoadCoreConfigSpeedtest(selecteds[0]);
+        if (selecteds.Any(x => x.CoreType is ECoreType.mihomo or ECoreType.juicity or ECoreType.shadowquic)) return null;
         var coreType = selecteds.FirstOrDefault()?.CoreType == ECoreType.sing_box ? ECoreType.sing_box : ECoreType.Xray;
         var fileName = string.Format(Global.CoreSpeedtestConfigFileName, Utils.GetGuid(false));
         var configPath = Utils.GetBinConfigPath(fileName);

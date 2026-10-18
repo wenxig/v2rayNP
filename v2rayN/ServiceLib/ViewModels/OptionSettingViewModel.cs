@@ -247,7 +247,8 @@ public partial class OptionSettingViewModel : MyReactiveObject, ICloseable
                 ConfigType = it,
                 CoreType = it switch
                 {
-                    EConfigType.SSR or EConfigType.Mieru or EConfigType.ShadowQUIC => ECoreType.mihomo,
+                    EConfigType.SSR or EConfigType.Mieru => ECoreType.mihomo,
+                    EConfigType.ShadowQUIC => ECoreType.shadowquic,
                     EConfigType.Juicity => ECoreType.juicity,
                     _ => ECoreType.Xray
                 }

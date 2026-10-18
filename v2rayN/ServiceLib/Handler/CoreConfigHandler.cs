@@ -29,6 +29,10 @@ public static class CoreConfigHandler
         {
             result = new CoreConfigJuicityService(config).GenerateClientConfig(node);
         }
+        else if (context.RunCoreType == ECoreType.shadowquic)
+        {
+            result = new CoreConfigShadowquicService(config).GenerateClientConfig(node);
+        }
         else if (context.RunCoreType == ECoreType.sing_box)
         {
             result = new CoreConfigSingboxService(context).GenerateClientConfigContent();
@@ -148,6 +152,10 @@ public static class CoreConfigHandler
         else if (context.RunCoreType == ECoreType.juicity)
         {
             result = new CoreConfigJuicityService(config).GenerateClientConfig(context.Node, port);
+        }
+        else if (context.RunCoreType == ECoreType.shadowquic)
+        {
+            result = new CoreConfigShadowquicService(config).GenerateClientConfig(context.Node, port);
         }
         else if (context.RunCoreType == ECoreType.sing_box)
         {

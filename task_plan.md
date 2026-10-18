@@ -2,7 +2,7 @@
 
 ## Goal
 
-Add complete SSR, Mieru, ShadowQUIC, and Juicity support using mihomo for the first three protocols and the official Juicity client for Juicity.
+Support SSR and Mieru through mihomo, and ShadowQUIC and Juicity through their official standalone clients.
 
 ## Phases
 
@@ -17,7 +17,7 @@ Add complete SSR, Mieru, ShadowQUIC, and Juicity support using mihomo for the fi
 
 ## Decisions
 
-- SSR, Mieru, and ShadowQUIC run through mihomo.
+- SSR and Mieru run through mihomo; ShadowQUIC now moves to its official standalone client.
 - Juicity runs through the already registered official `juicity-client`.
 - Xray and sing-box reject these protocols; no silent fallback or semantic mapping.
 - Existing user changes are preserved.
@@ -46,6 +46,8 @@ Implementation and signed commit are complete. Existing unrelated `agent.md` del
 
 | Error | Attempt | Resolution |
 |---|---:|---|
+| SQLiteHelper.ExecuteAsync accepts only SQL text | 2 | Use integer enum constants; added persisted migration test. |
+| Debug build after Release restore omitted conditional diagnostics dependency | 1 | Rebuild Debug with restore; passed. |
 
 ## Mihomo routing regression (2026-10-18)
 
@@ -53,7 +55,7 @@ Implementation and signed commit are complete. Existing unrelated `agent.md` del
 
 ## Next Step
 
-Completed single-node speed-test eligibility fix and validation; restart the rebuilt desktop to retest actual node latency.
+Official ShadowQUIC integration is implemented and verified; restart the rebuilt desktop to load the migrated mapping.
 
 ## Single-node speed-test skip regression (2026-10-18)
 
@@ -64,3 +66,19 @@ Completed single-node speed-test eligibility fix and validation; restart the reb
 - [completed] 11. Compare parameters, test isolated listeners with longer timeout and zero-RTT variants, record conclusions and sign findings. The supplied remote node succeeds with official ShadowQUIC and times out with mihomo, while local control and steady-state runs succeed; this is an interoperability gap, not yet evidence of a general severe mihomo defect.
 
 - [completed] 12. Run local mihomo and official ShadowQUIC server controls with generated client config and real local HTTP responses. Use no system proxy and an explicit loopback SOCKS listener. The steady-client test passed 20/20 for each client; defer introducing another engine until the remote-profile mismatch is isolated.
+
+## Official ShadowQUIC engine integration (2026-10-18)
+
+- [completed] 13. Add a first-class official ShadowQUIC core type, release/download metadata, node config generator, default mapping and capability validation; route through the existing managed mixed-port front end.
+- [completed] 14. Add speed-test and single-node process handling, tests and UI core selection/localization; verify official CLI config and local HTTP response without system proxy.
+- [completed] 15. Run serial ServiceLib.Tests, Avalonia build, diff checks, update these records and create a signed Chinese Conventional Commit while preserving unrelated workspace changes.
+
+## Next Step
+
+Restart the rebuilt desktop and retest ShadowQUIC using the installed official core. Remote repeatability remains limited by observed TLS/QUIC path failures, reproduced with the original upstream config.
+
+## Official engine validation
+
+- Serial shared tests: 173/173 passed. Avalonia Debug and WPF Debug builds passed. macOS x64 self-contained Release publish passed. GlobalHotKeys has its pre-existing CS8625 warning; no submodule sources were edited.
+- Real official v0.4.4 and sing-box processes: local HTTP body verified; initial remote direct and front-end requests returned 204/200, speed-test listener returned 204. Application ProcessService + ConnectionHandler measured 222 ms.
+- A repeat run passed local checks but timed out remotely. A final side-by-side control failed with both the original official YAML and newly generated YAML. Remote stability is not accepted as proven. No system proxy or TUN settings were changed.
