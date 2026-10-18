@@ -144,3 +144,5 @@
 - Core downloader follow-up: Juicity participates in update checks; shared platform/architecture asset resolver rejects unavailable binaries before network access (Juicity loong64 unsupported). Extracted executable permissions follow registered CoreExes. Serial regression 241/241 passed. Actual install/update runtime remains pending.
 
 - Native fidelity follow-up: strict Juicity JSON field types; three-state native booleans retained through both editors/database/generation; raw official configs require explicit matching unauthenticated 127.0.0.1 PreSocksPort before launch. Raw contents are preserved. Added all resource keys without editing generated Designer. Serial 249/249 passed; Avalonia and WPF Debug builds passed with zero warnings/errors.
+
+- Diagnostics follow-up: actual loopback invalid TLS and SOCKS no-auth rejection both classified correctly; 251/251 serial regression passed. Test helper exact-read warning corrected and test project rebuilt. Core versions reuse existing update probe with bounded metadata timeout, one probe per core/service, semantic-version-only output and no raw exception text.

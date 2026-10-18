@@ -8,6 +8,7 @@ public class SpeedtestService(Config config, Func<SpeedTestResult, Task> updateF
     private readonly Config? _config = config;
     private readonly Func<SpeedTestResult, Task>? _updateFunc = updateFunc;
     private readonly Lock _runLock = new();
+    private readonly ConcurrentDictionary<ECoreType, Lazy<Task<SemanticVersion>>> _coreVersions = new();
     private readonly List<CancellationTokenSource> _runCtsList = [];
     private readonly int _speedTestPageSize = config.SpeedTestItem.SpeedTestPageSize ?? Global.SpeedTestPageSize;
     private readonly TimeSpan _delayInterval = TimeSpan.FromSeconds(config.SpeedTestItem.SpeedTestDelayInterval ?? 1);
@@ -487,13 +488,23 @@ public class SpeedtestService(Config config, Func<SpeedTestResult, Task> updateF
         });
     }
 
+    private async Task<SemanticVersion> ReadCoreVersion(ECoreType core, CancellationToken cancellationToken)
+    {
+        using var deadline = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        deadline.CancelAfter(TimeSpan.FromSeconds(2));
+        try { return await new UpdateService(_config, (_, _) => Task.CompletedTask).GetCoreVersion(core, deadline.Token); }
+        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested) { return new SemanticVersion(""); }
+    }
+
     private async Task<int> DoRealPing(ServerTestItem it,
         ConcurrentDictionary<string, byte> completedIds, CancellationToken ct = default)
     {
         var webProxy = new WebProxy($"socks5://{Global.Loopback}:{it.Port}");
         var probe = await ConnectionHandler.ProbeAsync(webProxy, ct);
         var responseTime = probe.Delay;
-        var diagnostic = $"{it.CoreType} | {Global.Loopback}:{it.Port} | {probe.Describe()}";
+        var version = await _coreVersions.GetOrAdd(it.CoreType, core => new(() => ReadCoreVersion(core, CancellationToken.None))).Value.WaitAsync(ct);
+        var versionText = version.Equals(new SemanticVersion("")) ? Global.None : version.ToString();
+        var diagnostic = $"{it.CoreType} {versionText} | {Global.Loopback}:{it.Port} | {probe.Describe()}";
         ProfileExManager.Instance.SetTestMessage(it.IndexId, diagnostic);
         NoticeManager.Instance.SendMessageEx(diagnostic);
 

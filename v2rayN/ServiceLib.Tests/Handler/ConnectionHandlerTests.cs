@@ -48,6 +48,48 @@ public class ConnectionHandlerTests
     }
 
     [Test]
+    [Arguments(false)]
+    [Arguments(true)]
+    public async Task RealTlsAndSocksRejectionKeepDistinctSafeDiagnostics(bool socks)
+    {
+        using var listener = new TcpListener(IPAddress.Loopback, 0);
+        listener.Start();
+        var port = ((IPEndPoint)listener.LocalEndpoint).Port;
+        using var lifetime = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+        var server = Task.Run(async () =>
+        {
+            try
+            {
+                while (!lifetime.IsCancellationRequested)
+                {
+                    using var peer = await listener.AcceptTcpClientAsync(lifetime.Token);
+                    var stream = peer.GetStream();
+                    await stream.ReadExactlyAsync(new byte[socks ? 3 : 1], lifetime.Token);
+                    await stream.WriteAsync(socks ? new byte[] { 5, 255 } : Encoding.ASCII.GetBytes("HTTP/1.1 400 Invalid TLS\r\nConnection: close\r\n\r\n"), lifetime.Token);
+                }
+            }
+            catch (OperationCanceledException) when (lifetime.IsCancellationRequested) { }
+        });
+        var previous = AppManager.Instance.Config;
+        var config = CoreConfigTestFactory.CreateConfig();
+        config.SpeedTestItem.SpeedPingTestUrl = socks ? "https://example.invalid/private?token=fake-secret" : $"https://127.0.0.1:{port}/private?token=fake-secret";
+        CoreConfigTestFactory.BindAppManagerConfig(config);
+        try
+        {
+            var result = await ConnectionHandler.ProbeAsync(socks ? new WebProxy($"socks5://127.0.0.1:{port}") : null, lifetime.Token);
+            await result.Samples.Count.Should().BeEqualTo(2);
+            await result.Samples.All(s => s.Failure == (socks ? PingFailure.Proxy : PingFailure.Tls)).Should().BeTrue();
+            await result.Describe().Contains("fake-secret").Should().BeFalse();
+        }
+        finally
+        {
+            CoreConfigTestFactory.BindAppManagerConfig(previous);
+            await lifetime.CancelAsync();
+            await server;
+        }
+    }
+
+    [Test]
     public async Task ProbeRetainsHttpFailureBesideSuccessfulSample()
     {
         await using var server = new PingServer(200, 503);

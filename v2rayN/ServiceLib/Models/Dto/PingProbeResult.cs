@@ -16,7 +16,7 @@ public static class PingDiagnostics
     public static string SafeTarget(string? target) => Uri.TryCreate(target, UriKind.Absolute, out var uri)
         && uri.Scheme is "http" or "https" ? $"{uri.Scheme}://{uri.IdnHost}:{uri.Port}" : "[invalid target]";
 
-    public static PingFailure Classify(HttpRequestException error) => error.HttpRequestError switch
+    public static PingFailure Classify(HttpRequestException error) => ContainsSocksFailure(error) ? PingFailure.Proxy : error.HttpRequestError switch
     {
         HttpRequestError.NameResolutionError => PingFailure.Dns,
         HttpRequestError.SecureConnectionError => PingFailure.Tls,
@@ -24,4 +24,11 @@ public static class PingDiagnostics
         HttpRequestError.ConnectionError => PingFailure.Connection,
         _ => PingFailure.Connection
     };
+
+    private static bool ContainsSocksFailure(Exception error)
+    {
+        for (Exception? current = error; current != null; current = current.InnerException)
+            if (current.GetType().Name == "SocksException") return true;
+        return false;
+    }
 }
