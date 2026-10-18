@@ -13,3 +13,7 @@ Only LeastPing is represented by sing-box urltest; the existing controller UI pr
 ProxyChain remains a separate graph. Any chain containing an extended backend (including inside a nested group) is rejected: a SOCKS connection to a local standalone client cannot redirect that client's upstream QUIC dial. Subscription prev/next references use the same rejection and cycle validation. No TCP/UDP chain support is inferred from HTTP through a selector.
 
 Acceptance must distinguish generated-config validation, controlled TCP/UDP forwarding, lifecycle failure/cleanup and target-platform operation. Missing evidence remains pending in remediation-plan.md.
+
+## Controlled acceptance evidence (2026-10-18)
+
+A rebuilt sing-box 1.14.3 frontend with two loopback SOCKS backends passed manual TCP and UDP forwarding for both stable member tags. A local HTTP health endpoint was used to activate urltest; after terminating the selected backend, the group changed from the failed member to the surviving member and a subsequent TCP body reached the surviving backend. The harness stopped every owned process and changed no system proxy or network interface. This does not prove native Juicity/ShadowQUIC/SSR/Mieru transport or per-member statistics.
