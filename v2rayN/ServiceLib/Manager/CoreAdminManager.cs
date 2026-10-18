@@ -58,15 +58,19 @@ public class CoreAdminManager
             updateFunc: _updateFunc
         );
 
-        await procService.StartAsync(AppManager.Instance.LinuxSudoPwd);
-
-        if (procService is null or { HasExited: true })
+        try
         {
-            throw new Exception(ResUI.FailedToRunCore);
+            await procService.StartAsync(AppManager.Instance.LinuxSudoPwd);
+            _linuxSudoPid = procService.Id;
+            if (procService.HasExited) throw new CoreLaunchException(new(CoreStartFailure.ProcessExited, "Backend", coreInfo.CoreType));
+            return procService;
         }
-        _linuxSudoPid = procService.Id;
-
-        return procService;
+        catch
+        {
+            await KillProcessAsLinuxSudo();
+            procService.Dispose();
+            throw;
+        }
     }
 
     public async Task KillProcessAsLinuxSudo()

@@ -376,7 +376,10 @@ public partial class StatusBarViewModel : MyReactiveObject
 
     public async Task ChangeSystemProxyAsync(ESysProxyType type, bool blChange)
     {
-        await SysProxyHandler.UpdateSysProxy(_config, false);
+        if (type is ESysProxyType.ForcedChange or ESysProxyType.Pac)
+            await CoreManager.Instance.ApplySystemProxyAsync();
+        else if (blChange)
+            await SysProxyHandler.UpdateSysProxy(_config, false);
 
         BlSystemProxyClear = type == ESysProxyType.ForcedClear;
         BlSystemProxySet = type == ESysProxyType.ForcedChange;

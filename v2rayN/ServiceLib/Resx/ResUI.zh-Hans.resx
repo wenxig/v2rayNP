@@ -1935,4 +1935,18 @@
   <data name="ProtocolShadowquicRecvWindow" xml:space="preserve"><value>Shadowquic Recv Window</value></data>
   <data name="ProtocolShadowquicInitialMtu" xml:space="preserve"><value>初始 MTU</value></data>
   <data name="MsgShadowquicOptionsUnsupported" xml:space="preserve"><value>官方 ShadowQUIC 客户端不支持此 QUIC 版本或带宽、窗口参数，请清空这些选项。</value></data>
+  <data name="MsgCoreStartResult" xml:space="preserve"><value>{0}：{1} — {2}</value></data>
+  <data name="CoreStageConfiguration" xml:space="preserve"><value>配置</value></data>
+  <data name="CoreStageBackend" xml:space="preserve"><value>后端</value></data>
+  <data name="CoreStageFrontend" xml:space="preserve"><value>前置</value></data>
+  <data name="CoreStageRunning" xml:space="preserve"><value>运行</value></data>
+  <data name="CoreFailureNone" xml:space="preserve"><value>就绪</value></data>
+  <data name="CoreFailureConfiguration" xml:space="preserve"><value>配置无效，请检查节点与路由设置</value></data>
+  <data name="CoreFailureMissingCore" xml:space="preserve"><value>缺少核心程序，请下载所需核心</value></data>
+  <data name="CoreFailurePortInUse" xml:space="preserve"><value>本地端口已被占用</value></data>
+  <data name="CoreFailureProcessExited" xml:space="preserve"><value>必要核心进程已退出</value></data>
+  <data name="CoreFailureHandshake" xml:space="preserve"><value>SOCKS5 握手被拒绝或响应不完整</value></data>
+  <data name="CoreFailureTimeout" xml:space="preserve"><value>等待本地监听超时</value></data>
+  <data name="CoreFailureCancelled" xml:space="preserve"><value>启动已取消</value></data>
+  <data name="CoreFailureLaunch" xml:space="preserve"><value>核心启动失败，请检查核心日志</value></data>
 </root>

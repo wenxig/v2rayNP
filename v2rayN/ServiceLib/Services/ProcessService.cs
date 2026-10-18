@@ -1,6 +1,6 @@
 namespace ServiceLib.Services;
 
-public class ProcessService : IDisposable
+public class ProcessService : ICoreProcess
 {
     private readonly Process _process;
     private readonly Func<bool, string, Task>? _updateFunc;
@@ -70,6 +70,8 @@ public class ProcessService : IDisposable
         }
     }
 
+    public Task WaitForExitAsync(CancellationToken cancellationToken) => _process.WaitForExitAsync(cancellationToken);
+
     public async Task StopAsync()
     {
         if (_process.HasExited)
@@ -108,7 +110,7 @@ public class ProcessService : IDisposable
             }
             catch { }
 
-            await Task.Delay(100);
+            await _process.WaitForExitAsync().WaitAsync(TimeSpan.FromSeconds(5));
         }
         catch (Exception ex)
         {

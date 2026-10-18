@@ -109,3 +109,12 @@
 - Inspected current launch/readiness/caller system-proxy paths, custom import fallback, mihomo routing/group generation and release SDK settings.
 - Wrote remediation-plan.md: A lifecycle, B diagnostics, C native import and parameter fidelity, D routing/group semantics, E multi-core groups/chains, F distribution and runtime acceptance. Includes explicit production gates and continued original-client isolation.
 - This task changes documentation only. Product implementation, live proxy changes, builds and network tests were not run; final verification is plan coverage and git diff --check. Unrelated agent.md, AGENTS.md and live-node-validation.md changes are preserved.
+
+## Remediation execution
+
+- User authorized implementation of remediation-plan.md. Read repository instructions, README and project files; initialized submodule; .NET SDK 10.0.402 available. Preserved pre-existing agent.md deletion, AGENTS.md and live-node-validation.md edits.
+- Applying planning-with-files. No relevant memory registry entries. Lifecycle inspection confirms incomplete readiness and unconditional system proxy updates; native custom imports must retain their contract.
+
+- Lifecycle implementation compiled. First regression build caught TUnit assertions missing await and using Be rather than BeEqualTo; corrected before rerunning. Initial tool payload quoting errors made no product changes.
+
+- Lifecycle regression suite: 200/200 passed after final cleanup review. Avalonia Debug and WPF Debug with EnableWindowsTargeting passed, both with zero warnings/errors. No system proxy, TUN, original-client process or real user credentials were used by tests.

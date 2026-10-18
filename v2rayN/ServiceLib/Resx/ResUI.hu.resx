@@ -1808,4 +1808,18 @@ The "Get Certificate" action may fail if a self-signed certificate is used or if
   <data name="ProtocolPinnedCertchainSha256" xml:space="preserve"><value>Certificate chain SHA-256 pin</value></data>
   <data name="ProtocolShadowquicInitialMtu" xml:space="preserve"><value>Initial MTU</value></data>
   <data name="MsgShadowquicOptionsUnsupported" xml:space="preserve"><value>The official ShadowQUIC client does not support this QUIC version or bandwidth/window options. Clear these options.</value></data>
+  <data name="MsgCoreStartResult" xml:space="preserve"><value>{0}: {1} — {2}</value></data>
+  <data name="CoreStageConfiguration" xml:space="preserve"><value>Configuration</value></data>
+  <data name="CoreStageBackend" xml:space="preserve"><value>Backend</value></data>
+  <data name="CoreStageFrontend" xml:space="preserve"><value>Frontend</value></data>
+  <data name="CoreStageRunning" xml:space="preserve"><value>Running</value></data>
+  <data name="CoreFailureNone" xml:space="preserve"><value>Ready</value></data>
+  <data name="CoreFailureConfiguration" xml:space="preserve"><value>Invalid configuration; check node and routing settings</value></data>
+  <data name="CoreFailureMissingCore" xml:space="preserve"><value>Core executable missing; download the required core</value></data>
+  <data name="CoreFailurePortInUse" xml:space="preserve"><value>Local port already in use</value></data>
+  <data name="CoreFailureProcessExited" xml:space="preserve"><value>Required core process exited</value></data>
+  <data name="CoreFailureHandshake" xml:space="preserve"><value>SOCKS5 handshake rejected or incomplete</value></data>
+  <data name="CoreFailureTimeout" xml:space="preserve"><value>Timed out waiting for local listener</value></data>
+  <data name="CoreFailureCancelled" xml:space="preserve"><value>Startup cancelled</value></data>
+  <data name="CoreFailureLaunch" xml:space="preserve"><value>Core failed to start; check the core log</value></data>
 </root>

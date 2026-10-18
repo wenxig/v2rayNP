@@ -75,3 +75,9 @@
 - Raw custom configs can already be saved with an explicitly selected core; the missing import feature is schema recognition and lossless conversion into editable profiles. A remediation plan must preserve this distinction.
 - Group generation hardcodes select; context building rejects extended-protocol subscription chains. Group expansion and actual dial-through chaining require separate capability/flow verification, not just removing validation.
 - Release workflows configure .NET 8 despite the current .NET 10 target. Added clean-install/core-resource verification and platform-specific acceptance to the plan.
+
+## Remediation lifecycle findings
+
+- Front-end config currently generates after backend starts; failures can leave backend running. RunningCoreType is published regardless of front-end result.
+- StatusBar initialization independently applies configured system proxy before readiness. Stop order is backend before front-end.
+- Use unique prepared config files, an injectable owned-process coordinator, strict SOCKS reads and serialized state/proxy transitions to make failure behavior testable without touching the original client.

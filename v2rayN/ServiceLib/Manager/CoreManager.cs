@@ -12,9 +12,31 @@ public class CoreManager
     [SupportedOSPlatform("windows")]
     private WindowsJobService? _processJob;
 
-    private ProcessService? _processService;
-    private ProcessService? _processPreService;
-    private bool _linuxSudo = false;
+    private readonly CoreLifecycleService _lifecycle;
+    private bool _proxyApplied;
+
+    public CoreManager()
+    {
+        _lifecycle = new CoreLifecycleService(async (core, failure) =>
+        {
+            AppManager.Instance.RunningCoreType = core;
+            if (core == null && _proxyApplied)
+            {
+                await SysProxyHandler.UpdateSysProxy(_config, true);
+                _proxyApplied = false;
+            }
+            if (failure != null) await UpdateFunc(true, failure.Message);
+        });
+    }
+
+    public bool IsRunning => _lifecycle.IsRunning;
+    public void CancelPendingLoad() => _lifecycle.CancelPending();
+
+    public Task<bool> ApplySystemProxyAsync() => _lifecycle.WhenRunningAsync(async () =>
+    {
+        var applied = await SysProxyHandler.UpdateSysProxy(_config, false);
+        _proxyApplied = applied && _config.SystemProxyItem.SysProxyType is ESysProxyType.ForcedChange or ESysProxyType.Pac;
+    });
     private Func<bool, string, Task>? _updateFunc;
     private const string _tag = "CoreHandler";
 
@@ -61,47 +83,54 @@ public class CoreManager
         }
     }
 
-    /// <param name="mainContext">Resolved main context (with pre-socks ports already merged if applicable).</param>
-    /// <param name="preContext">Optional pre-socks context passed to <see cref="CoreStartPreService"/>.</param>
-    public async Task LoadCore(CoreConfigContext? mainContext, CoreConfigContext? preContext)
+    public async Task<CoreStartResult> LoadCore(CoreConfigContext? mainContext, CoreConfigContext? preContext, CancellationToken cancellationToken = default)
     {
-        if (mainContext == null)
+        var result = await _lifecycle.LoadAsync(async token =>
         {
-            await UpdateFunc(false, ResUI.CheckServerSettings);
-            return;
-        }
-
-        var node = mainContext.Node;
-        var fileName = Utils.GetBinConfigPath(Global.CoreConfigFileName);
-        var result = await CoreConfigHandler.GenerateClientConfig(mainContext, fileName);
-        if (result.Success != true)
-        {
-            await UpdateFunc(true, result.Msg);
-            return;
-        }
-
-        await UpdateFunc(false, $"{node.GetSummary()}");
-        await UpdateFunc(false, $"{Utils.GetRuntimeInfo()}");
-        await UpdateFunc(false, string.Format(ResUI.StartService, DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss")));
-        await CoreStop();
-        await Task.Delay(100);
-
-        if (Utils.IsWindows() && (mainContext?.IsTunEnabled == true || preContext?.IsTunEnabled == true))
-        {
-            await Task.Delay(100);
-            await WindowsUtils.RemoveTunDevice();
-        }
-
-        await CoreStart(mainContext);
-        await WaitForProxyPort(preContext, ProtocolCapabilities.IsStandaloneCore(mainContext.RunCoreType));
-        await CoreStartPreService(preContext);
-
-        AppManager.Instance.RunningCoreType = preContext?.RunCoreType ?? mainContext.RunCoreType;
-
-        if (_processService != null)
-        {
-            await UpdateFunc(true, $"{node.GetSummary()}");
-        }
+            if (mainContext == null) throw new CoreLaunchException(new(CoreStartFailure.Configuration, "Configuration"));
+            var files = new List<string>();
+            try
+            {
+                var steps = new List<CoreLaunchStep>();
+                foreach (var context in new[] { mainContext, preContext }.OfType<CoreConfigContext>())
+                {
+                    token.ThrowIfCancellationRequested();
+                    var stage = ReferenceEquals(context, mainContext) ? "Backend" : "Frontend";
+                    var info = CoreInfoManager.Instance.GetCoreInfo(context.RunCoreType);
+                    if (CoreInfoManager.Instance.GetCoreExecFile(info, out _).IsNullOrEmpty())
+                        throw new CoreLaunchException(new(CoreStartFailure.MissingCore, stage, context.RunCoreType));
+                    var file = $"launch-{Utils.GetGuid(false)}.json";
+                    files.Add(Utils.GetBinConfigPath(file));
+                    var generated = await CoreConfigHandler.GenerateClientConfig(context, files[^1]);
+                    if (!generated.Success) throw new CoreLaunchException(new(CoreStartFailure.Configuration, "Configuration", context.RunCoreType));
+                    int? port = ReferenceEquals(context, mainContext) && preContext != null ? preContext.Node.Port
+                        : context.Node.ConfigType != EConfigType.Custom && !(context.IsTunEnabled && context.Node.Address == Global.Loopback && context.Node.Port == context.AppConfig.Inbound.First().LocalPort)
+                            ? context.AppConfig.Inbound.First().LocalPort : null;
+                    steps.Add(new(context.RunCoreType, stage, port, async ct =>
+                    {
+                        ct.ThrowIfCancellationRequested();
+                        if (Utils.IsWindows() && context.IsTunEnabled) await WindowsUtils.RemoveTunDevice();
+                        var process = await RunProcess(info, file, context.Node.ConfigType != EConfigType.Custom || context.Node.DisplayLog, true, context.IsTunEnabled);
+                        if (process == null) throw new CoreLaunchException(new(CoreStartFailure.Launch, stage, context.RunCoreType));
+                        return ShouldRunAsSudo(context.IsTunEnabled, context.RunCoreType, Utils.IsNonWindows())
+                            ? new ElevatedCoreProcess(process) : process;
+                    }));
+                }
+                return new CoreLaunchPlan(steps, () =>
+                {
+                    foreach (var path in files) File.Delete(path);
+                    return Task.CompletedTask;
+                });
+            }
+            catch
+            {
+                foreach (var path in files) File.Delete(path);
+                throw;
+            }
+        }, cancellationToken);
+        if (!result.Success) await UpdateFunc(true, result.Message);
+        else await UpdateFunc(true, mainContext!.Node.GetSummary());
+        return result;
     }
 
     public async Task<ProcessService?> LoadCoreConfigSpeedtest(List<ServerTestItem> selecteds)
@@ -151,148 +180,21 @@ public class CoreManager
         return await RunProcess(coreInfo, fileName, true, false);
     }
 
-    public async Task CoreStop()
+    public Task CoreStop() => _lifecycle.StopAsync();
+
+    private Task UpdateFunc(bool notify, string msg) => _updateFunc?.Invoke(notify, msg) ?? Task.CompletedTask;
+
+    private sealed class ElevatedCoreProcess(ProcessService process) : ICoreProcess
     {
-        try
+        public bool HasExited => process.HasExited;
+        public Task WaitForExitAsync(CancellationToken cancellationToken) => process.WaitForExitAsync(cancellationToken);
+        public async Task StopAsync()
         {
-            if (_linuxSudo)
-            {
-                await CoreAdminManager.Instance.KillProcessAsLinuxSudo();
-                _linuxSudo = false;
-            }
-
-            if (_processService != null)
-            {
-                await _processService.StopAsync();
-                _processService.Dispose();
-                _processService = null;
-            }
-
-            if (_processPreService != null)
-            {
-                await _processPreService.StopAsync();
-                _processPreService.Dispose();
-                _processPreService = null;
-            }
+            await CoreAdminManager.Instance.KillProcessAsLinuxSudo();
+            await process.StopAsync();
         }
-        catch (Exception ex)
-        {
-            Logging.SaveLog(_tag, ex);
-        }
+        public void Dispose() => process.Dispose();
     }
-
-    #region Private
-
-    private async Task CoreStart(CoreConfigContext context)
-    {
-        var node = context.Node;
-        var coreType = AppManager.Instance.GetCoreType(node, node.ConfigType);
-        var coreInfo = CoreInfoManager.Instance.GetCoreInfo(coreType);
-
-        var displayLog = node.ConfigType != EConfigType.Custom || node.DisplayLog;
-        var proc = await RunProcess(coreInfo, Global.CoreConfigFileName, displayLog, true, context.IsTunEnabled);
-        if (proc is null)
-        {
-            return;
-        }
-        _processService = proc;
-    }
-
-    private async Task CoreStartPreService(CoreConfigContext? preContext)
-    {
-        if (_processService is { HasExited: false } && preContext != null)
-        {
-            var preCoreType = preContext?.Node?.CoreType ?? ECoreType.sing_box;
-            var fileName = Utils.GetBinConfigPath(Global.CorePreConfigFileName);
-            var result = await CoreConfigHandler.GenerateClientConfig(preContext, fileName);
-            if (result.Success)
-            {
-                var coreInfo = CoreInfoManager.Instance.GetCoreInfo(preCoreType);
-                var proc = await RunProcess(coreInfo, Global.CorePreConfigFileName, true, true, preContext.IsTunEnabled);
-                if (proc is null)
-                {
-                    return;
-                }
-                _processPreService = proc;
-            }
-        }
-    }
-
-    private async Task UpdateFunc(bool notify, string msg)
-    {
-        await _updateFunc?.Invoke(notify, msg);
-    }
-
-    private static async Task WaitForProxyPort(CoreConfigContext? preContext, bool requireReady = false)
-    {
-        if (preContext is null)
-        {
-            return;
-        }
-        if (!preContext.IsTunEnabled && !requireReady)
-        {
-            return;
-        }
-
-        using var rootCts = new CancellationTokenSource(Global.LocalFetch);
-        var rootToken = rootCts.Token;
-
-        var port = preContext.Node.Port;
-        // SOCKS5 client greeting: VER=5, NMETHODS=1, METHOD=0x00 (no auth)
-        ReadOnlyMemory<byte> greeting = new byte[] { 0x05, 0x01, 0x00 };
-        var buf = new byte[2];
-
-        while (!rootToken.IsCancellationRequested)
-        {
-            using var tcp = new TcpClient();
-            using var attemptCts = new CancellationTokenSource(TimeSpan.FromMilliseconds(50));
-            using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(rootToken, attemptCts.Token);
-            var linkedToken = linkedCts.Token;
-            try
-            {
-                await tcp.ConnectAsync(Global.Loopback, port, linkedToken);
-                var stream = tcp.GetStream();
-
-                await stream.WriteAsync(greeting, linkedToken);
-
-                var read = await stream.ReadAsync(buf.AsMemory(0, 2), linkedToken);
-
-                // Server selection: VER=5, METHOD=0x00 — proxy is fully ready
-                if (read == 2 && buf[0] == 0x05)
-                {
-                    return;
-                }
-            }
-            catch (OperationCanceledException)
-            {
-                if (!rootToken.IsCancellationRequested)
-                {
-                    continue;
-                }
-                Logging.SaveLog($"WaitForProxyPort Timeout waiting for proxy port {port} to be ready.");
-                return;
-            }
-            catch (SocketException ex) when (ex.SocketErrorCode == SocketError.ConnectionRefused)
-            {
-                // Connection refused, proxy not ready yet, wait 50ms before retrying
-                try
-                {
-                    await Task.Delay(50, rootToken);
-                }
-                catch (OperationCanceledException)
-                {
-                    Logging.SaveLog($"WaitForProxyPort Timeout waiting for proxy port {port} to be ready.");
-                    return;
-                }
-            }
-            catch
-            {
-                // Ignore other exceptions and continue
-            }
-        }
-    }
-
-    #endregion Private
 
     #region Process
 
@@ -323,17 +225,17 @@ public class CoreManager
             if (mayNeedSudo
                 && ShouldRunAsSudo(isTunLaunch, coreInfo.CoreType, Utils.IsNonWindows()))
             {
-                _linuxSudo = true;
                 await CoreAdminManager.Instance.Init(_config, _updateFunc);
                 return await CoreAdminManager.Instance.RunProcessAsLinuxSudo(fileName, coreInfo, configPath);
             }
 
             return await RunProcessNormal(fileName, coreInfo, configPath, displayLog);
         }
+        catch (CoreLaunchException) { throw; }
         catch (Exception ex)
         {
             Logging.SaveLog(_tag, ex);
-            await UpdateFunc(mayNeedSudo, ex.Message);
+            await UpdateFunc(mayNeedSudo, ResUI.FailedToRunCore);
             return null;
         }
     }
@@ -356,17 +258,21 @@ public class CoreManager
             updateFunc: _updateFunc
         );
 
-        await procService.StartAsync();
-
-        await Task.Delay(100);
-
-        if (procService is null or { HasExited: true })
+        try
         {
-            throw new Exception(ResUI.FailedToRunCore);
-        }
-        AddProcessJob(procService.Handle);
+            await procService.StartAsync();
 
-        return procService;
+            await Task.Delay(100);
+            if (procService.HasExited) throw new CoreLaunchException(new(CoreStartFailure.ProcessExited, "Backend", coreInfo.CoreType));
+            AddProcessJob(procService.Handle);
+
+            return procService;
+        }
+        catch
+        {
+            procService.Dispose();
+            throw;
+        }
     }
 
     private void AddProcessJob(nint processHandle)

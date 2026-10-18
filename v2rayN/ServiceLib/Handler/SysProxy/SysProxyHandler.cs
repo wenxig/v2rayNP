@@ -63,6 +63,7 @@ public static class SysProxyHandler
         catch (Exception ex)
         {
             Logging.SaveLog(_tag, ex);
+            return false;
         }
         return true;
     }

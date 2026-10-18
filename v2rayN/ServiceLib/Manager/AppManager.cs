@@ -34,7 +34,7 @@ public sealed class AppManager
 
     public bool ShowInTaskbar { get; set; }
 
-    public ECoreType RunningCoreType { get; set; }
+    public ECoreType? RunningCoreType { get; set; }
 
     public bool IsRunningCore(ECoreType type)
     {

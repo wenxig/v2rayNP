@@ -118,3 +118,26 @@ Restart the rebuilt desktop to load the fixes; retain remote stability as unveri
 ## Next Step
 
 The repair design is ready for review in remediation-plan.md. Product implementation remains outside this planning task.
+
+## Remediation implementation (2026-10-18)
+
+### Phase A: Lifecycle and readiness
+**Status:** in_progress
+
+### Phase B: Safe actionable diagnostics
+**Status:** pending
+
+### Phase C: Native config import and fidelity
+**Status:** pending
+
+### Phase D: Routing and strategy semantics
+**Status:** pending
+
+### Phase F: Distribution and acceptance evidence
+**Status:** pending
+
+### Phase E: Managed combinations and capability boundaries
+**Status:** pending
+
+## Next Step
+Implement and test the coordinated lifecycle before extending import/routing/group behavior. External platform and 24-hour acceptance must stay pending until actual evidence exists.

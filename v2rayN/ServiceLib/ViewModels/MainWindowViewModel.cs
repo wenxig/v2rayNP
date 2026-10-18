@@ -680,6 +680,7 @@ public partial class MainWindowViewModel : MyReactiveObject
         if (!await _reloadSemaphore.WaitAsync(0))
         {
             _hasNextReloadJob = true;
+            CoreManager.Instance.CancelPendingLoad();
             return;
         }
 
@@ -712,12 +713,13 @@ public partial class MainWindowViewModel : MyReactiveObject
                 return;
             }
 
-            await Task.Run(async () =>
+            var started = await Task.Run(async () =>
             {
-                await LoadCore(allResult.MainResult.Context, allResult.PreSocksResult?.Context);
-                await SysProxyHandler.UpdateSysProxy(_config, false);
-                await Task.Delay(1000);
+                var result = await CoreManager.Instance.LoadCore(allResult.MainResult.Context, allResult.PreSocksResult?.Context);
+                if (result.Success && !_hasNextReloadJob) await CoreManager.Instance.ApplySystemProxyAsync();
+                return result.Success && !_hasNextReloadJob;
             });
+            if (!started) return;
             RxSchedulers.MainThreadScheduler.Schedule(async () =>
             {
                 var result = await StatusBarViewModel.TestServerAvailability();
@@ -779,11 +781,6 @@ public partial class MainWindowViewModel : MyReactiveObject
     private void SetReloadEnabled(bool enabled)
     {
         RxSchedulers.MainThreadScheduler.Schedule(() => BlReloadEnabled = enabled);
-    }
-
-    private async Task LoadCore(CoreConfigContext? mainContext, CoreConfigContext? preContext)
-    {
-        await CoreManager.Instance.LoadCore(mainContext, preContext);
     }
 
     #endregion core job
