@@ -83,3 +83,5 @@
 - Use unique prepared config files, an injectable owned-process coordinator, strict SOCKS reads and serialized state/proxy transitions to make failure behavior testable without touching the original client.
 
 - Diagnostics deliberately formats only failure enums, numeric status/delay and URL scheme/host/port. Exception messages, userinfo, paths, queries, fragments and headers never enter the new diagnostic path. A remote HTTP success remains distinct from local SOCKS readiness.
+
+- Confirmed local official ShadowQUIC source is tag v0.4.4 with clean checkout. min-mtu defaults 1290, initial-mtu 1300, minimum QUIC packet limit 1200; keep-alive-interval is milliseconds. Unknown native options reject editable conversion; explicit raw custom mode retains original config.

@@ -120,3 +120,9 @@
 - Lifecycle regression suite: 200/200 passed after final cleanup review. Avalonia Debug and WPF Debug with EnableWindowsTargeting passed, both with zero warnings/errors. No system proxy, TUN, original-client process or real user credentials were used by tests.
 
 - Stage B: added per-sample HTTP/DNS/TLS/proxy/connection/timeout classifications and sanitized target summaries in existing logs and ProfileEx test messages. Fastest successful sample retained. Shared tests 205/205 passed, including HTTP 503 and exception/URI secret exclusion. Core version metadata and actual proxy/TLS injection remain acceptance follow-ups.
+
+- Native import test build caught a non-generic SQLiteHelper.DeleteAsync contract; corrected fixture cleanup to delete the SubItem object.
+
+- Native import suite 217/219: only two structural-equality assertions failed because the generator emits the official bbr default. Updated assertions to compare that expected effective default; no transport behavior was changed to satisfy them.
+
+- Stage C editable subset: strict ShadowQUIC v0.4.4 YAML and Juicity v0.5.0 JSON recognition, pre-deletion rejection of lossy subscriptions, MTU/keepalive/GSO/blackhole fields through model/editor/URI/generation. Shared tests 219/219; Avalonia and WPF Debug builds passed with 0 warnings/errors. Raw custom listener-contract validation and actual official-core/UDP checks remain pending.

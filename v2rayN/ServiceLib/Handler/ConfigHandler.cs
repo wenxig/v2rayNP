@@ -2101,6 +2101,18 @@ public static class ConfigHandler
         {
             return -1;
         }
+        var native = NativeClientFmt.Parse(strData);
+        var nativeSubscription = subid.IsNotEmpty() ? await AppManager.Instance.GetSubItem(subid) : null;
+        // Explicit raw-core subscriptions keep their original contract; otherwise reject lossy conversion before deleting old nodes.
+        if (native.Recognized && nativeSubscription?.CustomCoreType == null)
+        {
+            if (native.Node == null)
+            {
+                NoticeManager.Instance.SendMessageAndEnqueue(native.Message);
+                return -1;
+            }
+            strData = FmtHandler.GetShareUri(native.Node) ?? string.Empty;
+        }
         List<ProfileItem>? lstOriSub = null;
         ProfileItem? activeProfile = null;
         if (isSub && subid.IsNotEmpty())

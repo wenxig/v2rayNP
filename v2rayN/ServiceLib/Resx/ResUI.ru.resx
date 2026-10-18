@@ -1967,4 +1967,12 @@
   <data name="PingFailureHttpStatus" xml:space="preserve"><value>HTTP status</value></data>
   <data name="PingFailureTimeout" xml:space="preserve"><value>timeout</value></data>
   <data name="PingFailureCancelled" xml:space="preserve"><value>cancelled</value></data>
+  <data name="ProtocolShadowquicMinMtu" xml:space="preserve"><value>Minimum MTU (default 1290)</value></data>
+  <data name="ProtocolShadowquicKeepAlive" xml:space="preserve"><value>Keep alive in ms (0 disables, below 30000)</value></data>
+  <data name="ProtocolShadowquicGso" xml:space="preserve"><value>GSO (indeterminate uses core default)</value></data>
+  <data name="ProtocolShadowquicBlackhole" xml:space="preserve"><value>MTU black-hole detection (core default if indeterminate)</value></data>
+  <data name="MsgShadowquicMtu" xml:space="preserve"><value>MTU must be 1200–65527; initial MTU must be at least minimum MTU (defaults 1300/1290)</value></data>
+  <data name="MsgShadowquicKeepAlive" xml:space="preserve"><value>Keep alive must be 0–29999 milliseconds</value></data>
+  <data name="MsgNativeConfigRejected" xml:space="preserve"><value>Cannot convert official config without losing behavior: {0}. Use an explicitly selected raw custom core configuration.</value></data>
+  <data name="MsgNativeConfigInvalid" xml:space="preserve"><value>Official configuration contains invalid or unsupported fields; check its schema.</value></data>
 </root>

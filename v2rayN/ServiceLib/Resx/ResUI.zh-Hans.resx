@@ -1959,4 +1959,12 @@
   <data name="PingFailureHttpStatus" xml:space="preserve"><value>HTTP 状态码</value></data>
   <data name="PingFailureTimeout" xml:space="preserve"><value>超时</value></data>
   <data name="PingFailureCancelled" xml:space="preserve"><value>已取消</value></data>
+  <data name="ProtocolShadowquicMinMtu" xml:space="preserve"><value>最小 MTU（默认 1290）</value></data>
+  <data name="ProtocolShadowquicKeepAlive" xml:space="preserve"><value>保活间隔毫秒（0 禁用，小于 30000）</value></data>
+  <data name="ProtocolShadowquicGso" xml:space="preserve"><value>GSO（未选定使用核心默认）</value></data>
+  <data name="ProtocolShadowquicBlackhole" xml:space="preserve"><value>MTU 黑洞检测（未选定使用核心默认）</value></data>
+  <data name="MsgShadowquicMtu" xml:space="preserve"><value>MTU 须为 1200–65527，初始 MTU 不得小于最小 MTU（默认 1300/1290）</value></data>
+  <data name="MsgShadowquicKeepAlive" xml:space="preserve"><value>保活间隔须为 0–29999 毫秒</value></data>
+  <data name="MsgNativeConfigRejected" xml:space="preserve"><value>官方配置无法无损转为节点：{0}。请使用显式指定核心的原始自定义配置。</value></data>
+  <data name="MsgNativeConfigInvalid" xml:space="preserve"><value>官方配置含有无效或不支持的字段，请检查格式定义。</value></data>
 </root>

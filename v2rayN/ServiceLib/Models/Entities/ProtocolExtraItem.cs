@@ -63,6 +63,10 @@ public record ProtocolExtraItem
     public string? MieruTrafficPattern { get; init; }
 
     // ShadowQUIC
+    public int? ShadowquicMinMtu { get; init; }
+    public int? ShadowquicKeepAliveInterval { get; init; }
+    public bool? ShadowquicGso { get; init; }
+    public bool? ShadowquicBlackholeDetection { get; init; }
     public int? ShadowquicInitialMtu { get; init; }
     public string? ShadowquicUsername { get; init; }
     public string? ShadowquicPassword { get; init; }

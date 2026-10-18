@@ -34,6 +34,10 @@ public class CoreConfigShadowquicService(Config config)
                 ["over-stream"] = extra.ShadowquicUdpOverStream ?? false,
                 ["mtu-discovery"] = !(extra.ShadowquicDisableMtuDiscovery ?? false),
             };
+            if (extra.ShadowquicMinMtu.HasValue) outbound["min-mtu"] = extra.ShadowquicMinMtu.Value;
+            if (extra.ShadowquicKeepAliveInterval.HasValue) outbound["keep-alive-interval"] = extra.ShadowquicKeepAliveInterval.Value;
+            if (extra.ShadowquicGso.HasValue) outbound["gso"] = extra.ShadowquicGso.Value;
+            if (extra.ShadowquicBlackholeDetection.HasValue) outbound["blackhole-detection"] = extra.ShadowquicBlackholeDetection.Value;
             // Omitted options use the official client's defaults; false is an explicit override.
             if (extra.ShadowquicZeroRtt.HasValue)
             {

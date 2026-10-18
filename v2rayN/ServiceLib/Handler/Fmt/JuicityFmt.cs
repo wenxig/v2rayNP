@@ -15,7 +15,7 @@ public static class JuicityFmt
             AllowInsecure = ShareLinkValidation.Boolean(q["allow_insecure"]) == true ? Global.StringTrue : Global.StringFalse };
         item.SetProtocolExtra(item.GetProtocolExtra() with
         {
-            JuicityUuid = userInfo[0], JuicityPassword = userInfo[1], JuicitySni = item.Sni, JuicityAllowInsecure = item.GetAllowInsecure(), JuicityCongestionControl = q["congestion_control"], JuicityPinnedCertchainSha256 = q["pinned_certchain_sha256"]
+            JuicityUuid = userInfo[0], JuicityPassword = userInfo[1], JuicitySni = item.Sni, JuicityAllowInsecure = ShareLinkValidation.Boolean(q["allow_insecure"]), JuicityCongestionControl = q["congestion_control"], JuicityPinnedCertchainSha256 = q["pinned_certchain_sha256"]
         });
         if (!NodeValidator.Validate(item, ECoreType.juicity).Success) return null;
         msg = string.Empty; return item;
@@ -25,7 +25,7 @@ public static class JuicityFmt
     {
         if (item == null) return null;
         var e = item.GetProtocolExtra(); var uuid = e.JuicityUuid ?? item.Username; var password = e.JuicityPassword ?? item.Password; var q = new List<string>();
-        Add(q, "congestion_control", e.JuicityCongestionControl); Add(q, "sni", e.JuicitySni ?? item.Sni); if (e.JuicityAllowInsecure ?? item.GetAllowInsecure()) q.Add("allow_insecure=1"); Add(q, "pinned_certchain_sha256", e.JuicityPinnedCertchainSha256);
+        Add(q, "congestion_control", e.JuicityCongestionControl); Add(q, "sni", e.JuicitySni ?? item.Sni); if (e.JuicityAllowInsecure.HasValue) q.Add($"allow_insecure={(e.JuicityAllowInsecure.Value ? 1 : 0)}"); else if (item.GetAllowInsecure()) q.Add("allow_insecure=1"); Add(q, "pinned_certchain_sha256", e.JuicityPinnedCertchainSha256);
         var query = q.Count == 0 ? string.Empty : "?" + string.Join('&', q); var remark = item.Remarks.IsNullOrEmpty() ? string.Empty : "#" + Utils.UrlEncode(item.Remarks);
         return $"juicity://{Utils.UrlEncode(uuid)}:{Utils.UrlEncode(password)}@{(Utils.IsIpv6(item.Address) ? "[" + item.Address + "]" : item.Address)}:{item.Port}{query}{remark}";
     }

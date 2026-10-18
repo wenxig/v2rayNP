@@ -97,6 +97,10 @@ public partial class AddServerViewModel : MyReactiveObject, ICloseable
     [Reactive] public partial string MieruMultiplexing { get; set; }
     [Reactive] public partial string MieruHandshakeMode { get; set; }
     [Reactive] public partial string MieruTrafficPattern { get; set; }
+    [Reactive] public partial int? ShadowquicMinMtu { get; set; }
+    [Reactive] public partial int? ShadowquicKeepAliveInterval { get; set; }
+    [Reactive] public partial bool? ShadowquicGso { get; set; }
+    [Reactive] public partial bool? ShadowquicBlackholeDetection { get; set; }
     [Reactive] public partial int? ShadowquicInitialMtu { get; set; }
     [Reactive] public partial string ShadowquicUsername { get; set; }
     [Reactive] public partial string ShadowquicPassword { get; set; }
@@ -369,6 +373,10 @@ public partial class AddServerViewModel : MyReactiveObject, ICloseable
         MieruMultiplexing = protocolExtra.MieruMultiplexing ?? string.Empty;
         MieruHandshakeMode = protocolExtra.MieruHandshakeMode ?? string.Empty;
         MieruTrafficPattern = protocolExtra.MieruTrafficPattern ?? string.Empty;
+        ShadowquicMinMtu = protocolExtra.ShadowquicMinMtu;
+        ShadowquicKeepAliveInterval = protocolExtra.ShadowquicKeepAliveInterval;
+        ShadowquicGso = protocolExtra.ShadowquicGso;
+        ShadowquicBlackholeDetection = protocolExtra.ShadowquicBlackholeDetection;
         ShadowquicInitialMtu = protocolExtra.ShadowquicInitialMtu;
         ShadowquicUpMbps = protocolExtra.ShadowquicUpMbps;
         ShadowquicDownMbps = protocolExtra.ShadowquicDownMbps;
@@ -522,6 +530,10 @@ public partial class AddServerViewModel : MyReactiveObject, ICloseable
             SsrProtocol = SsrProtocol.NullIfEmpty(), SsrProtocolParam = SsrProtocolParam.NullIfEmpty(), SsrUdp = SsrUdp ? true : null,
             MieruTransport = MieruTransport.NullIfEmpty(), MieruPortRange = MieruPortRange.NullIfEmpty(), MieruUdp = MieruUdp ? true : null,
             MieruMultiplexing = MieruMultiplexing.NullIfEmpty(), MieruHandshakeMode = MieruHandshakeMode.NullIfEmpty(), MieruTrafficPattern = MieruTrafficPattern.NullIfEmpty(),
+            ShadowquicMinMtu = ShadowquicMinMtu,
+            ShadowquicKeepAliveInterval = ShadowquicKeepAliveInterval,
+            ShadowquicGso = ShadowquicGso,
+            ShadowquicBlackholeDetection = ShadowquicBlackholeDetection,
             ShadowquicInitialMtu = ShadowquicInitialMtu,
             ShadowquicUpMbps = ShadowquicUpMbps,
             ShadowquicDownMbps = ShadowquicDownMbps,
@@ -532,7 +544,7 @@ public partial class AddServerViewModel : MyReactiveObject, ICloseable
             ShadowquicRecvWindow = ShadowquicRecvWindow,
             ShadowquicDisableMtuDiscovery = ShadowquicDisableMtuDiscovery,
             ShadowquicUsername = ShadowquicUsername.NullIfEmpty(), ShadowquicPassword = ShadowquicPassword.NullIfEmpty(), ShadowquicQuicVersions = ShadowquicQuicVersions.NullIfEmpty(),
-            ShadowquicZeroRtt = SelectedSource.ConfigType == EConfigType.ShadowQUIC ? ShadowquicZeroRtt : null, ShadowquicUdpOverStream = ShadowquicUdpOverStream ? true : null, ShadowquicCongestionControl = ShadowquicCongestionControl.NullIfEmpty(),
+            ShadowquicZeroRtt = SelectedSource.ConfigType == EConfigType.ShadowQUIC ? ShadowquicZeroRtt : null, ShadowquicUdpOverStream = SelectedSource.ConfigType == EConfigType.ShadowQUIC ? ShadowquicUdpOverStream : null, ShadowquicCongestionControl = ShadowquicCongestionControl.NullIfEmpty(),
             JuicityAllowInsecure = AllowInsecure, JuicityUuid = JuicityUuid.NullIfEmpty(), JuicityPassword = JuicityPassword.NullIfEmpty(), JuicitySni = JuicitySni.NullIfEmpty(), JuicityCongestionControl = JuicityCongestionControl.NullIfEmpty(), JuicityPinnedCertchainSha256 = JuicityPinnedCertchainSha256.NullIfEmpty(),
             Ports = Ports.NullIfEmpty(),
             AlterId = AlterId > 0 ? AlterId.ToString() : null,

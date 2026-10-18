@@ -49,6 +49,12 @@ public class FmtHandler
                 return null;
             }
 
+            var native = NativeClientFmt.Parse(str);
+            if (native.Recognized)
+            {
+                msg = native.Message;
+                return native.Node;
+            }
             if (str.StartsWith(Global.ProtocolShares[EConfigType.VMess]))
             {
                 return VmessFmt.Resolve(str, out msg);

@@ -128,7 +128,7 @@ The repair design is ready for review in remediation-plan.md. Product implementa
 **Status:** in_progress
 
 ### Phase C: Native config import and fidelity
-**Status:** pending
+**Status:** in_progress
 
 ### Phase D: Routing and strategy semantics
 **Status:** pending

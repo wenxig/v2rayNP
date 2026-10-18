@@ -16,6 +16,8 @@ public static class ShadowquicFmt
         item.AllowInsecure = ShareLinkValidation.Boolean(q["insecure"]) == true ? Global.StringTrue : Global.StringFalse;
         item.SetProtocolExtra(item.GetProtocolExtra() with
         {
+            ShadowquicMinMtu = ParseInt(q["min-mtu"]), ShadowquicKeepAliveInterval = q["keep-alive-interval"] is string keepAlive ? int.Parse(keepAlive) : null,
+            ShadowquicGso = ShareLinkValidation.Boolean(q["gso"]), ShadowquicBlackholeDetection = ShareLinkValidation.Boolean(q["blackhole-detection"]),
             ShadowquicUsername = userInfo[0], ShadowquicPassword = userInfo[1], ShadowquicQuicVersions = q["quic-versions"], ShadowquicInitialMtu = ParseInt(q["initial-mtu"]),
             ShadowquicZeroRtt = ShareLinkValidation.Boolean(q["zero-rtt"]), ShadowquicUdpOverStream = ShareLinkValidation.Boolean(q["udp-over-stream"]),
             ShadowquicCongestionControl = q["congestion-control"], ShadowquicUpMbps = ParseInt(q["up"]), ShadowquicDownMbps = ParseInt(q["down"]),
@@ -33,6 +35,9 @@ public static class ShadowquicFmt
         var e = item.GetProtocolExtra(); var q = new List<string>();
         Add(q, "sni", item.Sni); Add(q, "alpn", item.Alpn); if (item.GetAllowInsecure()) q.Add("insecure=1");
         AddInt(q, "initial-mtu", e.ShadowquicInitialMtu);
+        AddInt(q, "min-mtu", e.ShadowquicMinMtu);
+        if (e.ShadowquicKeepAliveInterval.HasValue) q.Add($"keep-alive-interval={e.ShadowquicKeepAliveInterval.Value}");
+        AddBool(q, "gso", e.ShadowquicGso); AddBool(q, "blackhole-detection", e.ShadowquicBlackholeDetection);
         Add(q, "quic-versions", e.ShadowquicQuicVersions); AddBool(q, "zero-rtt", e.ShadowquicZeroRtt); AddBool(q, "udp-over-stream", e.ShadowquicUdpOverStream);
         Add(q, "congestion-control", e.ShadowquicCongestionControl); AddInt(q, "up", e.ShadowquicUpMbps); AddInt(q, "down", e.ShadowquicDownMbps); AddInt(q, "cwnd", e.ShadowquicCwnd);
         AddInt(q, "max-datagram-frame-size", e.ShadowquicMaxDatagramFrameSize); AddInt(q, "max-open-streams", e.ShadowquicMaxOpenStreams); AddInt(q, "recv-window-conn", e.ShadowquicRecvWindowConn); AddInt(q, "recv-window", e.ShadowquicRecvWindow);

@@ -127,7 +127,10 @@ public class NodeValidator
                 v.Assert((protocolExtra.ShadowquicUsername ?? item.Username).IsNotEmpty() && (protocolExtra.ShadowquicPassword ?? item.Password).IsNotEmpty(), ResUI.FillPassword);
                 v.Assert(protocolExtra.ShadowquicCongestionControl is null or "" or "cubic" or "bbr" or "new_reno" or "new-reno" or "bbr3", ResUI.CheckServerSettings);
                 v.Assert(protocolExtra.ShadowquicQuicVersions is null or "" or "v1", ProtocolCapabilities.Text("MsgShadowquicOptionsUnsupported"));
-                v.Assert(protocolExtra.ShadowquicInitialMtu is null or >= 1290 and <= 65527, ResUI.CheckServerSettings);
+                v.Assert(protocolExtra.ShadowquicMinMtu is null or >= 1200 and <= 65527, ProtocolCapabilities.Text("MsgShadowquicMtu"));
+                v.Assert(protocolExtra.ShadowquicInitialMtu is null or >= 1200 and <= 65527, ProtocolCapabilities.Text("MsgShadowquicMtu"));
+                v.Assert((protocolExtra.ShadowquicInitialMtu ?? 1300) >= (protocolExtra.ShadowquicMinMtu ?? 1290), ProtocolCapabilities.Text("MsgShadowquicMtu"));
+                v.Assert(protocolExtra.ShadowquicKeepAliveInterval is null or >= 0 and < 30000, ProtocolCapabilities.Text("MsgShadowquicKeepAlive"));
                 v.Assert(new[] { protocolExtra.ShadowquicUpMbps, protocolExtra.ShadowquicDownMbps, protocolExtra.ShadowquicCwnd, protocolExtra.ShadowquicMaxDatagramFrameSize, protocolExtra.ShadowquicMaxOpenStreams, protocolExtra.ShadowquicRecvWindowConn, protocolExtra.ShadowquicRecvWindow }.All(x => x is null or 0), ProtocolCapabilities.Text("MsgShadowquicOptionsUnsupported"));
                 v.Assert(!item.GetAllowInsecure(), ProtocolCapabilities.Text("MsgShadowquicInsecureUnsupported"));
                 break;
