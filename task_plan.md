@@ -131,7 +131,7 @@ The repair design is ready for review in remediation-plan.md. Product implementa
 **Status:** in_progress
 
 ### Phase D: Routing and strategy semantics
-**Status:** pending
+**Status:** complete (local config checks; platform runtime gates remain in F)
 
 ### Phase F: Distribution and acceptance evidence
 **Status:** pending
@@ -144,3 +144,9 @@ Implement and test the coordinated lifecycle before extending import/routing/gro
 
 ## Next Step
 Finish diagnostic classification and redaction regressions; then native import/schema fidelity.
+
+## Next Step
+Verify mihomo routing preflight and group semantics against the installed v1.19.32 binary, then distribution and managed combinations.
+
+## Next Step
+Align distribution SDK and clean package behavior, then implement managed multi-backend groups.

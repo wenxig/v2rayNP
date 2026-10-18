@@ -25,6 +25,15 @@ public partial class AddGroupServerViewModel : MyReactiveObject, ICloseable
     [Reactive]
     public partial string? Filter { get; set; }
 
+    public IEnumerable<string> AvailableCoreTypes => ProtocolCapabilities.GroupCores(SelectedSource.ConfigType).Select(c => c.ToString());
+    public BulkObservableCollection<string> AvailableStrategies { get; } = [];
+
+    private void RefreshStrategies()
+    {
+        if (!Enum.TryParse<ECoreType>(CoreType, out var core)) return;
+        AvailableStrategies.ReplaceRange(ProtocolCapabilities.GroupStrategies(core).Select(ProtocolCapabilities.StrategyLabel));
+    }
+
     public BulkObservableCollection<SubItem> SubItems { get; } = [];
 
     public BulkObservableCollection<ProfileItem> ChildItemsObs { get; } = [];
@@ -81,6 +90,7 @@ public partial class AddGroupServerViewModel : MyReactiveObject, ICloseable
         SelectedSource = profileItem.IndexId.IsNullOrEmpty() ? profileItem : JsonUtils.DeepCopy(profileItem);
         CoreType = (SelectedSource?.CoreType ?? ECoreType.Xray).ToString();
 
+        this.WhenAnyValue(x => x.CoreType).Subscribe(_ => RefreshStrategies());
         _ = Init();
     }
 
@@ -111,7 +121,8 @@ public partial class AddGroupServerViewModel : MyReactiveObject, ICloseable
     public async Task AddChildAsync()
     {
         var profileSelectViewModel = new ProfilesSelectViewModel();
-        profileSelectViewModel.SetConfigTypeFilter([EConfigType.Custom], exclude: true);
+        var core = Enum.TryParse<ECoreType>(CoreType, out var selectedCore) ? selectedCore : ECoreType.Xray;
+        profileSelectViewModel.SetConfigTypeFilter(Enum.GetValues<EConfigType>().Where(type => ProtocolCapabilities.CanGroupMember(core, type)));
         profileSelectViewModel.MultiSelect = true;
         var result = await AppManager.Instance.WindowDialog.ShowDialogAsync(profileSelectViewModel);
         if (result != true)
@@ -235,7 +246,7 @@ public partial class AddGroupServerViewModel : MyReactiveObject, ICloseable
             return;
         }
         SelectedSource.CoreType = CoreType.IsNullOrEmpty() ? ECoreType.Xray : Enum.Parse<ECoreType>(CoreType);
-        if (SelectedSource.CoreType is not (ECoreType.Xray or ECoreType.sing_box) ||
+        if (!ProtocolCapabilities.GroupCores(SelectedSource.ConfigType).Contains(SelectedSource.CoreType.Value) ||
             SelectedSource.ConfigType is not (EConfigType.ProxyChain or EConfigType.PolicyGroup))
         {
             return;
@@ -245,6 +256,17 @@ public partial class AddGroupServerViewModel : MyReactiveObject, ICloseable
 
         SelectedSource.SetProtocolExtra(protocolExtra);
 
+        var validation = NodeValidator.Validate(SelectedSource, SelectedSource.CoreType.Value);
+        foreach (var child in await GroupProfileManager.GetChildProfileItemsByProtocolExtra(protocolExtra))
+        {
+            if (!ProtocolCapabilities.CanGroupMember(SelectedSource.CoreType.Value, child.ConfigType))
+                validation.Errors.Add(string.Format(ResUI.MsgCoreNotSupportProtocol, SelectedSource.CoreType, child.ConfigType));
+        }
+        if (!validation.Success)
+        {
+            NoticeManager.Instance.NotifyValidatorResult(validation);
+            return;
+        }
         if (await ConfigHandler.AddServerCommon(_config, SelectedSource) == 0)
         {
             NoticeManager.Instance.Enqueue(ResUI.OperationSuccess);

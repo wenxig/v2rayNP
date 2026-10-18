@@ -13,15 +13,6 @@ public partial class AddGroupServerWindow : WindowBase<AddGroupServerViewModel>
         lstChild.SelectionChanged += LstChild_SelectionChanged;
         tabControl.SelectionChanged += TabControl_SelectionChanged;
 
-        cmbCoreType.ItemsSource = Global.CoreTypes;
-        cmbPolicyGroupType.ItemsSource = new List<string>
-        {
-            ResUI.TbLeastPing,
-            ResUI.TbFallback,
-            ResUI.TbRandom,
-            ResUI.TbRoundRobin,
-            ResUI.TbLeastLoad,
-        };
         cmbFilter.ItemsSource = Global.PolicyGroupDefaultFilterList;
 
         this.WhenActivated(disposables =>
@@ -32,6 +23,8 @@ public partial class AddGroupServerWindow : WindowBase<AddGroupServerViewModel>
                 .DisposeWith(disposables);
 
             this.Bind(ViewModel, vm => vm.SelectedSource.Remarks, v => v.txtRemarks.Text).DisposeWith(disposables);
+            this.OneWayBind(ViewModel, vm => vm.AvailableCoreTypes, v => v.cmbCoreType.ItemsSource).DisposeWith(disposables);
+            this.OneWayBind(ViewModel, vm => vm.AvailableStrategies, v => v.cmbPolicyGroupType.ItemsSource).DisposeWith(disposables);
             this.Bind(ViewModel, vm => vm.CoreType, v => v.cmbCoreType.SelectedValue).DisposeWith(disposables);
             this.Bind(ViewModel, vm => vm.PolicyGroupType, v => v.cmbPolicyGroupType.SelectedValue).DisposeWith(disposables);
             //this.OneWayBind(ViewModel, vm => vm.SubItems, v => v.cmbSubChildItems.ItemsSource).DisposeWith(disposables);

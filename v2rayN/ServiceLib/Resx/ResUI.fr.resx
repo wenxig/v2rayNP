@@ -1837,4 +1837,7 @@ The "Get Certificate" action may fail if a self-signed certificate is used or if
   <data name="MsgShadowquicKeepAlive" xml:space="preserve"><value>Keep alive must be 0–29999 milliseconds</value></data>
   <data name="MsgNativeConfigRejected" xml:space="preserve"><value>Cannot convert official config without losing behavior: {0}. Use an explicitly selected raw custom core configuration.</value></data>
   <data name="MsgNativeConfigInvalid" xml:space="preserve"><value>Official configuration contains invalid or unsupported fields; check its schema.</value></data>
+  <data name="MsgMihomoRuleUnsupported" xml:space="preserve"><value>mihomo cannot preserve rule "{0}", field {1}; edit this rule before switching.</value></data>
+  <data name="MsgGroupStrategyUnsupported" xml:space="preserve"><value>{0} does not support strategy {1} with equivalent behavior.</value></data>
+  <data name="MsgMihomoBuiltinBlacklist" xml:space="preserve"><value>The mihomo built-in blacklist omits BitTorrent protocol bypass; that traffic follows subsequent rules. Custom protocol conditions still block startup.</value></data>
 </root>

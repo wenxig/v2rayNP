@@ -65,6 +65,8 @@ public class NodeValidator
             {
                 v.Error(string.Format(ResUI.MsgCoreNotSupportProtocol, coreType, item.ConfigType));
             }
+            if (item.ConfigType == EConfigType.PolicyGroup && !ProtocolCapabilities.GroupStrategies(coreType).Contains(item.GetProtocolExtra().MultipleLoad ?? EMultipleLoad.LeastPing))
+                v.Error(string.Format(ProtocolCapabilities.Text("MsgGroupStrategyUnsupported"), coreType, item.GetProtocolExtra().MultipleLoad));
             return;
         }
 

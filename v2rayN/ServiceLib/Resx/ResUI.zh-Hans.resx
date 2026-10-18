@@ -1967,4 +1967,7 @@
   <data name="MsgShadowquicKeepAlive" xml:space="preserve"><value>保活间隔须为 0–29999 毫秒</value></data>
   <data name="MsgNativeConfigRejected" xml:space="preserve"><value>官方配置无法无损转为节点：{0}。请使用显式指定核心的原始自定义配置。</value></data>
   <data name="MsgNativeConfigInvalid" xml:space="preserve"><value>官方配置含有无效或不支持的字段，请检查格式定义。</value></data>
+  <data name="MsgMihomoRuleUnsupported" xml:space="preserve"><value>mihomo 无法等价表达规则“{0}”的字段 {1}，请先调整该规则。</value></data>
+  <data name="MsgGroupStrategyUnsupported" xml:space="preserve"><value>{0} 不支持策略 {1} 的等价行为。</value></data>
+  <data name="MsgMihomoBuiltinBlacklist" xml:space="preserve"><value>mihomo 内置黑名单不包含 bittorrent 协议绕过，相关流量按后续规则处理；自定义协议条件仍会阻止启动。</value></data>
 </root>

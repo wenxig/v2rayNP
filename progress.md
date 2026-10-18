@@ -126,3 +126,7 @@
 - Native import suite 217/219: only two structural-equality assertions failed because the generator emits the official bbr default. Updated assertions to compare that expected effective default; no transport behavior was changed to satisfy them.
 
 - Stage C editable subset: strict ShadowQUIC v0.4.4 YAML and Juicity v0.5.0 JSON recognition, pre-deletion rejection of lossy subscriptions, MTU/keepalive/GSO/blackhole fields through model/editor/URI/generation. Shared tests 219/219; Avalonia and WPF Debug builds passed with 0 warnings/errors. Raw custom listener-contract validation and actual official-core/UDP checks remain pending.
+
+- Stage D: shared capability preflight filters UI strategies/members and validates nested groups. Mihomo maps LeastPing/Fallback/RoundRobin to url-test/fallback/round-robin. Unsupported rule dimensions reject before launch. Canonical builtin black template omits bittorrent bypass with an explicit warning; custom rules remain errors.
+- Regression 229/229 passed; both host builds passed with zero warnings/errors. Real mihomo v1.19.32 accepted six generated configs (three strategies and white/black/global). No proxy/TUN or user process changed; diff check passed.
+- Documentation update initially failed due to Python string escaping; corrected immediately.

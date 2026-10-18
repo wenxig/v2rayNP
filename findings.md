@@ -85,3 +85,5 @@
 - Diagnostics deliberately formats only failure enums, numeric status/delay and URL scheme/host/port. Exception messages, userinfo, paths, queries, fragments and headers never enter the new diagnostic path. A remote HTTP success remains distinct from local SOCKS readiness.
 
 - Confirmed local official ShadowQUIC source is tag v0.4.4 with clean checkout. min-mtu defaults 1290, initial-mtu 1300, minimum QUIC packet limit 1200; keep-alive-interval is milliseconds. Unknown native options reject editable conversion; explicit raw custom mode retains original config.
+
+- Mihomo is v1.19.32. Protocol/inbound matching has no established equivalent in the current generated listener design; reject these dimensions before replacing the old chain. LeastPing, Fallback, RoundRobin map to url-test/fallback/load-balance round-robin; Random and LeastLoad have no equivalent and are rejected. Existing sing-box implements only urltest semantics, so its advertised strategy list is restricted accordingly.

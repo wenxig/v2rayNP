@@ -54,6 +54,7 @@ public class CoreConfigContextBuilder
             ProtectCoreTypeList = config.TunModeItem.EnableTun ? [ECoreType.Xray, ECoreType.sing_box] : []
         };
         var validatorResult = NodeValidatorResult.Empty();
+        context = ProtocolCapabilities.AdaptBuiltinRouting(context, validatorResult.Warnings);
         if (node.ConfigType.IsGroupType() && (ProtocolCapabilities.IsStandaloneCore(runCoreType) || (runCoreType == ECoreType.mihomo && node.ConfigType != EConfigType.PolicyGroup)))
         {
             validatorResult.Errors.Add(string.Format(ResUI.MsgCoreNotSupportProtocol, runCoreType, node.ConfigType));
@@ -97,7 +98,7 @@ public class CoreConfigContextBuilder
                 var ruleOutboundNode = await AppManager.Instance.GetProfileItemViaRemarks(ruleItem.OutboundTag);
                 if (ruleOutboundNode == null)
                 {
-                    validatorResult.Warnings.Add(string.Format(ResUI.MsgRoutingRuleOutboundNodeNotFound,
+                    (runCoreType == ECoreType.mihomo ? validatorResult.Errors : validatorResult.Warnings).Add(string.Format(ResUI.MsgRoutingRuleOutboundNodeNotFound,
                         ruleItem.Remarks, ruleItem.OutboundTag));
                     ruleItem.OutboundTag = Global.ProxyTag;
                     continue;
@@ -108,7 +109,7 @@ public class CoreConfigContextBuilder
                     string.Format(ResUI.MsgRoutingRuleOutboundNodeWarning, ruleItem.Remarks, ruleItem.OutboundTag, w)));
                 if (!ruleNodeValidatorResult.Success)
                 {
-                    validatorResult.Warnings.AddRange(ruleNodeValidatorResult.Errors.Select(e =>
+                    (runCoreType == ECoreType.mihomo ? validatorResult.Errors : validatorResult.Warnings).AddRange(ruleNodeValidatorResult.Errors.Select(e =>
                         string.Format(ResUI.MsgRoutingRuleOutboundNodeError, ruleItem.Remarks, ruleItem.OutboundTag,
                             e)));
                     ruleItem.OutboundTag = Global.ProxyTag;
@@ -118,6 +119,8 @@ public class CoreConfigContextBuilder
                 context.AllProxiesMap[$"remark:{ruleItem.OutboundTag}"] = actRuleNode;
             }
         }
+
+        validatorResult.Errors.AddRange(ProtocolCapabilities.ValidateRouting(context).Errors);
 
         if (context.IsTunEnabled && context.AppConfig.TunModeItem.RouteExcludeAddress is { Count: > 0 })
         {
@@ -467,6 +470,8 @@ public class CoreConfigContextBuilder
         HashSet<string> globalVisitedGroup,
         HashSet<string> ancestorsGroup)
     {
+        var validation = NodeValidator.Validate(node, context.RunCoreType);
+        if (!validation.Success) return validation;
         var (groupChildList, _) = await GroupProfileManager.GetChildProfileItems(node);
         List<string> childIndexIdList = [];
         var childNodeValidatorResult = NodeValidatorResult.Empty();

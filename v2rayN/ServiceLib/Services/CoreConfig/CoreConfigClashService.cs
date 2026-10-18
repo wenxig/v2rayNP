@@ -20,6 +20,8 @@ public class CoreConfigClashService(Config config, bool isTunEnabled)
             var node = context.Node;
             var validation = NodeValidator.Validate(node, ECoreType.mihomo);
             if (!validation.Success) return new RetResult { Msg = string.Join(Environment.NewLine, validation.Errors) };
+            var routingValidation = ProtocolCapabilities.ValidateRouting(context);
+            if (!routingValidation.Success) return new RetResult { Msg = string.Join(Environment.NewLine, routingValidation.Errors) };
             var proxyName = $"node-{node.IndexId}";
             var content = new Dictionary<string, object>
             {
@@ -46,7 +48,18 @@ public class CoreConfigClashService(Config config, bool isTunEnabled)
                 if (!check.Success) return new RetResult { Msg = string.Join(Environment.NewLine, check.Errors) };
                 if (member.ConfigType == EConfigType.PolicyGroup)
                 {
-                    groups.Add(new Dictionary<string, object> { ["name"] = $"node-{member.IndexId}", ["type"] = "select", ["proxies"] = Utils.String2List(member.GetProtocolExtra().ChildItems).Select(id => $"node-{id}").ToList() });
+                    var strategy = member.GetProtocolExtra().MultipleLoad ?? EMultipleLoad.LeastPing;
+                    var automatic = $"node-{member.IndexId}-auto";
+                    var members = Utils.String2List(member.GetProtocolExtra().ChildItems).Select(id => $"node-{id}").ToList();
+                    var group = new Dictionary<string, object>
+                    {
+                        ["name"] = automatic,
+                        ["type"] = strategy switch { EMultipleLoad.LeastPing => "url-test", EMultipleLoad.Fallback => "fallback", EMultipleLoad.RoundRobin => "load-balance", _ => throw new InvalidOperationException() },
+                        ["proxies"] = members, ["url"] = config.SpeedTestItem.SpeedPingTestUrl, ["interval"] = 180, ["lazy"] = false
+                    };
+                    if (strategy == EMultipleLoad.RoundRobin) group["strategy"] = "round-robin";
+                    groups.Add(group);
+                    groups.Add(new Dictionary<string, object> { ["name"] = $"node-{member.IndexId}", ["type"] = "select", ["proxies"] = new[] { automatic }.Concat(members).ToList() });
                 }
                 else
                 {
@@ -111,7 +124,7 @@ public class CoreConfigClashService(Config config, bool isTunEnabled)
             if (rule.Network.IsNotEmpty()) dimensions.Add(rule.Network.Split(',').Select(x => $"NETWORK,{x.Trim().ToUpperInvariant()}").ToList());
             if (rule.Port.IsNotEmpty()) dimensions.Add(rule.Port.Split(',').Select(x => $"DST-PORT,{x.Trim().Replace(':', '-')}").ToList());
             if (rule.Process is { Count: > 0 }) dimensions.Add(rule.Process.Select(x => $"PROCESS-NAME,{x}").ToList());
-            if (rule.Protocol is { Count: > 0 }) dimensions.Add(rule.Protocol.Select(x => $"PROTOCOL,{x}").ToList());
+
             if (rule.InboundTag is { Count: > 0 }) throw new InvalidOperationException(ProtocolCapabilities.Text("MsgMihomoInboundRuleUnsupported"));
             var conditions = dimensions.Select(values => values.Count == 1 ? values[0] : $"OR,({string.Join(',', values.Select(x => $"({x})"))})").ToList();
             if (conditions.Count == 0) result.Add($"MATCH,{target}");
