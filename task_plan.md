@@ -122,10 +122,10 @@ The repair design is ready for review in remediation-plan.md. Product implementa
 ## Remediation implementation (2026-10-18)
 
 ### Phase A: Lifecycle and readiness
-**Status:** in_progress
+**Status:** complete (code and local regression; privileged/platform acceptance remains in F)
 
 ### Phase B: Safe actionable diagnostics
-**Status:** pending
+**Status:** in_progress
 
 ### Phase C: Native config import and fidelity
 **Status:** pending
@@ -141,3 +141,6 @@ The repair design is ready for review in remediation-plan.md. Product implementa
 
 ## Next Step
 Implement and test the coordinated lifecycle before extending import/routing/group behavior. External platform and 24-hour acceptance must stay pending until actual evidence exists.
+
+## Next Step
+Finish diagnostic classification and redaction regressions; then native import/schema fidelity.

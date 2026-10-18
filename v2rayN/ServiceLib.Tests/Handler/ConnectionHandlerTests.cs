@@ -47,6 +47,40 @@ public class ConnectionHandlerTests
         await cancelled.Should().BeTrue();
     }
 
+    [Test]
+    public async Task ProbeRetainsHttpFailureBesideSuccessfulSample()
+    {
+        await using var server = new PingServer(200, 503);
+        var previous = AppManager.Instance.Config;
+        var config = CoreConfigTestFactory.CreateConfig();
+        config.SpeedTestItem.SpeedPingTestUrl = server.Url;
+        CoreConfigTestFactory.BindAppManagerConfig(config);
+        try
+        {
+            var result = await ConnectionHandler.ProbeAsync(null);
+            await result.Delay.Should().BeGreaterThan(0);
+            await result.Samples.Count.Should().BeEqualTo(2);
+            await result.Samples[1].Failure.Should().BeEqualTo(PingFailure.HttpStatus);
+            await result.Samples[1].StatusCode.Should().BeEqualTo(503);
+        }
+        finally { CoreConfigTestFactory.BindAppManagerConfig(previous); }
+    }
+
+    [Test]
+    [Arguments(HttpRequestError.NameResolutionError, PingFailure.Dns)]
+    [Arguments(HttpRequestError.SecureConnectionError, PingFailure.Tls)]
+    [Arguments(HttpRequestError.ProxyTunnelError, PingFailure.Proxy)]
+    [Arguments(HttpRequestError.ConnectionError, PingFailure.Connection)]
+    public async Task DiagnosticsClassifiesWithoutExposingExceptionText(HttpRequestError error, PingFailure expected)
+    {
+        var exception = new HttpRequestException(error, "password=secret Authorization: Bearer secret");
+        await PingDiagnostics.Classify(exception).Should().BeEqualTo(expected);
+        var result = new PingProbeResult(new[] { new PingSample(-1, expected) },
+            PingDiagnostics.SafeTarget("https://alice:secret@example.invalid/private-password?token=secret#secret"));
+        await result.Describe().Contains("secret").Should().BeFalse();
+        await result.Target.Should().BeEqualTo("https://example.invalid:443");
+    }
+
     private static async Task<int> Measure(PingServer server, CancellationToken ct = default)
     {
         var previous = AppManager.Instance.Config;

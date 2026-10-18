@@ -81,3 +81,5 @@
 - Front-end config currently generates after backend starts; failures can leave backend running. RunningCoreType is published regardless of front-end result.
 - StatusBar initialization independently applies configured system proxy before readiness. Stop order is backend before front-end.
 - Use unique prepared config files, an injectable owned-process coordinator, strict SOCKS reads and serialized state/proxy transitions to make failure behavior testable without touching the original client.
+
+- Diagnostics deliberately formats only failure enums, numeric status/delay and URL scheme/host/port. Exception messages, userinfo, paths, queries, fragments and headers never enter the new diagnostic path. A remote HTTP success remains distinct from local SOCKS readiness.

@@ -1957,4 +1957,14 @@
   <data name="CoreFailureTimeout" xml:space="preserve"><value>Timed out waiting for local listener</value></data>
   <data name="CoreFailureCancelled" xml:space="preserve"><value>Startup cancelled</value></data>
   <data name="CoreFailureLaunch" xml:space="preserve"><value>Core failed to start; check the core log</value></data>
+  <data name="MsgPingProbe" xml:space="preserve"><value>Remote HTTP response probe {0}: {1}</value></data>
+  <data name="PingFailureNone" xml:space="preserve"><value>success</value></data>
+  <data name="PingFailureConfiguration" xml:space="preserve"><value>invalid test configuration</value></data>
+  <data name="PingFailureProxy" xml:space="preserve"><value>proxy handshake failed</value></data>
+  <data name="PingFailureDns" xml:space="preserve"><value>DNS resolution failed</value></data>
+  <data name="PingFailureConnection" xml:space="preserve"><value>connection failed</value></data>
+  <data name="PingFailureTls" xml:space="preserve"><value>TLS failed</value></data>
+  <data name="PingFailureHttpStatus" xml:space="preserve"><value>HTTP status</value></data>
+  <data name="PingFailureTimeout" xml:space="preserve"><value>timeout</value></data>
+  <data name="PingFailureCancelled" xml:space="preserve"><value>cancelled</value></data>
 </root>

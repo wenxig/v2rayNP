@@ -118,3 +118,5 @@
 - Lifecycle implementation compiled. First regression build caught TUnit assertions missing await and using Be rather than BeEqualTo; corrected before rerunning. Initial tool payload quoting errors made no product changes.
 
 - Lifecycle regression suite: 200/200 passed after final cleanup review. Avalonia Debug and WPF Debug with EnableWindowsTargeting passed, both with zero warnings/errors. No system proxy, TUN, original-client process or real user credentials were used by tests.
+
+- Stage B: added per-sample HTTP/DNS/TLS/proxy/connection/timeout classifications and sanitized target summaries in existing logs and ProfileEx test messages. Fastest successful sample retained. Shared tests 205/205 passed, including HTTP 503 and exception/URI secret exclusion. Core version metadata and actual proxy/TLS injection remain acceptance follow-ups.

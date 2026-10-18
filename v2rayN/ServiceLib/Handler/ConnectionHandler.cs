@@ -67,51 +67,48 @@ public static class ConnectionHandler
     /// Measures response time by sending HTTP requests through proxy.
     /// </summary>
     public static async Task<int> GetRealPingTime(IWebProxy? webProxy, CancellationToken cancellationToken = default)
+        => (await ProbeAsync(webProxy, cancellationToken)).Delay;
+
+    public static async Task<PingProbeResult> ProbeAsync(IWebProxy? webProxy, CancellationToken cancellationToken = default)
     {
         var url = AppManager.Instance.Config.SpeedTestItem.SpeedPingTestUrl;
-        var responseTime = -1;
-        try
+        var samples = new List<PingSample>();
+        using var deadline = new CancellationTokenSource(Global.LocalFetch);
+        using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, deadline.Token);
+        using var client = new HttpClient(new SocketsHttpHandler
         {
-            using var timeoutCts = new CancellationTokenSource();
-            timeoutCts.CancelAfter(Global.LocalFetch);
-            using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token);
-            var linkedToken = linkedCts.Token;
-            using var client = new HttpClient(new SocketsHttpHandler()
+            Proxy = webProxy,
+            UseProxy = webProxy != null,
+            ConnectTimeout = Global.LocalFetch,
+        });
+        for (var i = 0; i < 2; i++)
+        {
+            try
             {
-                Proxy = webProxy,
-                UseProxy = webProxy != null,
-                ConnectTimeout = Global.LocalFetch,
-            });
-
-            for (var i = 0; i < 2; i++)
+                var timer = Stopwatch.StartNew();
+                using var response = await client.GetAsync(url, linked.Token).ConfigureAwait(false);
+                samples.Add(response.IsSuccessStatusCode
+                    ? new PingSample(Math.Max(1, (int)timer.Elapsed.TotalMilliseconds), PingFailure.None)
+                    : new PingSample(-1, PingFailure.HttpStatus, (int)response.StatusCode));
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { throw; }
+            catch (OperationCanceledException)
             {
-                try
-                {
-                    var timer = Stopwatch.StartNew();
-                    using var response = await client.GetAsync(url, linkedToken).ConfigureAwait(false);
-                    response.EnsureSuccessStatusCode();
-                    var elapsed = Math.Max(1, (int)timer.Elapsed.TotalMilliseconds);
-                    responseTime = responseTime > 0 ? Math.Min(responseTime, elapsed) : elapsed;
-                }
-                catch (HttpRequestException)
-                {
-                    // A failed sample must not discard a successful response from this run.
-                }
-                if (i == 0)
-                {
-                    await Task.Delay(100, linkedToken);
-                }
+                samples.Add(new(-1, PingFailure.Timeout));
+                break;
+            }
+            catch (HttpRequestException ex) { samples.Add(new(-1, PingDiagnostics.Classify(ex))); }
+            catch (Exception) { samples.Add(new(-1, PingFailure.Configuration)); }
+            if (i == 0)
+            {
+                try { await Task.Delay(100, linked.Token); }
+                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { throw; }
+                catch (OperationCanceledException) { samples.Add(new(-1, PingFailure.Timeout)); break; }
             }
         }
-        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-        {
-            throw;
-        }
-        catch
-        {
-            // Keep any completed sample if the remaining shared time budget expires.
-        }
-        return responseTime;
+        var result = new PingProbeResult(samples, PingDiagnostics.SafeTarget(url));
+        Logging.SaveLog(result.Describe());
+        return result;
     }
 
     /// <summary>

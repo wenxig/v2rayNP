@@ -491,7 +491,11 @@ public class SpeedtestService(Config config, Func<SpeedTestResult, Task> updateF
         ConcurrentDictionary<string, byte> completedIds, CancellationToken ct = default)
     {
         var webProxy = new WebProxy($"socks5://{Global.Loopback}:{it.Port}");
-        var responseTime = await ConnectionHandler.GetRealPingTime(webProxy, ct);
+        var probe = await ConnectionHandler.ProbeAsync(webProxy, ct);
+        var responseTime = probe.Delay;
+        var diagnostic = $"{it.CoreType} | {Global.Loopback}:{it.Port} | {probe.Describe()}";
+        ProfileExManager.Instance.SetTestMessage(it.IndexId, diagnostic);
+        NoticeManager.Instance.SendMessageEx(diagnostic);
 
         ProfileExManager.Instance.SetTestDelay(it.IndexId, responseTime);
         await UpdateFunc(it.IndexId, responseTime.ToString());

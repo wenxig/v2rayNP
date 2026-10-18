@@ -1949,4 +1949,14 @@
   <data name="CoreFailureTimeout" xml:space="preserve"><value>等待本地监听超时</value></data>
   <data name="CoreFailureCancelled" xml:space="preserve"><value>启动已取消</value></data>
   <data name="CoreFailureLaunch" xml:space="preserve"><value>核心启动失败，请检查核心日志</value></data>
+  <data name="MsgPingProbe" xml:space="preserve"><value>远端 HTTP 响应测试 {0}：{1}</value></data>
+  <data name="PingFailureNone" xml:space="preserve"><value>成功</value></data>
+  <data name="PingFailureConfiguration" xml:space="preserve"><value>测试配置无效</value></data>
+  <data name="PingFailureProxy" xml:space="preserve"><value>代理握手失败</value></data>
+  <data name="PingFailureDns" xml:space="preserve"><value>DNS 解析失败</value></data>
+  <data name="PingFailureConnection" xml:space="preserve"><value>连接失败</value></data>
+  <data name="PingFailureTls" xml:space="preserve"><value>TLS 失败</value></data>
+  <data name="PingFailureHttpStatus" xml:space="preserve"><value>HTTP 状态码</value></data>
+  <data name="PingFailureTimeout" xml:space="preserve"><value>超时</value></data>
+  <data name="PingFailureCancelled" xml:space="preserve"><value>已取消</value></data>
 </root>
