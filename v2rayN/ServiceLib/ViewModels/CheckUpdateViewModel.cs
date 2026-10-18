@@ -398,10 +398,11 @@ public partial class CheckUpdateViewModel : MyReactiveObject
 
             if (Utils.IsNonWindows())
             {
-                var filesList = new DirectoryInfo(toPath).GetFiles().Select(u => u.FullName).ToList();
-                foreach (var file in filesList)
+                var coreInfo = CoreInfoManager.Instance.GetCoreInfo(item.CoreType!.Value);
+                foreach (var name in coreInfo?.CoreExes ?? [])
                 {
-                    await Utils.SetLinuxChmod(Path.Combine(toPath, coreTypeStr.ToLower()));
+                    var executable = Path.Combine(toPath, Utils.GetExeName(name));
+                    if (File.Exists(executable)) await Utils.SetLinuxChmod(executable);
                 }
             }
 

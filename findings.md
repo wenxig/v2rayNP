@@ -91,3 +91,5 @@
 - Standard ZIP/DMG implicitly merged old 2dust core-bin downloads. Standard artifacts now consistently use in-app core downloads. Juicity v0.5.0 lacks loong64; ShadowQUIC v0.4.4 provides loongarch64.
 
 - Managed frontend forwarding was validated separately from native protocol transport. SOCKS backend logs identify each target, avoiding macOS loopback aliases. Group statistics currently remain aggregate; stable tags alone do not prove member accounting.
+
+- Core downloader follow-up: Juicity participates in update checks; shared platform/architecture asset resolver rejects unavailable binaries before network access (Juicity loong64 unsupported). Extracted executable permissions follow registered CoreExes. Serial regression 241/241 passed. Actual install/update runtime remains pending.

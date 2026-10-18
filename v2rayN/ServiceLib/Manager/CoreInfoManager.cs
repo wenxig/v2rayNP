@@ -67,14 +67,17 @@ public sealed class CoreInfoManager
                 lst.Add(ECoreType.mihomo);
                 lst.Add(ECoreType.sing_box);
                 lst.Add(ECoreType.shadowquic);
+                lst.Add(ECoreType.juicity);
             }
         }
 
-        return lst;
+        return lst.Where(IsCheckUpdateSupported).ToList();
     }
 
     public bool IsCheckUpdateSupported(ECoreType type)
     {
+        if (type != ECoreType.v2rayN && string.IsNullOrEmpty(GetDownloadUrl(GetCoreInfo(type),
+            Utils.IsWindows() ? OSPlatform.Windows : Utils.IsLinux() ? OSPlatform.Linux : OSPlatform.OSX, RuntimeInformation.ProcessArchitecture))) return false;
         return type switch
         {
             ECoreType.v2rayN => !Utils.IsPackagedInstall(),
@@ -82,8 +85,34 @@ public sealed class CoreInfoManager
             ECoreType.mihomo => true,
             ECoreType.sing_box => true,
             ECoreType.shadowquic => true,
+            ECoreType.juicity => true,
             _ => false,
         };
+    }
+
+    public static string? GetDownloadUrl(CoreInfo? info, OSPlatform platform, Architecture architecture)
+    {
+        if (platform == OSPlatform.Windows) return architecture switch
+        {
+            Architecture.X64 => info?.DownloadUrlWin64,
+            Architecture.Arm64 => info?.DownloadUrlWinArm64,
+            _ => null
+        };
+        if (platform == OSPlatform.Linux) return architecture switch
+        {
+            Architecture.X64 => info?.DownloadUrlLinux64,
+            Architecture.Arm64 => info?.DownloadUrlLinuxArm64,
+            Architecture.RiscV64 => info?.DownloadUrlLinuxRiscV64,
+            Architecture.LoongArch64 => info?.DownloadUrlLinuxLoong64,
+            _ => null
+        };
+        if (platform == OSPlatform.OSX) return architecture switch
+        {
+            Architecture.X64 => info?.DownloadUrlOSX64,
+            Architecture.Arm64 => info?.DownloadUrlOSXArm64,
+            _ => null
+        };
+        return null;
     }
 
     public bool GetCheckPreRelease(ECoreType type, bool preRelease)

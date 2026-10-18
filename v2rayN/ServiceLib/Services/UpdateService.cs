@@ -153,6 +153,8 @@ public partial class UpdateService(Config config, Func<bool, string, Task> updat
 
     private async Task<UpdateResult> CheckUpdateAsync(DownloadService downloadHandle, ECoreType type, bool preRelease, bool blProxy, CancellationToken cancellationToken = default)
     {
+        if (string.IsNullOrEmpty(await GetUrlFromCore(CoreInfoManager.Instance.GetCoreInfo(type))))
+            return new UpdateResult(false, ResUI.MsgNotSupport);
         try
         {
             var result = await GetRemoteVersion(downloadHandle, type, preRelease, blProxy, cancellationToken);
@@ -266,6 +268,7 @@ public partial class UpdateService(Config config, Func<bool, string, Task> updat
             var version = result.Version ?? new SemanticVersion(0, 0, 0);
             var coreInfo = CoreInfoManager.Instance.GetCoreInfo(type);
             var coreUrl = await GetUrlFromCore(coreInfo) ?? string.Empty;
+            if (coreUrl.IsNullOrEmpty()) return new UpdateResult(false, ResUI.MsgNotSupport);
             SemanticVersion curVersion;
             string message;
             string? url;
@@ -276,6 +279,7 @@ public partial class UpdateService(Config config, Func<bool, string, Task> updat
                 case ECoreType.v2fly_v5:
                 case ECoreType.mihomo:
                 case ECoreType.shadowquic:
+                case ECoreType.juicity:
                     {
                         curVersion = await GetCoreVersion(type, cancellationToken);
                         message = string.Format(ResUI.IsLatestCore, type, curVersion.ToStandardVersionString("v"));
@@ -317,51 +321,14 @@ public partial class UpdateService(Config config, Func<bool, string, Task> updat
         }
     }
 
-    private async Task<string?> GetUrlFromCore(CoreInfo? coreInfo)
+    private Task<string?> GetUrlFromCore(CoreInfo? coreInfo)
     {
-        if (Utils.IsWindows())
-        {
-            var url = RuntimeInformation.ProcessArchitecture switch
-            {
-                Architecture.Arm64 => coreInfo?.DownloadUrlWinArm64,
-                Architecture.X64 => coreInfo?.DownloadUrlWin64,
-                _ => null,
-            };
-
-            if (coreInfo?.CoreType != ECoreType.v2rayN)
-            {
-                return url;
-            }
-
-            //Check for avalonia desktop windows version
-            if (File.Exists(Path.Combine(Utils.GetBaseDirectory(), "libHarfBuzzSharp.dll")))
-            {
-                return url?.Replace(".zip", "-desktop.zip");
-            }
-
-            return url;
-        }
-        else if (Utils.IsLinux())
-        {
-            return RuntimeInformation.ProcessArchitecture switch
-            {
-                Architecture.Arm64 => coreInfo?.DownloadUrlLinuxArm64,
-                Architecture.RiscV64 => coreInfo?.DownloadUrlLinuxRiscV64,
-                Architecture.LoongArch64 => coreInfo?.DownloadUrlLinuxLoong64,
-                Architecture.X64 => coreInfo?.DownloadUrlLinux64,
-                _ => null,
-            };
-        }
-        else if (Utils.IsMacOS())
-        {
-            return RuntimeInformation.ProcessArchitecture switch
-            {
-                Architecture.Arm64 => coreInfo?.DownloadUrlOSXArm64,
-                Architecture.X64 => coreInfo?.DownloadUrlOSX64,
-                _ => null,
-            };
-        }
-        return await Task.FromResult("");
+        var platform = Utils.IsWindows() ? OSPlatform.Windows : Utils.IsLinux() ? OSPlatform.Linux : OSPlatform.OSX;
+        var url = CoreInfoManager.GetDownloadUrl(coreInfo, platform, RuntimeInformation.ProcessArchitecture);
+        if (Utils.IsWindows() && coreInfo?.CoreType == ECoreType.v2rayN
+            && File.Exists(Path.Combine(Utils.GetBaseDirectory(), "libHarfBuzzSharp.dll")))
+            url = url?.Replace(".zip", "-desktop.zip");
+        return Task.FromResult(url);
     }
 
     #endregion CheckUpdate private
