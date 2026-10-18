@@ -480,6 +480,7 @@ publish_binary() {
 
 write_spec_file() {
   local specfile="$1"
+  local rpm_version="${VERSION//-/~}"
 
   cat > "$specfile" <<'SPEC'
 %global debug_package %{nil}
@@ -573,7 +574,7 @@ install -m0644 %{_builddir}/__PKGROOT__/v2rayn.png %{buildroot}%{_datadir}/icons
 %{_datadir}/icons/hicolor/256x256/apps/v2rayn.png
 SPEC
 
-  sed -i "s/__VERSION__/${VERSION}/g" "$specfile"
+  sed -i "s/__VERSION__/${rpm_version}/g" "$specfile"
   sed -i "s/__PKGROOT__/${PKGROOT}/g" "$specfile"
 }
 
