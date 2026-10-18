@@ -273,12 +273,12 @@ public class SpeedtestService(Config config, Func<SpeedTestResult, Task> updateF
             }
             else
             {
-                await RunMixedTestAsync(lstSelected, completedIds, _config.SpeedTestItem.MixedConcurrencyCount, false, ct);
+                await RunMixedTestAsync(lstFailed, completedIds, _config.SpeedTestItem.MixedConcurrencyCount, false, ct);
             }
         }
     }
 
-    private async Task<bool> RunRealPingAsync(List<ServerTestItem> selecteds,
+    protected virtual async Task<bool> RunRealPingAsync(List<ServerTestItem> selecteds,
         ConcurrentDictionary<string, byte> completedIds, CancellationToken ct = default)
     {
         ICoreProcess? processService = null;
@@ -365,11 +365,16 @@ public class SpeedtestService(Config config, Func<SpeedTestResult, Task> updateF
 
             await UpdateFunc("", string.Format(ResUI.SpeedtestingTestFailedPart, lstFailed.Count));
 
-            await RunUdpTestAsync(lstFailed, completedIds, ct);
+            foreach (var batch in GetTestBatchItem(lstFailed, Math.Max(1, pageSize / 2)))
+            {
+                ct.ThrowIfCancellationRequested();
+                await RunUdpTestAsync(batch, completedIds, ct);
+                await Task.Delay(_delayInterval, ct);
+            }
         }
     }
 
-    private async Task<bool> RunUdpTestAsync(List<ServerTestItem> selecteds,
+    protected virtual async Task<bool> RunUdpTestAsync(List<ServerTestItem> selecteds,
         ConcurrentDictionary<string, byte> completedIds, CancellationToken ct = default)
     {
         ICoreProcess? processService = null;
@@ -429,7 +434,7 @@ public class SpeedtestService(Config config, Func<SpeedTestResult, Task> updateF
         return true;
     }
 
-    private async Task RunMixedTestAsync(List<ServerTestItem> selecteds,
+    protected virtual async Task RunMixedTestAsync(List<ServerTestItem> selecteds,
         ConcurrentDictionary<string, byte> completedIds, int concurrencyCount, bool blSpeedTest,
         CancellationToken ct = default)
     {

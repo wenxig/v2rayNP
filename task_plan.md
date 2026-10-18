@@ -117,39 +117,15 @@ Restart the rebuilt desktop to load the fixes; retain remote stability as unveri
 
 ## Next Step
 
-The repair design is ready for review in remediation-plan.md. Product implementation remains outside this planning task.
+The remediation plan has been implemented in signed, phase-scoped commits; remaining production acceptance gates are listed in remediation-plan.md.
 
 ## Remediation implementation (2026-10-18)
 
-### Phase A: Lifecycle and readiness
-**Status:** complete (code and local regression; privileged/platform acceptance remains in F)
+- A: lifecycle coordination, full readiness, rollback, proxy ownership and shutdown gates implemented. Platform-level proxy/TUN verification remains pending.
+- B: safe diagnostics and sample classification implemented. Cross-platform and remote diagnostic acceptance remains pending.
+- C: official import subset, raw listener contract, and native option fidelity implemented. Full official-core transport acceptance remains pending.
+- D: capability checks and routing/group strategy mapping implemented; installed mihomo config validation passed.
+- E: managed cross-core groups, separate speed-test lifecycle, manual selection and least-ping failover implemented. The reusable sing-box acceptance harness is `script/accept-managed-groups.py`; the remaining gap is per-member traffic accounting and official protocol-server combination coverage.
+- F: .NET 10 workflow and clean artifact changes implemented. Clean install/upgrade, other platform runtime, TUN/UDP and long-run acceptance remain pending.
 
-### Phase B: Safe actionable diagnostics
-**Status:** in_progress
-
-### Phase C: Native config import and fidelity
-**Status:** in_progress
-
-### Phase D: Routing and strategy semantics
-**Status:** complete (local config checks; platform runtime gates remain in F)
-
-### Phase F: Distribution and acceptance evidence
-**Status:** in_progress (distribution fixed; runtime evidence pending)
-
-### Phase E: Managed combinations and capability boundaries
-**Status:** in_progress (managed graph and isolated tests implemented; member statistics and native runtime acceptance pending)
-
-## Next Step
-Implement and test the coordinated lifecycle before extending import/routing/group behavior. External platform and 24-hour acceptance must stay pending until actual evidence exists.
-
-## Next Step
-Finish diagnostic classification and redaction regressions; then native import/schema fidelity.
-
-## Next Step
-Verify mihomo routing preflight and group semantics against the installed v1.19.32 binary, then distribution and managed combinations.
-
-## Next Step
-Align distribution SDK and clean package behavior, then implement managed multi-backend groups.
-
-## Current remediation work
-Managed group implementation and test isolation are implemented; record actual native backend, failure recovery and member statistics evidence before marking E complete. System proxy ownership, raw listener contracts and platform acceptance remain pending.
+Latest focused regression: 258/258 shared tests. Current goal is implementation complete with production acceptance explicitly partial; see `remediation-plan.md` for unverified gates.

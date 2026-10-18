@@ -2,6 +2,8 @@
 
 A sing-box policy group owns a graph of native sing-box members and per-node loopback SOCKS backends. SSR/Mieru backends run mihomo; ShadowQUIC/Juicity use their official clients. No native protocol substitution occurs. Each backend retains its source IndexId, independent config and deterministic port. The persisted group and profiles are never rewritten into SOCKS nodes.
 
+For a generated managed frontend and an installed sing-box binary, run `python3 script/accept-managed-groups.py <sing-box-path> <frontend-json>`. The harness allocates loopback ports, starts controlled SOCKS backends and a local health endpoint, checks each member's TCP/UDP body forwarding and least-ping failover, and terminates only processes it started. It does not exercise official protocol clients or remote servers.
+
 The dedicated range defaults to 26000–26199 and is configurable in CoreBasicItem. Nodes sorted by IndexId receive consecutive ports. Application listeners/API ports are excluded; occupied ports fail explicitly. Single-node +7/+8 remains unchanged. Bind preflight cannot eliminate the child-process bind race.
 
 Prepare every backend and frontend config and executable before stopping the old graph. Start backends before sing-box; stop in reverse order. Every backend must become ready during startup; a startup failure rolls back the whole graph. After readiness, a backend exit is reported while the frontend and surviving backends remain available for real URL probes. The sing-box frontend is required. There is no unbounded restart loop.

@@ -93,3 +93,6 @@
 - Managed frontend forwarding was validated separately from native protocol transport. SOCKS backend logs identify each target, avoiding macOS loopback aliases. Group statistics currently remain aggregate; stable tags alone do not prove member accounting.
 
 - Core downloader follow-up: Juicity participates in update checks; shared platform/architecture asset resolver rejects unavailable binaries before network access (Juicity loong64 unsupported). Extracted executable permissions follow registered CoreExes. Serial regression 241/241 passed. Actual install/update runtime remains pending.
+
+- Reusable managed-group acceptance now lives in `script/accept-managed-groups.py`; local sing-box 1.14.3 verified TCP/UDP forwarding for both controlled SOCKS members and failover after the selected backend exited. This is frontend/backend transport evidence only; it does not exercise native Juicity/ShadowQUIC/SSR/Mieru servers or member-specific accounting.
+- Speedtest retry review found Realping fallback retried the original selection instead of only failures, while UDP retry bypassed the core/group batch partitioner. Both paths now retry only failed items and preserve single-process standalone/group isolation; focused regression coverage is in SpeedtestServiceBatchTests.
