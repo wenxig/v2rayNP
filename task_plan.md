@@ -82,3 +82,9 @@ Restart the rebuilt desktop and retest ShadowQUIC using the installed official c
 - Serial shared tests: 173/173 passed. Avalonia Debug and WPF Debug builds passed. macOS x64 self-contained Release publish passed. GlobalHotKeys has its pre-existing CS8625 warning; no submodule sources were edited.
 - Real official v0.4.4 and sing-box processes: local HTTP body verified; initial remote direct and front-end requests returned 204/200, speed-test listener returned 204. Application ProcessService + ConnectionHandler measured 222 ms.
 - A repeat run passed local checks but timed out remotely. A final side-by-side control failed with both the original official YAML and newly generated YAML. Remote stability is not accepted as proven. No system proxy or TUN settings were changed.
+
+## Separated ShadowQUIC acceptance (2026-10-18)
+
+- [completed] 16. Independently test a loopback official server and the supplied remote ShadowQUIC profile through generated native, mixed and speed-test listeners; record response validation, timings and repeated results without system proxy. Save the redacted report and sign a progress commit.
+
+- Stage 16 result: local body 20/20 and local-server example.com 4/4 passed; host direct Google and local-server Google timed out. Supplied remote via generated config passed Google 14/15 and example.com 3/7 across initial and interleaved runs; original config control passed 10/10. See shadowquic-validation.md. Remote stability remains partial.

@@ -48,3 +48,11 @@
 
 - Official v0.4.4 asset mappings were checked against the GitHub release. macOS x86_64 binary SHA-256 matched release metadata: `6b42796026c41da7c39a5b429ea0251769c435b2b2121bc9efa99a71af7d8dd5`. The binary is installed in the current Debug host `bin/shadowquic/shadowquic` (ignored build output).
 - Integrated live validation initially passed all 9 local/remote checks, and application real-ping measured 222 ms. A later repeat passed all 4 local checks and failed the 5 remote requests; final original-vs-generated control also failed both. This prevents claiming remote stability, while the local and successful remote results establish that the generated config and process chain work.
+
+## Separated official ShadowQUIC acceptance
+
+- Fresh run preserves the supplied outbound flags, including zero-rtt=true and initial-mtu=1300. Local normal native SOCKS, sing-box mixed SOCKS/HTTP and single-node speed-test listeners returned the exact local HTTP body in all 20 attempts. App real-ping against that local responder returned 1–14 ms across 9 samples.
+- No-proxy baseline: example.com returned HTTP 200, while Google generate_204 timed out. Google checks through a loopback server therefore also test the host's direct Internet path, and must not be equated with a protocol-local failure.
+
+- Completed separated tests: loopback native/mixed SOCKS/mixed HTTP/speed listeners returned local body 20/20 and example.com 4/4. Loopback Google 0/12 follows the host's failing direct-Google baseline.
+- Supplied-node generated configs: initial Google 11/12, example.com 0/4 (curl 35 TLS failures); interleaved original/generated follow-up Google 3/3 and example.com 3/3 for each configuration. Generated combined 17/22; original control combined 10/10. Mixed application real-ping 200/196/196 ms; native follow-up 232/230/306 ms; original follow-up 232/227/228 ms. Remote is usable but stability remains partial.

@@ -80,3 +80,12 @@
 - All core processes used only task-owned loopback ports; common proxy environment variables were cleared and curl used explicit proxies. System proxy, TUN, and the original v2rayN process were not modified. All temporary test processes were stopped.
 - Verified release asset SHA-256 and placed the official binary at `v2rayN/v2rayN.Desktop/bin/Debug/net10.0/bin/shadowquic/shadowquic` for the user's manual retest; this ignored binary and all credential-bearing smoke inputs are excluded from Git.
 - `git diff --check` passed. TUN/UDP live forwarding, Windows/Linux execution and long-term remote stability remain unverified. Unrelated `agent.md`, `AGENTS.md`, and `live-node-validation.md` edits are preserved.
+
+## Separated ShadowQUIC acceptance
+
+- Started a fresh isolated run using task-owned ports 24180/24188/24221/24230/24443/24580; proxy environment variables will be removed. Testing the local official server separately from the supplied remote ShadowQUIC node, with original upstream configuration as a remote control.
+
+- Generated node configs through CoreConfigHandler with original zero-rtt=true and other supplied fields, sing-box check passed. Corrected a temporary harness YamlMappingNode setter compile error before running any network checks; product source unchanged.
+- Ran `python3 /private/tmp/v2raynp-sq-acceptance-20261018/validate.py`: all 7 SOCKS5 listener greetings passed, loopback HTTP body 20/20 passed, loopback example.com 4/4 passed, loopback Google 0/12 failed like the direct host baseline. Supplied remote Google 11/12 passed, example.com 0/4 failed with curl 35; original config later passed 4/4.
+- Ran `python3 /private/tmp/v2raynp-sq-acceptance-20261018/interleave.py`: generated and original configs each passed 6/6 alternating HTTPS requests. Generated app real-ping 232/230/306 ms; original 232/227/228 ms. All failures from the first run remain counted in the report.
+- Final report: shadowquic-validation.md; remote generated aggregate Google 14/15, example.com 3/7; original control 10/10. Local app delays 1–14 ms, remote mixed 196–200 ms. No system proxy or TUN changes; all task processes and loopback listeners stopped. Only documentation changed, so no product rebuild or unit-test rerun was needed.
