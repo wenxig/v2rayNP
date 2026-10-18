@@ -133,3 +133,10 @@
 
 - Stage F distribution: four workflows use .NET 10 and WPF initializes its submodule. ZIP/DMG no longer overlay legacy core-bin. Missing-core feedback includes download path/official URL.
 - macOS x64 clean self-contained publish passed (existing GlobalHotKeys CS8625 warning). ZIP structure, executable permissions and invalid-input checks passed; four YAML files parsed, bash syntax/diff checks passed; shared tests 229/229 passed. Juicity v0.5.0 has no loong64 asset; ShadowQUIC v0.4.4 has all eight desktop mappings. DMG execution, installer/update/download, other OS runtime, TUN/UDP and long operation remain pending.
+
+## Managed groups implementation
+
+- Added deterministic native backends, runtime-only SOCKS references, nested selectors and fail-closed chain checks. Single-node +7/+8 stays unchanged. Every backend must be ready at startup; runtime optional exits preserve surviving members.
+- Managed speed tests use independent lifecycle, disjoint backend range, one loopback mixed listener and no production controller/cache/routing. Cancellation/stop cleans owned graph and releases serialization lease.
+- Latest serial regression: 239/239 passed, including isolated test configuration and 100 fake-process graph switches. Avalonia Debug passed after restoring Debug-only diagnostics dependency (initial --no-restore failed after Release restore); existing GlobalHotKeys CS8625 warning. WPF Debug with EnableWindowsTargeting passed without warnings/errors.
+- Actual sing-box 1.14.3 generated frontend and two controlled SOCKS backends: both manual leaf choices passed TCP body and UDP echo with backend logs proving selected target. First two harness attempts failed due to nonexistent macOS loopback aliases; corrected harness without changing interfaces. All owned processes stopped. Native QUIC/SSR/Mieru transport, auto failover, member statistics and platform/long-duration gates remain pending.

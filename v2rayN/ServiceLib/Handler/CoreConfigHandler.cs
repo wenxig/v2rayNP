@@ -23,19 +23,22 @@ public static class CoreConfigHandler
         }
         else if (context.RunCoreType == ECoreType.mihomo)
         {
-            result = await new CoreConfigClashService(config, context.IsTunEnabled).GenerateClientNodeConfig(context);
+            result = await new CoreConfigClashService(config, context.IsTunEnabled).GenerateClientNodeConfig(context, context.ListenPort);
         }
         else if (context.RunCoreType == ECoreType.juicity)
         {
-            result = new CoreConfigJuicityService(config).GenerateClientConfig(node);
+            result = new CoreConfigJuicityService(config).GenerateClientConfig(node, context.ListenPort);
         }
         else if (context.RunCoreType == ECoreType.shadowquic)
         {
-            result = new CoreConfigShadowquicService(config).GenerateClientConfig(node);
+            result = new CoreConfigShadowquicService(config).GenerateClientConfig(node, context.ListenPort);
         }
         else if (context.RunCoreType == ECoreType.sing_box)
         {
-            result = new CoreConfigSingboxService(context).GenerateClientConfigContent();
+            var generator = new CoreConfigSingboxService(context);
+            result = context.IsSpeedtest
+                ? generator.GenerateClientSpeedtestConfig(context.AppConfig.Inbound.First().LocalPort)
+                : generator.GenerateClientConfigContent();
         }
         else
         {

@@ -159,6 +159,11 @@ public class CoreConfigContextBuilder
             context = context with { AppConfig = appConfig };
         }
 
+        if (validatorResult.Success)
+        {
+            try { context = ManagedGroupBuilder.Prepare(context); }
+            catch (InvalidOperationException) { validatorResult.Errors.Add(ResUI.CheckServerSettings); }
+        }
         return new CoreConfigContextBuilderResult(context, validatorResult);
     }
 
@@ -363,7 +368,15 @@ public class CoreConfigContextBuilder
             return NodeValidatorResult.Empty();
         }
 
-        var nodeValidatorResult = NodeValidator.Validate(node, context.RunCoreType);
+        var validationCore = context.RunCoreType == ECoreType.sing_box && context.Node.ConfigType == EConfigType.PolicyGroup
+            && ProtocolCapabilities.IsExtendedProtocol(node.ConfigType) ? ProtocolCapabilities.DefaultCore(node.ConfigType) : context.RunCoreType;
+        var nodeValidatorResult = NodeValidator.Validate(node, validationCore);
+        if (validationCore != context.RunCoreType && node.Subid.IsNotEmpty())
+        {
+            var subscription = await AppManager.Instance.GetSubItem(node.Subid);
+            if (subscription?.PrevProfile.IsNotEmpty() == true || subscription?.NextProfile.IsNotEmpty() == true)
+                nodeValidatorResult.Errors.Add(string.Format(ResUI.MsgCoreNotSupportProtocol, validationCore, EConfigType.ProxyChain));
+        }
 
         if (node.ConfigType == EConfigType.Outbound)
         {
@@ -456,7 +469,12 @@ public class CoreConfigContextBuilder
         if (!validation.Success) return validation;
         HashSet<string> ancestors = [node.IndexId];
         HashSet<string> globalVisited = [node.IndexId];
-        return await TraverseGroupNodeAsync(context, node, globalVisited, ancestors);
+        var result = await TraverseGroupNodeAsync(context, node, globalVisited, ancestors);
+        if (context.RunCoreType == ECoreType.sing_box && context.Node.ConfigType == EConfigType.PolicyGroup
+            && context.AllProxiesMap.Values.Any(n => ProtocolCapabilities.IsExtendedProtocol(n.ConfigType))
+            && context.AllProxiesMap.Values.Any(n => n.ConfigType == EConfigType.ProxyChain))
+            result.Errors.Add(string.Format(ResUI.MsgCoreNotSupportProtocol, ECoreType.sing_box, EConfigType.ProxyChain));
+        return result;
     }
 
     /// <summary>
@@ -529,6 +547,7 @@ public class CoreConfigContextBuilder
             return childNodeValidatorResult;
         }
         if ((context.RunCoreType is ECoreType.mihomo or ECoreType.juicity or ECoreType.shadowquic
+            || context.RunCoreType == ECoreType.sing_box && context.Node.ConfigType == EConfigType.PolicyGroup
             || groupChildList.Any(child => ProtocolCapabilities.IsExtendedProtocol(child.ConfigType)))
             && childNodeValidatorResult.Errors.Count > 0) return childNodeValidatorResult;
         childNodeValidatorResult.Warnings.AddRange(childNodeValidatorResult.Errors);

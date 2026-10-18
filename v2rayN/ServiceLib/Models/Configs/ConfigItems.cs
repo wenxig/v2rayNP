@@ -3,6 +3,10 @@ namespace ServiceLib.Models.Configs;
 [Serializable]
 public class CoreBasicItem
 {
+    public int ManagedBackendPortStart { get; set; } = 26000;
+
+    public int ManagedBackendPortCount { get; set; } = 200;
+
     public bool LogEnabled { get; set; }
 
     public string Loglevel { get; set; }

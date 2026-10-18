@@ -10,6 +10,8 @@ public partial class CoreConfigSingboxService
 
     private List<BaseServer4Sbox> BuildAllProxyOutbounds(string baseTagName = Global.ProxyTag, bool withSelector = true)
     {
+        if (context.ManagedBackends.Count > 0 && _node.ConfigType == EConfigType.PolicyGroup)
+            return BuildManagedPolicyOutbounds(baseTagName, []);
         var proxyOutboundList = new List<BaseServer4Sbox>();
         if (!_node.ConfigType.IsGroupType())
         {
@@ -29,6 +31,27 @@ public partial class CoreConfigSingboxService
             }
         }
         return proxyOutboundList;
+    }
+
+    private List<BaseServer4Sbox> BuildManagedPolicyOutbounds(string tag, HashSet<string> ancestors)
+    {
+        if (!ancestors.Add(_node.IndexId)) throw new InvalidOperationException();
+        var result = new List<BaseServer4Sbox>();
+        var tags = new List<string>();
+        foreach (var id in Utils.String2List(_node.GetProtocolExtra().ChildItems).Distinct())
+        {
+            if (!context.AllProxiesMap.TryGetValue(id, out var member)) throw new InvalidOperationException();
+            var memberTag = member.ConfigType == EConfigType.PolicyGroup ? $"group-{id}" : $"managed-{id}";
+            tags.Add(memberTag);
+            var child = new CoreConfigSingboxService(context with { Node = member });
+            if (member.ConfigType == EConfigType.PolicyGroup)
+                result.AddRange(child.BuildManagedPolicyOutbounds(memberTag, new HashSet<string>(ancestors)));
+            else if (member.ConfigType.IsGroupType()) throw new InvalidOperationException();
+            else result.Add(child.BuildProxyOutbound(memberTag));
+        }
+        if (tags.Count == 0) throw new InvalidOperationException();
+        result.AddRange(BuildSelectorOutbounds(tags, tag));
+        return result.DistinctBy(o => o.tag).ToList();
     }
 
     private BaseServer4Sbox BuildProxyOutbound(string baseTagName = Global.ProxyTag)
@@ -615,11 +638,14 @@ public partial class CoreConfigSingboxService
     private List<Outbound4Sbox> BuildSelectorOutbounds(List<string> proxyTags, string baseTagName = Global.ProxyTag)
     {
         var multipleLoad = _node.GetProtocolExtra().MultipleLoad ?? EMultipleLoad.LeastPing;
+        if (!ProtocolCapabilities.GroupStrategies(ECoreType.sing_box).Contains(multipleLoad)) throw new InvalidOperationException();
         var outUrltest = new Outbound4Sbox
         {
             type = "urltest",
             tag = $"{baseTagName}-auto",
             outbounds = proxyTags,
+            url = _config.SpeedTestItem.SpeedPingTestUrl,
+            interval = "3m",
             interrupt_exist_connections = false,
         };
 

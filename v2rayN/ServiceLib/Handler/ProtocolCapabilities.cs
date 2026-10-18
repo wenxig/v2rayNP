@@ -37,7 +37,7 @@ public static class ProtocolCapabilities
     public static bool CanGroupMember(ECoreType core, EConfigType type) => core switch
     {
         ECoreType.mihomo => type is EConfigType.SSR or EConfigType.Mieru or EConfigType.PolicyGroup,
-        ECoreType.sing_box => Global.SingboxSupportConfigType.Contains(type) || type.IsGroupType(),
+        ECoreType.sing_box => Global.SingboxSupportConfigType.Contains(type) || type.IsGroupType() || IsExtendedProtocol(type),
         ECoreType.Xray => Global.XraySupportConfigType.Contains(type) || type.IsGroupType(),
         _ => false
     };

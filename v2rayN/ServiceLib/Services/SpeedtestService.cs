@@ -280,10 +280,10 @@ public class SpeedtestService(Config config, Func<SpeedTestResult, Task> updateF
     private async Task<bool> RunRealPingAsync(List<ServerTestItem> selecteds,
         ConcurrentDictionary<string, byte> completedIds, CancellationToken ct = default)
     {
-        ProcessService processService = null;
+        ICoreProcess? processService = null;
         try
         {
-            processService = await CoreManager.Instance.LoadCoreConfigSpeedtest(selecteds);
+            processService = await CoreManager.Instance.LoadCoreConfigSpeedtest(selecteds, ct);
             if (processService is null)
             {
                 return false;
@@ -371,10 +371,10 @@ public class SpeedtestService(Config config, Func<SpeedTestResult, Task> updateF
     private async Task<bool> RunUdpTestAsync(List<ServerTestItem> selecteds,
         ConcurrentDictionary<string, byte> completedIds, CancellationToken ct = default)
     {
-        ProcessService processService = null;
+        ICoreProcess? processService = null;
         try
         {
-            processService = await CoreManager.Instance.LoadCoreConfigSpeedtest(selecteds);
+            processService = await CoreManager.Instance.LoadCoreConfigSpeedtest(selecteds, ct);
             if (processService is null)
             {
                 return false;
@@ -444,10 +444,10 @@ public class SpeedtestService(Config config, Func<SpeedTestResult, Task> updateF
         {
             innerCt.ThrowIfCancellationRequested();
 
-            ProcessService processService = null;
+            ICoreProcess? processService = null;
             try
             {
-                processService = await CoreManager.Instance.LoadCoreConfigSpeedtest(it);
+                processService = await CoreManager.Instance.LoadCoreConfigSpeedtest(it, innerCt);
                 if (processService is null)
                 {
                     await UpdateFunc(it.IndexId, "", ResUI.FailedToRunCore);
@@ -600,7 +600,8 @@ public class SpeedtestService(Config config, Func<SpeedTestResult, Task> updateF
         foreach (var group in lstSelected.GroupBy(t => t.CoreType))
         {
             var size = group.Key is ECoreType.mihomo or ECoreType.juicity or ECoreType.shadowquic ? 1 : pageSize;
-            lstTest.AddRange(group.Chunk(size).Select(chunk => chunk.ToList()));
+            lstTest.AddRange(group.Where(t => t.ConfigType.IsGroupType()).Select(t => new List<ServerTestItem> { t }));
+            lstTest.AddRange(group.Where(t => !t.ConfigType.IsGroupType()).Chunk(size).Select(chunk => chunk.ToList()));
         }
 
         return lstTest;

@@ -137,7 +137,7 @@ The repair design is ready for review in remediation-plan.md. Product implementa
 **Status:** in_progress (distribution fixed; runtime evidence pending)
 
 ### Phase E: Managed combinations and capability boundaries
-**Status:** pending
+**Status:** in_progress (managed graph and isolated tests implemented; member statistics and native runtime acceptance pending)
 
 ## Next Step
 Implement and test the coordinated lifecycle before extending import/routing/group behavior. External platform and 24-hour acceptance must stay pending until actual evidence exists.
@@ -150,3 +150,6 @@ Verify mihomo routing preflight and group semantics against the installed v1.19.
 
 ## Next Step
 Align distribution SDK and clean package behavior, then implement managed multi-backend groups.
+
+## Current remediation work
+Managed group implementation and test isolation are implemented; record actual native backend, failure recovery and member statistics evidence before marking E complete. System proxy ownership, raw listener contracts and platform acceptance remain pending.

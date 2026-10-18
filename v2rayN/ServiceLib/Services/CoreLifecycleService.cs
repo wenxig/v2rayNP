@@ -7,7 +7,7 @@ public interface ICoreProcess : IDisposable
     Task WaitForExitAsync(CancellationToken cancellationToken);
 }
 
-public record CoreLaunchStep(ECoreType CoreType, string Stage, int? SocksPort, Func<CancellationToken, Task<ICoreProcess>> Start);
+public record CoreLaunchStep(ECoreType CoreType, string Stage, int? SocksPort, Func<CancellationToken, Task<ICoreProcess>> Start, bool OptionalAfterReady = false);
 public sealed record CoreLaunchPlan(IReadOnlyList<CoreLaunchStep> Steps, Func<Task> Cleanup);
 
 public sealed class CoreLaunchException(CoreStartResult result) : Exception
@@ -23,6 +23,7 @@ public sealed class CoreLifecycleService(Func<ECoreType?, CoreStartResult?, Task
     private CancellationTokenSource? _pending;
     private CancellationTokenSource? _monitor;
     private readonly List<ICoreProcess> _processes = [];
+    private readonly HashSet<ICoreProcess> _optional = [];
     private CoreLaunchPlan? _plan;
     public bool IsRunning { get; private set; }
 
@@ -64,6 +65,7 @@ public sealed class CoreLifecycleService(Func<ECoreType?, CoreStartResult?, Task
                 }
                 var process = await step.Start(request.Token);
                 _processes.Add(process);
+                if (step.OptionalAfterReady) _optional.Add(process);
                 var failure = step.SocksPort is int socksPort
                     ? await SocksReadiness.WaitAsync(socksPort, () => process.HasExited, Global.LocalFetch, request.Token)
                     : process.HasExited ? CoreStartFailure.ProcessExited : CoreStartFailure.None;
@@ -121,7 +123,7 @@ public sealed class CoreLifecycleService(Func<ECoreType?, CoreStartResult?, Task
         await _gate.WaitAsync();
         try
         {
-            if (!IsRunning || _processes.Any(p => p.HasExited)) return false;
+            if (!IsRunning || _processes.Any(p => !_optional.Contains(p) && p.HasExited)) return false;
             await action();
             return true;
         }
@@ -146,6 +148,7 @@ public sealed class CoreLifecycleService(Func<ECoreType?, CoreStartResult?, Task
             }
         }
         _processes.Clear();
+        _optional.Clear();
         if (_plan != null)
         {
             var plan = _plan;
@@ -161,17 +164,29 @@ public sealed class CoreLifecycleService(Func<ECoreType?, CoreStartResult?, Task
         try
         {
             var exits = processes.Select(p => p.WaitForExitAsync(token)).ToArray();
-            var first = await Task.WhenAny(exits);
-            await first;
-            await _gate.WaitAsync(token);
-            try
+            var pending = exits.ToList();
+            while (pending.Count > 0)
             {
-                if (!ReferenceEquals(_plan, plan) || token.IsCancellationRequested) return;
-                var step = plan.Steps[Array.IndexOf(exits, first)];
-                await StopOwnedAsync();
-                await stateChanged(null, new(CoreStartFailure.ProcessExited, step.Stage, step.CoreType));
+                var first = await Task.WhenAny(pending);
+                await first;
+                pending.Remove(first);
+                await _gate.WaitAsync(token);
+                try
+                {
+                    if (!ReferenceEquals(_plan, plan) || token.IsCancellationRequested) return;
+                    var step = plan.Steps[Array.IndexOf(exits, first)];
+                    var failure = new CoreStartResult(CoreStartFailure.ProcessExited, step.Stage, step.CoreType);
+                    if (step.OptionalAfterReady)
+                    {
+                        await stateChanged(plan.Steps[^1].CoreType, failure);
+                        continue;
+                    }
+                    await StopOwnedAsync();
+                    await stateChanged(null, failure);
+                    return;
+                }
+                finally { _gate.Release(); }
             }
-            finally { _gate.Release(); }
         }
         catch (OperationCanceledException) { }
         catch (Exception ex) { Logging.SaveLog($"Core monitor: {ex.GetType().Name}"); }

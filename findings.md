@@ -89,3 +89,5 @@
 - Mihomo is v1.19.32. Protocol/inbound matching has no established equivalent in the current generated listener design; reject these dimensions before replacing the old chain. LeastPing, Fallback, RoundRobin map to url-test/fallback/load-balance round-robin; Random and LeastLoad have no equivalent and are rejected. Existing sing-box implements only urltest semantics, so its advertised strategy list is restricted accordingly.
 
 - Standard ZIP/DMG implicitly merged old 2dust core-bin downloads. Standard artifacts now consistently use in-app core downloads. Juicity v0.5.0 lacks loong64; ShadowQUIC v0.4.4 provides loongarch64.
+
+- Managed frontend forwarding was validated separately from native protocol transport. SOCKS backend logs identify each target, avoiding macOS loopback aliases. Group statistics currently remain aggregate; stable tags alone do not prove member accounting.

@@ -4,6 +4,11 @@ public record CoreConfigContext
 {
     public required ProfileItem Node { get; init; }
     public required ECoreType RunCoreType { get; init; }
+    public List<CoreConfigContext> ManagedBackends { get; init; } = [];
+    public int? ListenPort { get; init; }
+    public bool IsSpeedtest { get; init; }
+    public HashSet<int> ReservedPorts { get; init; } = [];
+
     public RoutingItem? RoutingItem { get; init; }
     public DNSItem? RawDnsItem { get; init; }
     public SimpleDNSItem SimpleDnsItem { get; init; } = new();

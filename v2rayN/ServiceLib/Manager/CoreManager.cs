@@ -14,6 +14,7 @@ public class CoreManager
 
     private readonly CoreLifecycleService _lifecycle;
     private bool _proxyApplied;
+    private readonly SemaphoreSlim _managedSpeedtestGate = new(1, 1);
 
     public CoreManager()
     {
@@ -85,57 +86,59 @@ public class CoreManager
 
     public async Task<CoreStartResult> LoadCore(CoreConfigContext? mainContext, CoreConfigContext? preContext, CancellationToken cancellationToken = default)
     {
-        var result = await _lifecycle.LoadAsync(async token =>
-        {
-            if (mainContext == null) throw new CoreLaunchException(new(CoreStartFailure.Configuration, "Configuration"));
-            var files = new List<string>();
-            try
-            {
-                var steps = new List<CoreLaunchStep>();
-                foreach (var context in new[] { mainContext, preContext }.OfType<CoreConfigContext>())
-                {
-                    token.ThrowIfCancellationRequested();
-                    var stage = ReferenceEquals(context, mainContext) ? "Backend" : "Frontend";
-                    var info = CoreInfoManager.Instance.GetCoreInfo(context.RunCoreType);
-                    if (CoreInfoManager.Instance.GetCoreExecFile(info, out var missingCoreMessage).IsNullOrEmpty())
-                        throw new CoreLaunchException(new(CoreStartFailure.MissingCore, stage, context.RunCoreType, Guidance: missingCoreMessage));
-                    var file = $"launch-{Utils.GetGuid(false)}.json";
-                    files.Add(Utils.GetBinConfigPath(file));
-                    var generated = await CoreConfigHandler.GenerateClientConfig(context, files[^1]);
-                    if (!generated.Success) throw new CoreLaunchException(new(CoreStartFailure.Configuration, "Configuration", context.RunCoreType));
-                    int? port = ReferenceEquals(context, mainContext) && preContext != null ? preContext.Node.Port
-                        : context.Node.ConfigType != EConfigType.Custom && !(context.IsTunEnabled && context.Node.Address == Global.Loopback && context.Node.Port == context.AppConfig.Inbound.First().LocalPort)
-                            ? context.AppConfig.Inbound.First().LocalPort : null;
-                    steps.Add(new(context.RunCoreType, stage, port, async ct =>
-                    {
-                        ct.ThrowIfCancellationRequested();
-                        if (Utils.IsWindows() && context.IsTunEnabled) await WindowsUtils.RemoveTunDevice();
-                        var process = await RunProcess(info, file, context.Node.ConfigType != EConfigType.Custom || context.Node.DisplayLog, true, context.IsTunEnabled);
-                        if (process == null) throw new CoreLaunchException(new(CoreStartFailure.Launch, stage, context.RunCoreType));
-                        return ShouldRunAsSudo(context.IsTunEnabled, context.RunCoreType, Utils.IsNonWindows())
-                            ? new ElevatedCoreProcess(process) : process;
-                    }));
-                }
-                return new CoreLaunchPlan(steps, () =>
-                {
-                    foreach (var path in files) File.Delete(path);
-                    return Task.CompletedTask;
-                });
-            }
-            catch
-            {
-                foreach (var path in files) File.Delete(path);
-                throw;
-            }
-        }, cancellationToken);
+        var result = await _lifecycle.LoadAsync(token => PrepareLaunchAsync(mainContext, preContext, token), cancellationToken);
         if (!result.Success) await UpdateFunc(true, result.Message);
         else await UpdateFunc(true, mainContext!.Node.GetSummary());
         return result;
     }
 
-    public async Task<ProcessService?> LoadCoreConfigSpeedtest(List<ServerTestItem> selecteds)
+    private async Task<CoreLaunchPlan> PrepareLaunchAsync(CoreConfigContext? mainContext, CoreConfigContext? preContext, CancellationToken token)
     {
-        if (selecteds.Count == 1 && selecteds[0].CoreType is ECoreType.mihomo or ECoreType.juicity or ECoreType.shadowquic) return await LoadCoreConfigSpeedtest(selecteds[0]);
+        if (mainContext == null) throw new CoreLaunchException(new(CoreStartFailure.Configuration, "Configuration"));
+        var files = new List<string>();
+        try
+        {
+            var steps = new List<CoreLaunchStep>();
+            foreach (var context in mainContext.ManagedBackends.Concat(new[] { mainContext, preContext }.OfType<CoreConfigContext>()))
+            {
+                token.ThrowIfCancellationRequested();
+                var stage = context.ListenPort != null || ReferenceEquals(context, mainContext) && preContext != null ? "Backend" : "Frontend";
+                var info = CoreInfoManager.Instance.GetCoreInfo(context.RunCoreType);
+                if (CoreInfoManager.Instance.GetCoreExecFile(info, out var missingCoreMessage).IsNullOrEmpty())
+                    throw new CoreLaunchException(new(CoreStartFailure.MissingCore, stage, context.RunCoreType, Guidance: missingCoreMessage));
+                var file = $"launch-{Utils.GetGuid(false)}.json";
+                files.Add(Utils.GetBinConfigPath(file));
+                var generated = await CoreConfigHandler.GenerateClientConfig(context, files[^1]);
+                if (!generated.Success) throw new CoreLaunchException(new(CoreStartFailure.Configuration, "Configuration", context.RunCoreType));
+                int? port = context.ListenPort ?? (ReferenceEquals(context, mainContext) && preContext != null ? preContext.Node.Port
+                    : context.Node.ConfigType != EConfigType.Custom && !(context.IsTunEnabled && context.Node.Address == Global.Loopback && context.Node.Port == context.AppConfig.Inbound.First().LocalPort)
+                        ? context.AppConfig.Inbound.First().LocalPort : null);
+                steps.Add(new(context.RunCoreType, stage, port, async ct =>
+                {
+                    ct.ThrowIfCancellationRequested();
+                    if (Utils.IsWindows() && context.IsTunEnabled) await WindowsUtils.RemoveTunDevice();
+                    var process = await RunProcess(info, file, context.Node.ConfigType != EConfigType.Custom || context.Node.DisplayLog, true, context.IsTunEnabled);
+                    if (process == null) throw new CoreLaunchException(new(CoreStartFailure.Launch, stage, context.RunCoreType));
+                    return ShouldRunAsSudo(context.IsTunEnabled, context.RunCoreType, Utils.IsNonWindows())
+                        ? new ElevatedCoreProcess(process) : process;
+                }, OptionalAfterReady: mainContext.ManagedBackends.Contains(context)));
+            }
+            return new CoreLaunchPlan(steps, () =>
+            {
+                foreach (var path in files) File.Delete(path);
+                return Task.CompletedTask;
+            });
+        }
+        catch
+        {
+            foreach (var path in files) File.Delete(path);
+            throw;
+        }
+    }
+
+    public async Task<ICoreProcess?> LoadCoreConfigSpeedtest(List<ServerTestItem> selecteds, CancellationToken cancellationToken = default)
+    {
+        if (selecteds.Count == 1 && (selecteds[0].ConfigType.IsGroupType() || selecteds[0].CoreType is ECoreType.mihomo or ECoreType.juicity or ECoreType.shadowquic)) return await LoadCoreConfigSpeedtest(selecteds[0], cancellationToken);
         if (selecteds.Any(x => x.CoreType is ECoreType.mihomo or ECoreType.juicity or ECoreType.shadowquic)) return null;
         var coreType = selecteds.FirstOrDefault()?.CoreType == ECoreType.sing_box ? ECoreType.sing_box : ECoreType.Xray;
         var fileName = string.Format(Global.CoreSpeedtestConfigFileName, Utils.GetGuid(false));
@@ -154,7 +157,7 @@ public class CoreManager
         return await RunProcess(coreInfo, fileName, true, false);
     }
 
-    public async Task<ProcessService?> LoadCoreConfigSpeedtest(ServerTestItem testItem)
+    public async Task<ICoreProcess?> LoadCoreConfigSpeedtest(ServerTestItem testItem, CancellationToken cancellationToken = default)
     {
         var node = await AppManager.Instance.GetProfileItem(testItem.IndexId);
         if (node is null)
@@ -169,6 +172,8 @@ public class CoreManager
         var build = await CoreConfigContextBuilder.Build(testConfig, node);
         if (!build.Success) { await UpdateFunc(false, string.Join(Environment.NewLine, build.ValidatorResult.Errors)); return null; }
         var context = build.Context;
+        if (context.ManagedBackends.Count > 0)
+            return await LoadManagedSpeedtestAsync(context, testItem, cancellationToken);
         var result = await CoreConfigHandler.GenerateClientSpeedtestConfig(_config, context, testItem, configPath);
         if (result.Success != true)
         {
@@ -178,6 +183,55 @@ public class CoreManager
         var coreType = context.RunCoreType;
         var coreInfo = CoreInfoManager.Instance.GetCoreInfo(coreType);
         return await RunProcess(coreInfo, fileName, true, false);
+    }
+
+    private async Task<ICoreProcess?> LoadManagedSpeedtestAsync(CoreConfigContext context, ServerTestItem testItem, CancellationToken cancellationToken)
+    {
+        testItem.AllowTest = false;
+        // Serialize managed tests so their backend range is never shared by concurrent tests.
+        await _managedSpeedtestGate.WaitAsync(cancellationToken);
+        var leaseTransferred = false;
+        var lifecycle = new CoreLifecycleService((_, failure) => failure == null ? Task.CompletedTask : UpdateFunc(false, failure.Message));
+        try
+        {
+            var port = Utils.GetFreePort(AppManager.Instance.GetLocalPort(EInboundProtocol.speedtest) + testItem.QueueNum);
+            var testContext = ManagedGroupBuilder.PrepareSpeedtest(context, port);
+            var result = await lifecycle.LoadAsync(token => PrepareLaunchAsync(testContext, null, token), cancellationToken);
+            if (!result.Success)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                return null;
+            }
+            testItem.Port = port;
+            testItem.AllowTest = true;
+            leaseTransferred = true;
+            return new SpeedtestCoreGroup(lifecycle, _managedSpeedtestGate);
+        }
+        finally
+        {
+            if (!leaseTransferred)
+            {
+                await lifecycle.StopAsync();
+                _managedSpeedtestGate.Release();
+            }
+        }
+    }
+
+    private sealed class SpeedtestCoreGroup(CoreLifecycleService lifecycle, SemaphoreSlim lease) : ICoreProcess
+    {
+        private int _stopped;
+        public bool HasExited => !lifecycle.IsRunning;
+        public async Task StopAsync()
+        {
+            if (Interlocked.Exchange(ref _stopped, 1) != 0) return;
+            try { await lifecycle.StopAsync(); }
+            finally { lease.Release(); }
+        }
+        public async Task WaitForExitAsync(CancellationToken cancellationToken)
+        {
+            while (lifecycle.IsRunning) await Task.Delay(50, cancellationToken);
+        }
+        public void Dispose() { }
     }
 
     public Task CoreStop() => _lifecycle.StopAsync();

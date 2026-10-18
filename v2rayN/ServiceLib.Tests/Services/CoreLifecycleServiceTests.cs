@@ -18,6 +18,75 @@ public class CoreLifecycleServiceTests
     private static Task<CoreLaunchPlan> Plan(params CoreLaunchStep[] steps) => Task.FromResult(new CoreLaunchPlan(steps, () => Task.CompletedTask));
 
     [Test]
+    public async Task BackendExitDuringFrontendStartupRollsBackEvenWhenOptionalAfterReady()
+    {
+        var stopped = new List<string>();
+        var backend = new FakeProcess("backend", stopped);
+        var front = new FakeProcess("front", stopped);
+        var lifecycle = new CoreLifecycleService((_, _) => Task.CompletedTask);
+        var result = await lifecycle.LoadAsync(_ => Plan(
+            Step(backend) with { OptionalAfterReady = true },
+            new(ECoreType.sing_box, "Frontend", null, _ =>
+            {
+                backend.Exit();
+                return Task.FromResult<ICoreProcess>(front);
+            })));
+        await result.Failure.Should().BeEqualTo(CoreStartFailure.ProcessExited);
+        await lifecycle.IsRunning.Should().BeFalse();
+        await stopped.SequenceEqual(new[] { "front", "backend" }).Should().BeTrue();
+    }
+
+    [Test]
+    public async Task HundredGroupSwitchesCleanEveryOwnedProcessAndConfigExactlyOnce()
+    {
+        var stopped = new List<string>();
+        var cleanup = 0;
+        var lifecycle = new CoreLifecycleService((_, _) => Task.CompletedTask);
+        try
+        {
+            for (var i = 0; i < 100; i++)
+            {
+                var one = new FakeProcess($"{i}-one", stopped);
+                var two = new FakeProcess($"{i}-two", stopped);
+                var front = new FakeProcess($"{i}-front", stopped);
+                var result = await lifecycle.LoadAsync(_ => Task.FromResult(new CoreLaunchPlan(
+                    [Step(one) with { OptionalAfterReady = true }, Step(two) with { OptionalAfterReady = true }, Step(front, "Frontend")],
+                    () => { cleanup++; return Task.CompletedTask; })));
+                await result.Success.Should().BeTrue();
+            }
+        }
+        finally { await lifecycle.StopAsync(); }
+        await cleanup.Should().BeEqualTo(100);
+        await stopped.Count.Should().BeEqualTo(300);
+        await stopped.Distinct().Count().Should().BeEqualTo(300);
+        await stopped.Take(3).SequenceEqual(new[] { "0-front", "0-two", "0-one" }).Should().BeTrue();
+    }
+
+    [Test]
+    public async Task OptionalBackendExitKeepsFrontendAndStopStillCleansWholeGroup()
+    {
+        var stopped = new List<string>();
+        var notified = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var lifecycle = new CoreLifecycleService((_, failure) => { if (failure != null) notified.TrySetResult(); return Task.CompletedTask; });
+        var one = new FakeProcess("one", stopped);
+        var two = new FakeProcess("two", stopped);
+        var front = new FakeProcess("front", stopped);
+        try
+        {
+            var result = await lifecycle.LoadAsync(_ => Plan(Step(one) with { OptionalAfterReady = true }, Step(two) with { OptionalAfterReady = true }, Step(front, "Frontend")));
+            await result.Success.Should().BeTrue();
+            one.Exit();
+            await notified.Task.WaitAsync(TimeSpan.FromSeconds(3));
+            await lifecycle.IsRunning.Should().BeTrue();
+            await two.HasExited.Should().BeFalse();
+            await front.HasExited.Should().BeFalse();
+            await (await lifecycle.WhenRunningAsync(() => Task.CompletedTask)).Should().BeTrue();
+        }
+        finally { await lifecycle.StopAsync(); }
+        await stopped.SequenceEqual(new[] { "front", "two", "one" }).Should().BeTrue();
+    }
+
+    [Test]
     public async Task InvalidPreparationPreservesRunningChainAndDoesNotPublishNewState()
     {
         var stopped = new List<string>();
