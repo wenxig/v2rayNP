@@ -4,6 +4,8 @@
 
 Supported share protocols include SSR, Mieru, ShadowQUIC, and Juicity. SSR and Mieru use mihomo; Juicity uses `juicity-client`, and ShadowQUIC uses the official `shadowquic` client. Their loopback SOCKS listeners use the configured mixed port plus 7 and plus 8, respectively; a managed sing-box front end provides the mixed-port entry, routing, and TUN configuration. Juicity and ShadowQUIC node groups remain unsupported. Existing ShadowQUIC mihomo mappings migrate to the official client. The official ShadowQUIC client does not expose QUIC version selection or mihomo bandwidth/window settings; non-default values are rejected instead of silently discarded. TUN traffic and real server connectivity require target-platform validation.
 
+ShadowQUIC uses the official client default for an omitted zero-RTT option (enabled in v0.4.4). Explicit disabling is preserved when editing and sharing nodes. Real-ping reports the fastest successful HTTP response within its existing time budget; a later failed sample does not erase an earlier success, and HTTP error responses are rejected.
+
 New configurations use mixed port `20808`; existing configurations retain their saved port. Juicity uses mixed port +7 and ShadowQUIC uses mixed port +8.
 
 > **🧹 去广告纯净版 / Ad-free Mod** \

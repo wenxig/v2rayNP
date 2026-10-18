@@ -381,7 +381,7 @@ public partial class AddServerViewModel : MyReactiveObject, ICloseable
         ShadowquicUsername = protocolExtra.ShadowquicUsername ?? SelectedSource.Username;
         ShadowquicPassword = protocolExtra.ShadowquicPassword ?? SelectedSource.Password;
         ShadowquicQuicVersions = protocolExtra.ShadowquicQuicVersions ?? string.Empty;
-        ShadowquicZeroRtt = protocolExtra.ShadowquicZeroRtt ?? false;
+        ShadowquicZeroRtt = protocolExtra.ShadowquicZeroRtt ?? (SelectedSource.ConfigType == EConfigType.ShadowQUIC);
         ShadowquicUdpOverStream = protocolExtra.ShadowquicUdpOverStream ?? false;
         ShadowquicCongestionControl = protocolExtra.ShadowquicCongestionControl ?? string.Empty;
         JuicityUuid = protocolExtra.JuicityUuid ?? SelectedSource.Username;
@@ -532,7 +532,7 @@ public partial class AddServerViewModel : MyReactiveObject, ICloseable
             ShadowquicRecvWindow = ShadowquicRecvWindow,
             ShadowquicDisableMtuDiscovery = ShadowquicDisableMtuDiscovery,
             ShadowquicUsername = ShadowquicUsername.NullIfEmpty(), ShadowquicPassword = ShadowquicPassword.NullIfEmpty(), ShadowquicQuicVersions = ShadowquicQuicVersions.NullIfEmpty(),
-            ShadowquicZeroRtt = ShadowquicZeroRtt ? true : null, ShadowquicUdpOverStream = ShadowquicUdpOverStream ? true : null, ShadowquicCongestionControl = ShadowquicCongestionControl.NullIfEmpty(),
+            ShadowquicZeroRtt = SelectedSource.ConfigType == EConfigType.ShadowQUIC ? ShadowquicZeroRtt : null, ShadowquicUdpOverStream = ShadowquicUdpOverStream ? true : null, ShadowquicCongestionControl = ShadowquicCongestionControl.NullIfEmpty(),
             JuicityAllowInsecure = AllowInsecure, JuicityUuid = JuicityUuid.NullIfEmpty(), JuicityPassword = JuicityPassword.NullIfEmpty(), JuicitySni = JuicitySni.NullIfEmpty(), JuicityCongestionControl = JuicityCongestionControl.NullIfEmpty(), JuicityPinnedCertchainSha256 = JuicityPinnedCertchainSha256.NullIfEmpty(),
             Ports = Ports.NullIfEmpty(),
             AlterId = AlterId > 0 ? AlterId.ToString() : null,

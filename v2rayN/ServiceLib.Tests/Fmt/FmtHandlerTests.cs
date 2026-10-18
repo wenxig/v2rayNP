@@ -47,6 +47,25 @@ public class FmtHandlerTests
     }
 
     [Test]
+    [Arguments(null)]
+    [Arguments(false)]
+    [Arguments(true)]
+    public async Task ShadowquicShare_ShouldPreserveAbsentAndExplicitBooleanOptions(bool? value)
+    {
+        var node = CreateShadowquicProfile();
+        node.SetProtocolExtra(node.GetProtocolExtra() with
+        {
+            ShadowquicZeroRtt = value,
+            ShadowquicUdpOverStream = value,
+            ShadowquicDisableMtuDiscovery = value,
+        });
+        var restored = await ExportThenImport(node);
+        await restored.GetProtocolExtra().ShadowquicZeroRtt.Should().BeEqualTo(value);
+        await restored.GetProtocolExtra().ShadowquicUdpOverStream.Should().BeEqualTo(value);
+        await restored.GetProtocolExtra().ShadowquicDisableMtuDiscovery.Should().BeEqualTo(value);
+    }
+
+    [Test]
     public async Task ShareUri_NewProtocols_ShouldRoundTripProtocolFields()
     {
         var ssr = CreateSsrProfile();

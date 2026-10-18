@@ -89,3 +89,17 @@
 - Ran `python3 /private/tmp/v2raynp-sq-acceptance-20261018/validate.py`: all 7 SOCKS5 listener greetings passed, loopback HTTP body 20/20 passed, loopback example.com 4/4 passed, loopback Google 0/12 failed like the direct host baseline. Supplied remote Google 11/12 passed, example.com 0/4 failed with curl 35; original config later passed 4/4.
 - Ran `python3 /private/tmp/v2raynp-sq-acceptance-20261018/interleave.py`: generated and original configs each passed 6/6 alternating HTTPS requests. Generated app real-ping 232/230/306 ms; original 232/227/228 ms. All failures from the first run remain counted in the report.
 - Final report: shadowquic-validation.md; remote generated aggregate Google 14/15, example.com 3/7; original control 10/10. Local app delays 1–14 ms, remote mixed 196–200 ms. No system proxy or TUN changes; all task processes and loopback listeners stopped. Only documentation changed, so no product rebuild or unit-test rerun was needed.
+
+## Evidence-driven follow-up
+
+- Re-read instructions, existing plans, test report and source. Preserved unrelated user changes; original client/system proxy remain untouched. Memory lookup found no relevant repository entries.
+- Investigating native-default fidelity and real-ping result handling; no server reliability conclusion will be inferred solely from the earlier small unequal samples.
+
+- Original/generated comparison succeeded after correcting a temporary harness Dictionary TryGetValue call; no node values printed. The first test run passed 181/185 and reproduced four target failures. Test HTTP responses now include a small deterministic response delay to distinguish HTTP status behavior from sub-millisecond rounding.
+- Implemented independent sample failure handling inside the existing total deadline, successful-status validation, response disposal and 1 ms minimum. Preserved caller cancellation. Native absent zero-rtt now defers to upstream; editor shows upstream default and persists explicit false; URI export preserves nullable booleans.
+
+- Editor tests required ReactiveUI's builder initialization; fixed the fixture using the installed builder API after an initial missing initialization error and an extension-import compile error. Editor initialization/save, URI tri-state round-trip, HTTP/network failure handling, timeout and caller cancellation all passed in the 191-test serial run. Strengthened editor checks to verify database persistence, then reran the suite.
+- Avalonia Debug and Windows-targeted WPF Debug builds passed with zero warnings/errors. Live loopback response and error injection verified fixes through the actual official core. This run's remote curl comparisons failed with both original and generated configs; app probes remained intermittent, recorded without claiming transport stability.
+- sing-box config check and 7 SOCKS greetings passed. All test processes were stopped, TCP listeners confirmed closed; system proxy, TUN and original v2rayN were untouched. Report and README updated; node configs/logs remain private under /private/tmp.
+
+- Final shared suite including database persistence checks: 191/191 passed. Final diff checks passed; source review confirmed no endpoint/credential changes, HTTP target fallback or extra attempts. Completed work ready for signed commit.

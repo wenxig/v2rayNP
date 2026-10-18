@@ -386,6 +386,59 @@ public class ExtendedProtocolConfigTests
     }
 
     [Test]
+    [Arguments(null)]
+    [Arguments(false)]
+    [Arguments(true)]
+    public async Task ShadowquicConfig_ShouldDeferAbsentZeroRttToOfficialDefaultAndPreserveOverrides(bool? zeroRtt)
+    {
+        var node = CreateMihomoNode(EConfigType.ShadowQUIC);
+        node.SetProtocolExtra(node.GetProtocolExtra() with { ShadowquicZeroRtt = zeroRtt });
+        var result = new CoreConfigShadowquicService(CoreConfigTestFactory.CreateConfig()).GenerateClientConfig(node);
+        await result.Success.Should().BeTrue();
+        var yaml = new YamlStream();
+        yaml.Load(new StringReader(result.Data!.ToString()!));
+        var outbound = (YamlMappingNode)((YamlSequenceNode)((YamlMappingNode)yaml.Documents[0].RootNode)["outbounds"])[0];
+        await outbound.Children.ContainsKey(new YamlScalarNode("zero-rtt")).Should().BeEqualTo(zeroRtt.HasValue);
+        if (zeroRtt.HasValue)
+        {
+            await bool.Parse(outbound["zero-rtt"].ToString()).Should().BeEqualTo(zeroRtt.Value);
+        }
+    }
+
+    [Test]
+    [Arguments(null, true)]
+    [Arguments(false, false)]
+    [Arguments(true, true)]
+    public async Task ShadowquicEditor_ShouldShowOfficialDefaultAndSaveExplicitOverride(bool? configured, bool expected)
+    {
+        ReactiveUI.Builder.BuilderMixins.BuildApp(ReactiveUI.Builder.RxAppBuilder.CreateReactiveUIBuilder().WithCoreServices());
+        var previous = AppManager.Instance.Config;
+        var config = CoreConfigTestFactory.CreateConfig();
+        CoreConfigTestFactory.BindAppManagerConfig(config);
+        var node = CreateMihomoNode(EConfigType.ShadowQUIC);
+        node.IndexId = string.Empty;
+        node.Remarks = "test-shadowquic-editor";
+        node.SetProtocolExtra(node.GetProtocolExtra() with { ShadowquicZeroRtt = configured });
+        try
+        {
+            var editor = new ServiceLib.ViewModels.AddServerViewModel(node);
+            await editor.ShadowquicZeroRtt.Should().BeEqualTo(expected);
+            editor.ShadowquicZeroRtt = false;
+            var save = typeof(ServiceLib.ViewModels.AddServerViewModel).GetMethod("SaveServerAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            await (Task)save.Invoke(editor, null)!;
+            await editor.SelectedSource.GetProtocolExtra().ShadowquicZeroRtt.Should().BeEqualTo(false);
+            await node.IndexId.IsNotEmpty().Should().BeTrue();
+            var saved = await SQLiteHelper.Instance.TableAsync<ProfileItem>().Where(x => x.IndexId == node.IndexId).FirstAsync();
+            await saved.GetProtocolExtra().ShadowquicZeroRtt.Should().BeEqualTo(false);
+        }
+        finally
+        {
+            if (node.IndexId.IsNotEmpty()) await SQLiteHelper.Instance.DeleteAsync(node);
+            CoreConfigTestFactory.BindAppManagerConfig(previous);
+        }
+    }
+
+    [Test]
     public async Task ShadowquicCore_ShouldExposeOfficialDownloadAndLaunchContract()
     {
         var core = CoreInfoManager.Instance.GetCoreInfo(ECoreType.shadowquic)!;

@@ -83,16 +83,25 @@ public static class ConnectionHandler
                 ConnectTimeout = Global.LocalFetch,
             });
 
-            List<int> oneTime = [];
             for (var i = 0; i < 2; i++)
             {
-                var timer = Stopwatch.StartNew();
-                await client.GetAsync(url, linkedToken).ConfigureAwait(false);
-                timer.Stop();
-                oneTime.Add((int)timer.Elapsed.TotalMilliseconds);
-                await Task.Delay(100, linkedToken);
+                try
+                {
+                    var timer = Stopwatch.StartNew();
+                    using var response = await client.GetAsync(url, linkedToken).ConfigureAwait(false);
+                    response.EnsureSuccessStatusCode();
+                    var elapsed = Math.Max(1, (int)timer.Elapsed.TotalMilliseconds);
+                    responseTime = responseTime > 0 ? Math.Min(responseTime, elapsed) : elapsed;
+                }
+                catch (HttpRequestException)
+                {
+                    // A failed sample must not discard a successful response from this run.
+                }
+                if (i == 0)
+                {
+                    await Task.Delay(100, linkedToken);
+                }
             }
-            responseTime = oneTime.Where(x => x > 0).OrderBy(x => x).FirstOrDefault();
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
@@ -100,7 +109,7 @@ public static class ConnectionHandler
         }
         catch
         {
-            // Ignore
+            // Keep any completed sample if the remaining shared time budget expires.
         }
         return responseTime;
     }

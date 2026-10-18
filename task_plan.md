@@ -88,3 +88,25 @@ Restart the rebuilt desktop and retest ShadowQUIC using the installed official c
 - [completed] 16. Independently test a loopback official server and the supplied remote ShadowQUIC profile through generated native, mixed and speed-test listeners; record response validation, timings and repeated results without system proxy. Save the redacted report and sign a progress commit.
 
 - Stage 16 result: local body 20/20 and local-server example.com 4/4 passed; host direct Google and local-server Google timed out. Supplied remote via generated config passed Google 14/15 and example.com 3/7 across initial and interleaved runs; original config control passed 10/10. See shadowquic-validation.md. Remote stability remains partial.
+
+## Evidence-driven ShadowQUIC follow-up (2026-10-18)
+
+- [completed] 17. Compare the original/generated outbound semantics and trace real-ping false negatives; add deterministic behavioral regressions before changing defaults or request handling.
+- [completed] 18. Implement confirmed fixes, verify isolated local and interleaved supplied-node responses without system proxy, run shared tests and both desktop builds.
+- [completed] 19. Update the redacted validation report, review the diff and create a signed Chinese Conventional Commit.
+
+## Next Step
+
+Isolate actual semantic differences and reproduce the real-ping failure behavior with local HTTP responses.
+
+## Next Step
+
+Run behavioral regressions and isolated live response comparisons with rebuilt ServiceLib.
+
+## Next Step
+
+Confirm final persistence regressions, review only task files and sign the implementation commit.
+
+## Next Step
+
+Restart the rebuilt desktop to load the fixes; retain remote stability as unverified.

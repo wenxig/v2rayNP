@@ -56,3 +56,15 @@
 
 - Completed separated tests: loopback native/mixed SOCKS/mixed HTTP/speed listeners returned local body 20/20 and example.com 4/4. Loopback Google 0/12 follows the host's failing direct-Google baseline.
 - Supplied-node generated configs: initial Google 11/12, example.com 0/4 (curl 35 TLS failures); interleaved original/generated follow-up Google 3/3 and example.com 3/3 for each configuration. Generated combined 17/22; original control combined 10/10. Mixed application real-ping 200/196/196 ms; native follow-up 232/230/306 ms; original follow-up 232/227/228 ms. Remote is usable but stability remains partial.
+
+## Evidence-driven follow-up
+
+- Official v0.4.4 source is available locally and identifies zero-rtt's serde default as true. The generator and editor currently substitute false for absent values; the URI exporter also drops explicit false. This differs from upstream defaults and must be fixed together to preserve deliberate overrides.
+- Real-ping currently requires both GET attempts to finish within one shared deadline: one transient failure discards any earlier successful response. HTTP status is not checked and responses are not disposed. These behaviors can produce false negatives and false positives independently of the engine configuration.
+- Python's system environment lacks PyYAML; use the existing YamlDotNet harness to compare configs without installing another parser or printing credentials.
+
+- Credential-safe YamlDotNet comparison confirms every supplied outbound field matches the generated config, including zero-rtt=true. Differences are only tags and explicit mtu-discovery=true (upstream default); singular/plural root shapes are supported aliases in v0.4.4. Therefore the previous remote sample gap does not establish a transport parameter defect.
+- Added regressions reproduced four pre-fix failures: missing zero-rtt override semantics, dropped false in share export, HTTP 503 counted as healthy, and second-attempt timeout erasing a completed sample. Also observed sub-millisecond local responses becoming zero; valid measurements now clamp to 1 ms.
+
+- Follow-up real-core test (13:55–13:56): local omitted-zero-rtt configs returned correct bodies 20/20. Task-owned official server with first request 200 / second stalled: old DLL returned -1/-1/-1, fixed DLL 65/3/3 ms; repeated 503 responses yielded old 11/2/3 ms vs fixed -1/-1/-1. These reproduce the practical benefit without depending on remote timing.
+- Same-run interleaved remote curl: generated native 0/6 and original 0/6, all TLS failures; mixed SOCKS/HTTP and speed 0/2 each. Application probes had intermittent successes (native 3/3, original 1/3, mixed 0/3, speed 1/3). Original config is not consistently better; no claim of improved remote transport reliability.

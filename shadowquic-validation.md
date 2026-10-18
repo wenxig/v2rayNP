@@ -96,3 +96,45 @@ git diff --check
 ```
 
 临时目录保存原始请求结果 results.json、requests.json 和进程日志；可能含节点信息的输入、配置和日志未纳入 Git。本次只增加验收记录，未修改产品源码。
+
+## 根据实测改进应用（2026-10-18）
+
+逐字段比较用户原始配置和本版生成配置：服务器、认证、SNI、ALPN、initial-mtu、拥塞控制、zero-rtt、over-stream 均一致。生成配置额外设置标签和 mtu-discovery=true，后者也是官方 v0.4.4 的缺省值；inbound/outbound 与 inbounds/outbounds 是官方支持的等价入口。现有数据不能证明这些结构差异影响稳定性。
+
+确认并修复的问题：
+
+- 未设置 zero-rtt 时，旧版生成 false，与官方默认 true 不一致。现在省略该字段交由官方核心处理；编辑器显示官方默认值，用户显式关闭仍可保存。
+- 分享 URI 现在区分未设置、显式 false 和 true，避免 zero-rtt=0 在导出后丢失。
+- 真连接延迟的每次请求独立处理 HTTP/网络错误，保留最快成功样本；HTTP 错误状态不再计作成功，响应及时释放。仍保持原有两次采样及 5 秒总预算，并传播用户取消。低于 1 ms 的成功结果记为 1 ms。
+
+### 修复后真实核心验证
+
+时间：2026-10-18 13:55:51 至 13:56:43 UTC+8。仍使用官方 v0.4.4 与 sing-box v1.14.3、同一组独立回环端口；清除代理环境变量，未修改系统代理/TUN或正在运行的原版客户端。
+
+本地配置故意不设置 zero-rtt，验证官方默认路径；远端配置保留用户参数。成功正文标准、HTTPS 校验与 curl 超时与前文相同。
+
+| 验证 | 结果 |
+|---|---|
+| 本地 HTTP 正文，官方 SOCKS/混合 SOCKS/混合 HTTP/测速 | 各 5/5，合计 20/20 |
+| 第一次 HTTP 200、第二次超时，旧版应用算法 | -1, -1, -1 ms（误报失败） |
+| 相同超时场景，修复后应用算法 | 65, 3, 3 ms（保留成功样本） |
+| 持续 HTTP 503，旧版应用算法 | 11, 2, 3 ms（误报成功） |
+| 持续 HTTP 503，修复后应用算法 | -1, -1, -1 ms（正确失败） |
+| 远端，生成/原始配置交错 curl 对照 | 各 0/6，均 TLS 失败（curl 35） |
+| 远端混合 SOCKS/混合 HTTP/测速 curl | 各 0/2，均 TLS 失败（curl 35） |
+
+同一轮应用真连接延迟：生成配置官方入口 1061/199/201 ms，原始配置入口 234/-1/-1 ms，混合 SOCKS -1/-1/-1 ms，测速 -1/1196/-1 ms。curl 与应用使用不同 HTTP/TLS 实现，且请求时刻不同，单独保留结果，不将应用延迟算入 curl 成功率。此次两种配置都出现失败，再次说明远端存在波动；本次没有证据宣称修复提高了该节点传输成功率，也无法认定原始配置始终更好。
+
+sing-box check 通过，7 个 SOCKS 监听均就绪；所有测试进程已退出、监听已释放。测试脚本及含节点信息的临时配置未提交。
+
+实际执行：
+
+```sh
+env -u HTTP_PROXY -u HTTPS_PROXY -u ALL_PROXY -u NO_PROXY -u http_proxy -u https_proxy -u all_proxy -u no_proxy dotnet run --project /private/tmp/v2raynp-sq-improvement-20261018/harness/Smoke.csproj
+python3 /private/tmp/v2raynp-sq-improvement-20261018/verify.py
+dotnet test v2rayN/ServiceLib.Tests/ServiceLib.Tests.csproj -c Debug --no-restore -- --maximum-parallel-tests 1
+dotnet build v2rayN/v2rayN.Desktop/v2rayN.Desktop.csproj -c Debug
+dotnet build v2rayN/v2rayN/v2rayN.csproj -c Debug -p:EnableWindowsTargeting=true
+```
+
+共享回归测试与两端构建通过。真实 TUN、UDP 业务、多平台运行及长期稳定性仍未验证。

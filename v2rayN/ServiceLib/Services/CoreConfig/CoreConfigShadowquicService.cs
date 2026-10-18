@@ -31,10 +31,14 @@ public class CoreConfigShadowquicService(Config config)
                 ["alpn"] = node.Alpn.IsNotEmpty() ? node.GetAlpn()! : new List<string> { "h3" },
                 ["initial-mtu"] = extra.ShadowquicInitialMtu ?? 1300,
                 ["congestion-control"] = extra.ShadowquicCongestionControl.IsNotEmpty() ? extra.ShadowquicCongestionControl.Replace('_', '-') : "bbr",
-                ["zero-rtt"] = extra.ShadowquicZeroRtt ?? false,
                 ["over-stream"] = extra.ShadowquicUdpOverStream ?? false,
                 ["mtu-discovery"] = !(extra.ShadowquicDisableMtuDiscovery ?? false),
             };
+            // Omitted options use the official client's defaults; false is an explicit override.
+            if (extra.ShadowquicZeroRtt.HasValue)
+            {
+                outbound["zero-rtt"] = extra.ShadowquicZeroRtt.Value;
+            }
             var content = new Dictionary<string, object>
             {
                 ["inbounds"] = new[] { new Dictionary<string, object> { ["tag"] = "socks-in", ["type"] = "socks", ["bind-addr"] = $"{Global.Loopback}:{port}" } },
