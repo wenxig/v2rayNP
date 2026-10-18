@@ -42,3 +42,14 @@
 - Five client configurations passed real-core checks. Mieru, Hysteria, and Hysteria2 returned HTTP 200 with valid certificates and expected content from Example Domain and Cloudflare trace.
 - Juicity timed out through both the generated sing-box front end and the official client directly with the supplied original JSON; ShadowQUIC timed out through mihomo. These are recorded as failed acceptance, not successful protocol connectivity.
 - Added `live-node-validation.md` without credentials or server identifiers. All temporary live-test cores were stopped. System proxy and TUN were not enabled.
+
+## 2026-10-18 Mihomo routing fix
+
+- Read AGENTS.md, project instructions and existing plans; preserved unrelated workspace changes and initialized submodule.
+- Reproduced the offending generated rule by inspecting the built-in DNS bypass addresses. Prior temporary smoke-test directory no longer exists; current Debug mihomo is available.
+
+- Before fix, new routing regressions failed in 3 cases exactly as expected. After fix, all 6 new cases passed; the full run hit an existing AppManager singleton race (PAC port read 12083 instead of 20811). Rechecking serially. The temporary smoke harness creation had a quoting error, corrected before running it.
+
+- Serial tests passed 154/154. Real mihomo -t passed 4 white/global configs; 2 black configs fail on existing unsupported PROTOCOL,bittorrent. Temporary harness needed built DLL references after an external project-reference error. No client/system proxy was started or changed. Documentation update script had quoting errors; corrected.
+
+- Avalonia Debug build passed with 0 warnings/errors; git diff --check passed. Fix limited to mihomo IP rule generation and 6 routing regression cases; unrelated user changes preserved.

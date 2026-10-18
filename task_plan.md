@@ -46,3 +46,11 @@ Implementation and signed commit are complete. Existing unrelated `agent.md` del
 
 | Error | Attempt | Resolution |
 |---|---:|---|
+
+## Mihomo routing regression (2026-10-18)
+
+- [completed] 9. Normalize bare IPv4/IPv6 rule addresses, add routing regression coverage, validate generated YAML with mihomo, and sign the fix.
+
+## Next Step
+
+Completed: host-prefix fix, routing regression coverage, real-core checks, and desktop build. Black-template PROTOCOL compatibility remains a separate limitation.

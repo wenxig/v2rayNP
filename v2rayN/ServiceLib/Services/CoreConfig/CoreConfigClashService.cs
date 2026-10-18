@@ -107,7 +107,7 @@ public class CoreConfigClashService(Config config, bool isTunEnabled)
             }).ToList());
             if (rule.Ip is { Count: > 0 }) dimensions.Add(rule.Ip.SelectMany(ip => ip == "geoip:private"
                 ? new[] { "IP-CIDR,10.0.0.0/8", "IP-CIDR,172.16.0.0/12", "IP-CIDR,192.168.0.0/16", "IP-CIDR,127.0.0.0/8", "IP-CIDR6,fc00::/7", "IP-CIDR6,::1/128" }
-                : new[] { ip.StartsWith("geoip:") ? $"GEOIP,{ip[6..]}" : $"{(ip.Contains(':') ? "IP-CIDR6" : "IP-CIDR")},{ip}" }).ToList());
+                : new[] { BuildIpRule(ip) }).ToList());
             if (rule.Network.IsNotEmpty()) dimensions.Add(rule.Network.Split(',').Select(x => $"NETWORK,{x.Trim().ToUpperInvariant()}").ToList());
             if (rule.Port.IsNotEmpty()) dimensions.Add(rule.Port.Split(',').Select(x => $"DST-PORT,{x.Trim().Replace(':', '-')}").ToList());
             if (rule.Process is { Count: > 0 }) dimensions.Add(rule.Process.Select(x => $"PROCESS-NAME,{x}").ToList());
@@ -120,6 +120,23 @@ public class CoreConfigClashService(Config config, bool isTunEnabled)
         }
         result.Add($"MATCH,{Global.ProxyTag}");
         return result;
+    }
+
+    private static string BuildIpRule(string address)
+    {
+        if (address.StartsWith("geoip:"))
+        {
+            return $"GEOIP,{address[6..]}";
+        }
+
+        var isIpv6 = address.Contains(':');
+        if (!address.Contains('/') && IPAddress.TryParse(address, out var ip))
+        {
+            isIpv6 = ip.AddressFamily == AddressFamily.InterNetworkV6;
+            address = $"{address}/{(isIpv6 ? 128 : 32)}";
+        }
+
+        return $"{(isIpv6 ? "IP-CIDR6" : "IP-CIDR")},{address}";
     }
 
     private static Dictionary<string, object> BuildProxy(ProfileItem node)

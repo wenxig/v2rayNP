@@ -1,3 +1,5 @@
+using YamlDotNet.RepresentationModel;
+
 namespace ServiceLib.Tests.CoreConfig;
 
 public class ExtendedProtocolConfigTests
@@ -123,6 +125,57 @@ public class ExtendedProtocolConfigTests
         var yaml = result.Data?.ToString() ?? string.Empty;
         await yaml.Should().Contain($"type: {configType.ToString().ToLowerInvariant()}");
         await yaml.Should().Contain("proxies:");
+    }
+
+    [Test]
+    [Arguments("223.5.5.5", "IP-CIDR,223.5.5.5/32,DIRECT")]
+    [Arguments("2400:3200::1", "IP-CIDR6,2400:3200::1/128,DIRECT")]
+    [Arguments("192.168.0.0/16", "IP-CIDR,192.168.0.0/16,DIRECT")]
+    [Arguments("fc00::/7", "IP-CIDR6,fc00::/7,DIRECT")]
+    [Arguments("geoip:cn", "GEOIP,cn,DIRECT")]
+    public async Task MihomoRouting_ShouldPreserveAddressScope(string address, string expectedRule)
+    {
+        var config = CoreConfigTestFactory.CreateConfig(ECoreType.mihomo);
+        var node = CreateMihomoNode(EConfigType.ShadowQUIC);
+        var context = CoreConfigTestFactory.CreateContext(config, node, ECoreType.mihomo);
+        context.RoutingItem!.RuleSet = JsonUtils.Serialize(new List<RulesItem>
+        {
+            new() { Ip = [address], OutboundTag = Global.DirectTag }
+        });
+
+        var result = await new CoreConfigClashService(config, false).GenerateClientNodeConfig(context, 19080);
+
+        await result.Success.Should().BeTrue();
+        var yaml = new YamlStream();
+        yaml.Load(new StringReader(result.Data!.ToString()!));
+        var rules = (YamlSequenceNode)((YamlMappingNode)yaml.Documents[0].RootNode)["rules"];
+        await rules.Children[0].ToString().Should().BeEqualTo(expectedRule);
+        await rules.Children[1].ToString().Should().BeEqualTo("MATCH,proxy");
+    }
+
+    [Test]
+    public async Task MihomoRouting_ShouldPreserveLogicalConditionsWithHostAddresses()
+    {
+        var config = CoreConfigTestFactory.CreateConfig(ECoreType.mihomo);
+        var node = CreateMihomoNode(EConfigType.ShadowQUIC);
+        var context = CoreConfigTestFactory.CreateContext(config, node, ECoreType.mihomo);
+        context.RoutingItem!.RuleSet = JsonUtils.Serialize(new List<RulesItem>
+        {
+            new() { Ip = ["223.5.5.5", "2400:3200::1", "192.168.0.0/16"], OutboundTag = Global.DirectTag },
+            new() { Ip = ["223.6.6.6", "2400:3200:baba::1"], Network = "udp", Port = "53", OutboundTag = Global.BlockTag },
+            new() { Ip = ["geoip:private"], OutboundTag = Global.DirectTag }
+        });
+
+        var result = await new CoreConfigClashService(config, false).GenerateClientNodeConfig(context, 19080);
+
+        await result.Success.Should().BeTrue();
+        var yaml = new YamlStream();
+        yaml.Load(new StringReader(result.Data!.ToString()!));
+        var rules = (YamlSequenceNode)((YamlMappingNode)yaml.Documents[0].RootNode)["rules"];
+        await rules.Children[0].ToString().Should().BeEqualTo("OR,((IP-CIDR,223.5.5.5/32),(IP-CIDR6,2400:3200::1/128),(IP-CIDR,192.168.0.0/16)),DIRECT");
+        await rules.Children[1].ToString().Should().BeEqualTo("AND,((OR,((IP-CIDR,223.6.6.6/32),(IP-CIDR6,2400:3200:baba::1/128))),(NETWORK,UDP),(DST-PORT,53)),REJECT");
+        await rules.Children[2].ToString().Should().Contain("(IP-CIDR,10.0.0.0/8)");
+        await rules.Children[2].ToString().Should().Contain("(IP-CIDR6,fc00::/7)");
     }
 
     [Test]

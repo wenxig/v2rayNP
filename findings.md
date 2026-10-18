@@ -24,3 +24,10 @@
 - Reused the existing managed pre-SOCKS sing-box context for public mixed-port entry and routing/TUN generation; Juicity itself is never launched as a TUN core.
 - Startup waits for the internal listener before starting the front end; speed tests keep their explicitly allocated listener port.
 - Official mihomo v1.19.32, Juicity v0.5.0, and sing-box v1.14.3 local checks passed; these checks do not establish remote connectivity or actual TUN/UDP forwarding.
+
+## Mihomo bare IP regression
+
+- The built-in custom_routing_white DNS bypass rule contains bare IPv4/IPv6 addresses. BuildNodeRules emits these as IP-CIDR/IP-CIDR6 without host prefixes; mihomo rejects rules[4] with payloadRule error before connecting to the node.
+- Existing sing-box code already handles single-address prefixes. The mihomo fix must preserve existing subnet prefixes and GEOIP/private rules.
+
+- Real mihomo accepts generated white/global templates for both normal and speed-test configs (4/4). Black template separately fails on unsupported PROTOCOL,bittorrent; no approximation introduced.
