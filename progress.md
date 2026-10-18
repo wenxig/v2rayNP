@@ -103,3 +103,9 @@
 - sing-box config check and 7 SOCKS greetings passed. All test processes were stopped, TCP listeners confirmed closed; system proxy, TUN and original v2rayN were untouched. Report and README updated; node configs/logs remain private under /private/tmp.
 
 - Final shared suite including database persistence checks: 191/191 passed. Final diff checks passed; source review confirmed no endpoint/credential changes, HTTP target fallback or extra attempts. Completed work ready for signed commit.
+
+## Functional remediation design
+
+- Inspected current launch/readiness/caller system-proxy paths, custom import fallback, mihomo routing/group generation and release SDK settings.
+- Wrote remediation-plan.md: A lifecycle, B diagnostics, C native import and parameter fidelity, D routing/group semantics, E multi-core groups/chains, F distribution and runtime acceptance. Includes explicit production gates and continued original-client isolation.
+- This task changes documentation only. Product implementation, live proxy changes, builds and network tests were not run; final verification is plan coverage and git diff --check. Unrelated agent.md, AGENTS.md and live-node-validation.md changes are preserved.

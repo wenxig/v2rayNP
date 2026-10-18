@@ -110,3 +110,11 @@ Confirm final persistence regressions, review only task files and sign the imple
 ## Next Step
 
 Restart the rebuilt desktop to load the fixes; retain remote stability as unverified.
+
+## Functional remediation design (2026-10-18)
+
+- [completed] 20. Inspect the live lifecycle, raw-config import, routing/group generation and release SDK settings; write remediation-plan.md with priorities, dependencies, scope and acceptance evidence. Planning only; proposed product work has not started.
+
+## Next Step
+
+The repair design is ready for review in remediation-plan.md. Product implementation remains outside this planning task.

@@ -68,3 +68,10 @@
 
 - Follow-up real-core test (13:55–13:56): local omitted-zero-rtt configs returned correct bodies 20/20. Task-owned official server with first request 200 / second stalled: old DLL returned -1/-1/-1, fixed DLL 65/3/3 ms; repeated 503 responses yielded old 11/2/3 ms vs fixed -1/-1/-1. These reproduce the practical benefit without depending on remote timing.
 - Same-run interleaved remote curl: generated native 0/6 and original 0/6, all TLS failures; mixed SOCKS/HTTP and speed 0/2 each. Application probes had intermittent successes (native 3/3, original 1/3, mixed 0/3, speed 1/3). Original config is not consistently better; no claim of improved remote transport reliability.
+
+## Functional remediation design
+
+- Current CoreManager readiness returns no success/failure result and checks only SOCKS version; MainWindowViewModel updates the system proxy after awaiting LoadCore without a complete-chain success gate. The plan prioritizes lifecycle result propagation, rollback and owned-process cleanup.
+- Raw custom configs can already be saved with an explicitly selected core; the missing import feature is schema recognition and lossless conversion into editable profiles. A remediation plan must preserve this distinction.
+- Group generation hardcodes select; context building rejects extended-protocol subscription chains. Group expansion and actual dial-through chaining require separate capability/flow verification, not just removing validation.
+- Release workflows configure .NET 8 despite the current .NET 10 target. Added clean-install/core-resource verification and platform-specific acceptance to the plan.
