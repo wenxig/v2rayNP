@@ -1,6 +1,6 @@
 # Live node validation — 2026-10-17
 
-The user supplied local client configurations. This report intentionally excludes server addresses, ports, credentials, UUIDs, full configuration files, and exit IPs. The original files were not modified or executed. Downloaded official macOS amd64 cores were used with isolated loopback listeners; system proxy and TUN were not enabled.
+The user supplied local client configurations. This report intentionally excludes server addresses, ports, credentials, UUIDs, full configuration files, and exit IPs. The original files were not modified or executed. Downloaded official macOS amd64 cores were used with isolated loopback listeners; system proxy and TUN were not enabled. The original v2rayN remained running to preserve the Codex network connection, so concurrent client traffic may have affected remote QUIC results even though the test listeners used isolated ports.
 
 ## Method
 
@@ -26,7 +26,7 @@ All five generated configurations passed real-core configuration checks, and all
 
 - Cores: mihomo v1.19.32, official juicity-client v0.5.0, sing-box v1.14.3 on macOS amd64.
 - The successful responses verify actual HTTPS traffic through the supplied nodes, not just open local ports. They do not measure throughput or establish long-term reliability.
-- Juicity direct-client failure rules out the sing-box front end as a necessary cause of the observed failure. It does not distinguish service availability, UDP reachability, server/client compatibility, or authentication configuration.
-- ShadowQUIC remote connectivity remains unverified; server availability, UDP reachability, and client compatibility are unresolved.
+- Juicity direct-client failure rules out the sing-box front end as a necessary cause of the observed failure. It does not distinguish service availability, UDP reachability, server/client compatibility, authentication configuration, or effects from running the original client concurrently.
+- ShadowQUIC remote connectivity remains unverified; server availability, UDP reachability, client compatibility, and effects from running the original client concurrently are unresolved.
 - No system proxy, actual TUN traffic, or target UDP forwarding acceptance was performed.
 - All temporary core processes were terminated after testing; user configurations and Windows scripts were left unchanged.

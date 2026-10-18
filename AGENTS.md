@@ -70,6 +70,8 @@ dotnet test v2rayN/ServiceLib.Tests/ServiceLib.Tests.csproj -c Debug
 - 共享包引用使用中央版本管理；升级依赖时同步检查兼容性、许可证和发布脚本，不要只改单个项目文件。
 - 处理下载的压缩包、更新包和外部输入时保留路径遍历、URI 编码、证书校验和凭据脱敏保护。
 - 不要提交真实订阅地址、节点凭据、访问令牌、用户数据库或本地发布产物。测试中使用明显的假数据。
+- 提交使用 Conventional/Angular 语法和中文描述，例如 `feat(ui): 实现列表组件`；提交必须签名。
+- 在做完任何的任务后都必须立刻提交保存进度，不是等多个任务完成后集中提交。
 
 ## 发布与更新
 
@@ -77,7 +79,7 @@ dotnet test v2rayN/ServiceLib.Tests/ServiceLib.Tests.csproj -c Debug
 
 平台发布由 `build-windows.yml`、`build-windows-desktop.yml`、`build-linux.yml` 和 `build-osx.yml` 负责；Linux 发行版还会调用 `package-debian*.sh`、`package-rhel*.sh`。发布工作流属于高风险自动化，修改后至少做 YAML 语法检查，并确认 artifact 名称、RID、输出目录和 release tag 在上下游步骤中一致。
 
-## 提交前检查清单
+## 最终推送前检查清单
 
 1. `git diff --check` 通过，且没有误改生成目录、submodule 或本地配置。
 2. 根据改动范围运行相关构建和 `ServiceLib.Tests`；无法运行时说明缺失的 SDK、平台或外部核心。
