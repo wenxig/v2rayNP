@@ -58,3 +58,9 @@ Completed single-node speed-test eligibility fix and validation; restart the reb
 ## Single-node speed-test skip regression (2026-10-18)
 
 - [completed] 10. Mark successfully written single-node speed-test configurations eligible; cover mihomo/Juicity success and failure, run tests/build, and sign the fix.
+
+## ShadowQUIC remote timeout investigation (2026-10-18)
+
+- [completed] 11. Compare parameters, test isolated listeners with longer timeout and zero-RTT variants, record conclusions and sign findings. The supplied remote node succeeds with official ShadowQUIC and times out with mihomo, while local control and steady-state runs succeed; this is an interoperability gap, not yet evidence of a general severe mihomo defect.
+
+- [completed] 12. Run local mihomo and official ShadowQUIC server controls with generated client config and real local HTTP responses. Use no system proxy and an explicit loopback SOCKS listener. The steady-client test passed 20/20 for each client; defer introducing another engine until the remote-profile mismatch is isolated.

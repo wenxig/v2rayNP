@@ -59,3 +59,9 @@
 - Traced skip to missing AllowTest transition in the single-node config generation overload; preserving original client processes/configuration and unrelated workspace changes.
 
 - Six regression cases reproduced the missing eligibility transition before the fix. After resetting AllowTest at entry and enabling it only after successful config write, all 160 tests passed serially. Avalonia Debug build passed with 0 warnings/errors; git diff --check passed. Actual remote latency was not retested.
+
+## 2026-10-18 ShadowQUIC timeout investigation
+
+- Verified mihomo v1.19.32 and upstream adapter source. All local tests cleared common proxy environment variables, used an explicit temporary loopback SOCKS port, and left the active正版 v2rayN process and system proxy untouched.
+- The supplied remote node worked with official ShadowQUIC v0.4.4 (HTTP 204/200), while mihomo timed out. Local official-server testing showed generated mihomo could return the expected HTTP body. Fresh-client rapid-restart tests had two isolated mihomo authentication misses; persistent-client repeat passed 20/20 for both mihomo and official client with zero-RTT disabled.
+- Result: confirmed a remote-node interoperability gap, but not a broad severe mihomo defect. Keep alternate-engine introduction deferred pending isolation of the remote node's configuration differences, especially unsupported `initial-mtu`.
