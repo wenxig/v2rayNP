@@ -1867,4 +1867,5 @@ Tindakan "Ambil sertifikat" mungkin gagal jika sertifikat self-signed digunakan 
   <data name="MsgMihomoRuleUnsupported" xml:space="preserve"><value>mihomo cannot preserve rule "{0}", field {1}; edit this rule before switching.</value></data>
   <data name="MsgGroupStrategyUnsupported" xml:space="preserve"><value>{0} does not support strategy {1} with equivalent behavior.</value></data>
   <data name="MsgMihomoBuiltinBlacklist" xml:space="preserve"><value>The mihomo built-in blacklist omits BitTorrent protocol bypass; that traffic follows subsequent rules. Custom protocol conditions still block startup.</value></data>
+  <data name="MsgNativeListenerContract" xml:space="preserve"><value>Raw official-core configs require an unauthenticated SOCKS listener at 127.0.0.1:PreSocksPort. Set a separate PreSocksPort matching the raw listener; the application mixed port must be different. The raw config is not rewritten.</value></data>
 </root>

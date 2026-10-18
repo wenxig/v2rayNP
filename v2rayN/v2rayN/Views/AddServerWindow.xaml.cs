@@ -289,7 +289,7 @@ public partial class AddServerWindow
             this.Bind(ViewModel, vm => vm.JuicityUuid, v => v.editJuicityField0.Text).DisposeWith(disposables);
             this.Bind(ViewModel, vm => vm.JuicityPassword, v => v.editJuicityField1.Text).DisposeWith(disposables);
             this.Bind(ViewModel, vm => vm.JuicitySni, v => v.editJuicityField2.Text).DisposeWith(disposables);
-            this.Bind(ViewModel, vm => vm.AllowInsecure, v => v.editJuicityField3.IsChecked).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.JuicityAllowInsecure, v => v.editJuicityField3.IsChecked).DisposeWith(disposables);
             this.Bind(ViewModel, vm => vm.JuicityCongestionControl, v => v.editJuicityField4.Text).DisposeWith(disposables);
             this.Bind(ViewModel, vm => vm.JuicityPinnedCertchainSha256, v => v.editJuicityField5.Text).DisposeWith(disposables);
 

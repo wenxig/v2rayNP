@@ -105,8 +105,8 @@ public partial class AddServerViewModel : MyReactiveObject, ICloseable
     [Reactive] public partial string ShadowquicUsername { get; set; }
     [Reactive] public partial string ShadowquicPassword { get; set; }
     [Reactive] public partial string ShadowquicQuicVersions { get; set; }
-    [Reactive] public partial bool ShadowquicZeroRtt { get; set; }
-    [Reactive] public partial bool ShadowquicUdpOverStream { get; set; }
+    [Reactive] public partial bool? ShadowquicZeroRtt { get; set; }
+    [Reactive] public partial bool? ShadowquicUdpOverStream { get; set; }
     [Reactive] public partial string ShadowquicCongestionControl { get; set; }
     [Reactive] public partial int? ShadowquicUpMbps { get; set; }
     [Reactive] public partial int? ShadowquicDownMbps { get; set; }
@@ -115,7 +115,8 @@ public partial class AddServerViewModel : MyReactiveObject, ICloseable
     [Reactive] public partial int? ShadowquicMaxOpenStreams { get; set; }
     [Reactive] public partial int? ShadowquicRecvWindowConn { get; set; }
     [Reactive] public partial int? ShadowquicRecvWindow { get; set; }
-    [Reactive] public partial bool ShadowquicDisableMtuDiscovery { get; set; }
+    [Reactive] public partial bool? ShadowquicDisableMtuDiscovery { get; set; }
+    [Reactive] public partial bool? JuicityAllowInsecure { get; set; }
     [Reactive] public partial string JuicityUuid { get; set; }
     [Reactive] public partial string JuicityPassword { get; set; }
     [Reactive] public partial string JuicitySni { get; set; }
@@ -340,6 +341,7 @@ public partial class AddServerViewModel : MyReactiveObject, ICloseable
         CertSha = SelectedSource?.CertSha ?? string.Empty;
 
         var protocolExtra = SelectedSource?.GetProtocolExtra() ?? new();
+        JuicityAllowInsecure = protocolExtra.JuicityAllowInsecure ?? (SelectedSource.AllowInsecure.IsNotEmpty() ? SelectedSource.GetAllowInsecure() : null);
         var transport = SelectedSource?.GetTransportExtra() ?? new();
         Ports = protocolExtra.Ports ?? string.Empty;
         AlterId = int.TryParse(protocolExtra.AlterId, out var result) ? result : 0;
@@ -385,12 +387,12 @@ public partial class AddServerViewModel : MyReactiveObject, ICloseable
         ShadowquicMaxOpenStreams = protocolExtra.ShadowquicMaxOpenStreams;
         ShadowquicRecvWindowConn = protocolExtra.ShadowquicRecvWindowConn;
         ShadowquicRecvWindow = protocolExtra.ShadowquicRecvWindow;
-        ShadowquicDisableMtuDiscovery = protocolExtra.ShadowquicDisableMtuDiscovery ?? false;
+        ShadowquicDisableMtuDiscovery = protocolExtra.ShadowquicDisableMtuDiscovery;
         ShadowquicUsername = protocolExtra.ShadowquicUsername ?? SelectedSource.Username;
         ShadowquicPassword = protocolExtra.ShadowquicPassword ?? SelectedSource.Password;
         ShadowquicQuicVersions = protocolExtra.ShadowquicQuicVersions ?? string.Empty;
-        ShadowquicZeroRtt = protocolExtra.ShadowquicZeroRtt ?? (SelectedSource.ConfigType == EConfigType.ShadowQUIC);
-        ShadowquicUdpOverStream = protocolExtra.ShadowquicUdpOverStream ?? false;
+        ShadowquicZeroRtt = protocolExtra.ShadowquicZeroRtt;
+        ShadowquicUdpOverStream = protocolExtra.ShadowquicUdpOverStream;
         ShadowquicCongestionControl = protocolExtra.ShadowquicCongestionControl ?? string.Empty;
         JuicityUuid = protocolExtra.JuicityUuid ?? SelectedSource.Username;
         JuicityPassword = protocolExtra.JuicityPassword ?? SelectedSource.Password;
@@ -500,7 +502,9 @@ public partial class AddServerViewModel : MyReactiveObject, ICloseable
             SelectedSource.Password = JuicityPassword;
             SelectedSource.Sni = JuicitySni;
         }
-        SelectedSource.AllowInsecure = AllowInsecure ? Global.StringTrue : Global.StringFalse;
+        SelectedSource.AllowInsecure = SelectedSource.ConfigType == EConfigType.Juicity
+            ? JuicityAllowInsecure.HasValue ? JuicityAllowInsecure.Value ? Global.StringTrue : Global.StringFalse : string.Empty
+            : AllowInsecure ? Global.StringTrue : Global.StringFalse;
         SelectedSource.MuxEnabled = MuxEnabled;
         SelectedSource.Cert = Cert.IsNullOrEmpty() ? string.Empty : Cert;
         SelectedSource.CertSha = CertSha.IsNullOrEmpty() ? string.Empty : CertSha;
@@ -545,7 +549,7 @@ public partial class AddServerViewModel : MyReactiveObject, ICloseable
             ShadowquicDisableMtuDiscovery = ShadowquicDisableMtuDiscovery,
             ShadowquicUsername = ShadowquicUsername.NullIfEmpty(), ShadowquicPassword = ShadowquicPassword.NullIfEmpty(), ShadowquicQuicVersions = ShadowquicQuicVersions.NullIfEmpty(),
             ShadowquicZeroRtt = SelectedSource.ConfigType == EConfigType.ShadowQUIC ? ShadowquicZeroRtt : null, ShadowquicUdpOverStream = SelectedSource.ConfigType == EConfigType.ShadowQUIC ? ShadowquicUdpOverStream : null, ShadowquicCongestionControl = ShadowquicCongestionControl.NullIfEmpty(),
-            JuicityAllowInsecure = AllowInsecure, JuicityUuid = JuicityUuid.NullIfEmpty(), JuicityPassword = JuicityPassword.NullIfEmpty(), JuicitySni = JuicitySni.NullIfEmpty(), JuicityCongestionControl = JuicityCongestionControl.NullIfEmpty(), JuicityPinnedCertchainSha256 = JuicityPinnedCertchainSha256.NullIfEmpty(),
+            JuicityAllowInsecure = JuicityAllowInsecure, JuicityUuid = JuicityUuid.NullIfEmpty(), JuicityPassword = JuicityPassword.NullIfEmpty(), JuicitySni = JuicitySni.NullIfEmpty(), JuicityCongestionControl = JuicityCongestionControl.NullIfEmpty(), JuicityPinnedCertchainSha256 = JuicityPinnedCertchainSha256.NullIfEmpty(),
             Ports = Ports.NullIfEmpty(),
             AlterId = AlterId > 0 ? AlterId.ToString() : null,
             Flow = Flow.NullIfEmpty(),

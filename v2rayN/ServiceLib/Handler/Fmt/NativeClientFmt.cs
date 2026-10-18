@@ -25,6 +25,10 @@ public static class NativeClientFmt
                 // Juicity accepts JSON; do not reinterpret an unrelated YAML document.
                 using var json = JsonDocument.Parse(input);
                 if (json.RootElement.EnumerateObject().GroupBy(p => p.Name).Any(g => g.Count() > 1)) throw new FormatException();
+                foreach (var property in json.RootElement.EnumerateObject())
+                    if (property.Name == "allow_insecure"
+                        ? property.Value.ValueKind is not (JsonValueKind.True or JsonValueKind.False)
+                        : property.Value.ValueKind != JsonValueKind.String) throw new FormatException();
                 RequireKnown(fields, JuicityFields);
                 var node = Endpoint(Text(fields, "server"), EConfigType.Juicity);
                 node.Sni = OptionalText(fields, "sni") ?? "";

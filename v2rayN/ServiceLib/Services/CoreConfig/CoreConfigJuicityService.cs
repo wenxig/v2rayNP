@@ -28,7 +28,7 @@ public class CoreConfigJuicityService(Config config)
                 ["uuid"] = extra.JuicityUuid ?? node.Username,
                 ["password"] = extra.JuicityPassword ?? node.Password,
                 ["sni"] = extra.JuicitySni.IsNotEmpty() ? extra.JuicitySni : node.Sni.IsNotEmpty() ? node.Sni : null,
-                ["allow_insecure"] = extra.JuicityAllowInsecure ?? node.GetAllowInsecure(),
+                ["allow_insecure"] = extra.JuicityAllowInsecure ?? (node.AllowInsecure.IsNotEmpty() ? node.GetAllowInsecure() : null),
                 ["congestion_control"] = extra.JuicityCongestionControl.IsNotEmpty() ? extra.JuicityCongestionControl : "bbr",
                 ["pinned_certchain_sha256"] = extra.JuicityPinnedCertchainSha256.IsNotEmpty() ? extra.JuicityPinnedCertchainSha256 : null,
                 ["log_level"] = config.CoreBasicItem.Loglevel switch { "warning" => "warn", "none" => "error", var level => level },

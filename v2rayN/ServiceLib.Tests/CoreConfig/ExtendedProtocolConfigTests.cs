@@ -406,10 +406,10 @@ public class ExtendedProtocolConfigTests
     }
 
     [Test]
-    [Arguments(null, true)]
+    [Arguments(null, null)]
     [Arguments(false, false)]
     [Arguments(true, true)]
-    public async Task ShadowquicEditor_ShouldShowOfficialDefaultAndSaveExplicitOverride(bool? configured, bool expected)
+    public async Task ShadowquicEditor_ShouldPreserveUnsetAndSaveExplicitOverride(bool? configured, bool? expected)
     {
         ReactiveUI.Builder.BuilderMixins.BuildApp(ReactiveUI.Builder.RxAppBuilder.CreateReactiveUIBuilder().WithCoreServices());
         var previous = AppManager.Instance.Config;

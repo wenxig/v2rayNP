@@ -1976,4 +1976,5 @@
   <data name="MsgMihomoRuleUnsupported" xml:space="preserve"><value>mihomo 无法等价表达规则“{0}”的字段 {1}，请先调整该规则。</value></data>
   <data name="MsgGroupStrategyUnsupported" xml:space="preserve"><value>{0} 不支持策略 {1} 的等价行为。</value></data>
   <data name="MsgMihomoBuiltinBlacklist" xml:space="preserve"><value>mihomo 内置黑名单不包含 bittorrent 协议绕过，相关流量按后续规则处理；自定义协议条件仍会阻止启动。</value></data>
+  <data name="MsgNativeListenerContract" xml:space="preserve"><value>官方核心原始設定必須在 127.0.0.1:PreSocksPort 提供無認證 SOCKS 監聽。請設定與原始監聽一致的獨立前置 SOCKS 連接埠，且不能與應用程式混合連接埠相同。原始設定不會被改寫。</value></data>
 </root>

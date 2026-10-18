@@ -1111,8 +1111,8 @@
                     <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelShadowQUICField3" Width="300" VerticalAlignment="Center" /><TextBox x:Name="editShadowQUICField3" Width="400" /></StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelShadowQUICField4" Width="300" VerticalAlignment="Center" /><TextBox x:Name="editShadowQUICField4" Width="400" /></StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelShadowQUICField5" Width="300" VerticalAlignment="Center" /><TextBox x:Name="editShadowQUICField5" Width="400" /></StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelShadowQUICField6" Width="300" VerticalAlignment="Center" /><CheckBox x:Name="editShadowQUICField6" Width="400" /></StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelShadowQUICField7" Width="300" VerticalAlignment="Center" /><CheckBox x:Name="editShadowQUICField7" Width="400" /></StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelShadowQUICField6" Width="300" VerticalAlignment="Center" /><CheckBox x:Name="editShadowQUICField6" Width="400" IsThreeState="True" /></StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelShadowQUICField7" Width="300" VerticalAlignment="Center" /><CheckBox x:Name="editShadowQUICField7" Width="400" IsThreeState="True" /></StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelShadowQUICField8" Width="300" VerticalAlignment="Center" /><CheckBox x:Name="editShadowQUICField8" Width="400" /></StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelShadowQUICField9" Width="300" VerticalAlignment="Center" /><TextBox x:Name="editShadowQUICField9" Width="400" /></StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelShadowQUICField10" Width="300" VerticalAlignment="Center" /><TextBox x:Name="editShadowQUICField10" Width="400" /></StackPanel>
@@ -1126,14 +1126,14 @@
                     <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelShadowQUICField19" Width="300" VerticalAlignment="Center" /><TextBox x:Name="editShadowQUICField19" Width="400" /></StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelShadowQUICField20" Width="300" VerticalAlignment="Center" /><CheckBox x:Name="editShadowQUICField20" Width="400" IsThreeState="True" /></StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelShadowQUICField21" Width="300" VerticalAlignment="Center" /><CheckBox x:Name="editShadowQUICField21" Width="400" IsThreeState="True" /></StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelShadowQUICField16" Width="300" VerticalAlignment="Center" /><CheckBox x:Name="editShadowQUICField16" Width="400" /></StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelShadowQUICField16" Width="300" VerticalAlignment="Center" /><CheckBox x:Name="editShadowQUICField16" Width="400" IsThreeState="True" /></StackPanel>
                 </StackPanel>
 
                 <StackPanel x:Name="gridJuicityExtra" Grid.Row="2" Visibility="Collapsed">
                     <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelJuicityField0" Width="300" VerticalAlignment="Center" /><TextBox x:Name="editJuicityField0" Width="400" /></StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelJuicityField1" Width="300" VerticalAlignment="Center" /><TextBox x:Name="editJuicityField1" Width="400" /></StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelJuicityField2" Width="300" VerticalAlignment="Center" /><TextBox x:Name="editJuicityField2" Width="400" /></StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelJuicityField3" Width="300" VerticalAlignment="Center" /><CheckBox x:Name="editJuicityField3" Width="400" /></StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelJuicityField3" Width="300" VerticalAlignment="Center" /><CheckBox x:Name="editJuicityField3" Width="400" IsThreeState="True" /></StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelJuicityField4" Width="300" VerticalAlignment="Center" /><TextBox x:Name="editJuicityField4" Width="400" /></StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="4"><TextBlock x:Name="labelJuicityField5" Width="300" VerticalAlignment="Center" /><TextBox x:Name="editJuicityField5" Width="400" /></StackPanel>
                 </StackPanel>

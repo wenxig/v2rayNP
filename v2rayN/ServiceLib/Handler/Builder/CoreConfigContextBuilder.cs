@@ -54,6 +54,18 @@ public class CoreConfigContextBuilder
             ProtectCoreTypeList = config.TunModeItem.EnableTun ? [ECoreType.Xray, ECoreType.sing_box] : []
         };
         var validatorResult = NodeValidatorResult.Empty();
+        if (node.ConfigType == EConfigType.Custom && ProtocolCapabilities.IsStandaloneCore(runCoreType))
+        {
+            try
+            {
+                var path = File.Exists(node.Address) ? node.Address : Utils.GetConfigPath(node.Address);
+                if (node.PreSocksPort is not int port || port == config.Inbound.First().LocalPort
+                    || !NativeListenerContract.Matches(await File.ReadAllTextAsync(path), runCoreType, port))
+                    validatorResult.Errors.Add(ProtocolCapabilities.Text("MsgNativeListenerContract"));
+            }
+            catch { validatorResult.Errors.Add(ProtocolCapabilities.Text("MsgNativeListenerContract")); }
+            if (!validatorResult.Success) return new CoreConfigContextBuilderResult(context, validatorResult);
+        }
         context = ProtocolCapabilities.AdaptBuiltinRouting(context, validatorResult.Warnings);
         if (node.ConfigType.IsGroupType() && (ProtocolCapabilities.IsStandaloneCore(runCoreType) || (runCoreType == ECoreType.mihomo && node.ConfigType != EConfigType.PolicyGroup)))
         {

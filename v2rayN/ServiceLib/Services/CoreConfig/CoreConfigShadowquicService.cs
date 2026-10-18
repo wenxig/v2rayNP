@@ -31,9 +31,9 @@ public class CoreConfigShadowquicService(Config config)
                 ["alpn"] = node.Alpn.IsNotEmpty() ? node.GetAlpn()! : new List<string> { "h3" },
                 ["initial-mtu"] = extra.ShadowquicInitialMtu ?? 1300,
                 ["congestion-control"] = extra.ShadowquicCongestionControl.IsNotEmpty() ? extra.ShadowquicCongestionControl.Replace('_', '-') : "bbr",
-                ["over-stream"] = extra.ShadowquicUdpOverStream ?? false,
-                ["mtu-discovery"] = !(extra.ShadowquicDisableMtuDiscovery ?? false),
             };
+            if (extra.ShadowquicUdpOverStream.HasValue) outbound["over-stream"] = extra.ShadowquicUdpOverStream.Value;
+            if (extra.ShadowquicDisableMtuDiscovery.HasValue) outbound["mtu-discovery"] = !extra.ShadowquicDisableMtuDiscovery.Value;
             if (extra.ShadowquicMinMtu.HasValue) outbound["min-mtu"] = extra.ShadowquicMinMtu.Value;
             if (extra.ShadowquicKeepAliveInterval.HasValue) outbound["keep-alive-interval"] = extra.ShadowquicKeepAliveInterval.Value;
             if (extra.ShadowquicGso.HasValue) outbound["gso"] = extra.ShadowquicGso.Value;

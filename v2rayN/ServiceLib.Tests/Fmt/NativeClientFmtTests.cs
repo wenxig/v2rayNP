@@ -44,6 +44,60 @@ public class NativeClientFmtTests
     }
 
     [Test]
+    [Arguments("null")]
+    [Arguments("\"false\"")]
+    [Arguments("0")]
+    public async Task JuicityRejectsWrongJsonBooleanTypes(string value)
+    {
+        var input = "{\"listen\":\"127.0.0.1:12345\",\"server\":\"example.invalid:443\",\"uuid\":\"00000000-0000-0000-0000-000000000001\",\"password\":\"fake\",\"allow_insecure\":" + value + "}";
+        var result = NativeClientFmt.Parse(input);
+        await result.Recognized.Should().BeTrue();
+        await (result.Node == null).Should().BeTrue();
+    }
+
+    [Test]
+    [Arguments("127.0.0.1:25080", 25080, true)]
+    [Arguments("0.0.0.0:25080", 25080, false)]
+    [Arguments("127.0.0.1:25081", 25080, false)]
+    public async Task RawNativeConfigRequiresExplicitMatchingLoopbackSocks(string listen, int port, bool accepted)
+    {
+        await NativeListenerContract.Matches("{\"listen\":\"" + listen + "\"}", ECoreType.juicity, port).Should().BeEqualTo(accepted);
+        await NativeListenerContract.Matches($"inbounds:\n- {{type: socks, bind-addr: '{listen}'}}\nrouter: {{}}", ECoreType.shadowquic, port).Should().BeEqualTo(accepted);
+        await NativeListenerContract.Matches($"inbounds:\n- {{type: socks, bind-addr: '{listen}', username: fake}}", ECoreType.shadowquic, port).Should().BeFalse();
+    }
+
+    [Test]
+    [Arguments(EConfigType.ShadowQUIC)]
+    [Arguments(EConfigType.Juicity)]
+    public async Task EditingAndSavingPreservesUnsetNativeBooleans(EConfigType type)
+    {
+        ReactiveUI.Builder.BuilderMixins.BuildApp(ReactiveUI.Builder.RxAppBuilder.CreateReactiveUIBuilder().WithCoreServices());
+        var previous = AppManager.Instance.Config;
+        var config = CoreConfigTestFactory.CreateConfig();
+        CoreConfigTestFactory.BindAppManagerConfig(config);
+        SQLiteHelper.Instance.CreateTable<ProfileItem>();
+        var input = type == EConfigType.ShadowQUIC
+            ? "type: shadowquic\naddr: example.invalid:443\nusername: fake\npassword: fake\nserver-name: example.invalid"
+            : "{\"listen\":\"127.0.0.1:12345\",\"server\":\"example.invalid:443\",\"uuid\":\"00000000-0000-0000-0000-000000000001\",\"password\":\"fake\"}";
+        var node = NativeClientFmt.Parse(input).Node!;
+        try
+        {
+            var editor = new ServiceLib.ViewModels.AddServerViewModel(node);
+            var save = typeof(ServiceLib.ViewModels.AddServerViewModel).GetMethod("SaveServerAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            await (Task)save.Invoke(editor, null)!;
+            var saved = await SQLiteHelper.Instance.TableAsync<ProfileItem>().Where(n => n.IndexId == node.IndexId).FirstAsync();
+            var extra = saved.GetProtocolExtra();
+            await (extra.ShadowquicZeroRtt == null && extra.ShadowquicUdpOverStream == null
+                && extra.ShadowquicDisableMtuDiscovery == null && extra.JuicityAllowInsecure == null).Should().BeTrue();
+        }
+        finally
+        {
+            if (node.IndexId.IsNotEmpty()) await SQLiteHelper.Instance.DeleteAsync(node);
+            CoreConfigTestFactory.BindAppManagerConfig(previous);
+        }
+    }
+
+    [Test]
     public async Task JuicityJsonPreservesFalseAndIpv6WithoutUsingLocalListenerAsServer()
     {
         var result = NativeClientFmt.Parse("""
