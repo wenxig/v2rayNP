@@ -202,6 +202,31 @@ public static class FileUtils
         }
     }
 
+    public static void CopyNewerFiles(string sourceDir, string destinationDir)
+    {
+        var source = new DirectoryInfo(sourceDir);
+        if (!source.Exists)
+        {
+            return;
+        }
+
+        _ = Directory.CreateDirectory(destinationDir);
+        foreach (var file in source.GetFiles())
+        {
+            var destinationPath = Path.Combine(destinationDir, file.Name);
+            if (!File.Exists(destinationPath)
+                || file.LastWriteTimeUtc > File.GetLastWriteTimeUtc(destinationPath))
+            {
+                file.CopyTo(destinationPath, true);
+            }
+        }
+
+        foreach (var subDirectory in source.GetDirectories())
+        {
+            CopyNewerFiles(subDirectory.FullName, Path.Combine(destinationDir, subDirectory.Name));
+        }
+    }
+
     public static void DeleteExpiredFiles(string sourceDir, DateTime dtLine, string? contains = null)
     {
         try

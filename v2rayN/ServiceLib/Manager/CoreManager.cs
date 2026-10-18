@@ -23,15 +23,16 @@ public class CoreManager
         _config = config;
         _updateFunc = updateFunc;
 
-        //Copy the bin folder to the storage location (for init)
-        if (Environment.GetEnvironmentVariable(Global.LocalAppData) == "1")
+        // Keep core binaries in the active storage location when startup mode changes.
+        var baseBinPath = Utils.GetBaseDirectory("bin");
+        var activeBinPath = Utils.GetBinPath("");
+        var localAppDataBinPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "v2rayN", "bin");
+        var inactiveBinPath = string.Equals(activeBinPath, baseBinPath, StringComparison.Ordinal)
+            ? localAppDataBinPath
+            : baseBinPath;
+        if (!string.Equals(activeBinPath, inactiveBinPath, StringComparison.Ordinal))
         {
-            var fromPath = Utils.GetBaseDirectory("bin");
-            var toPath = Utils.GetBinPath("");
-            if (fromPath != toPath)
-            {
-                FileUtils.CopyDirectory(fromPath, toPath, true, false);
-            }
+            FileUtils.CopyNewerFiles(inactiveBinPath, activeBinPath);
         }
 
         if (Utils.IsNonWindows())
