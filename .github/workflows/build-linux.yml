@@ -19,8 +19,8 @@ permissions:
 env:
   OutputArch: "linux-64"
   OutputArchArm: "linux-arm64"
-  OutputPath64:  "${{ github.workspace }}/v2rayN/Release/linux-64"
-  OutputPathArm64:  "${{ github.workspace }}/v2rayN/Release/linux-arm64"
+  OutputPath64:  "${{ github.workspace }}/v2rayNP/Release/linux-64"
+  OutputPathArm64:  "${{ github.workspace }}/v2rayNP/Release/linux-arm64"
 
 jobs:
   build:
@@ -43,18 +43,18 @@ jobs:
 
     - name: Build
       run: |
-        cd v2rayN
-        dotnet publish ./v2rayN.Desktop/v2rayN.Desktop.csproj -c Release -r linux-x64   -p:SelfContained=true -o "$OutputPath64"
-        dotnet publish ./v2rayN.Desktop/v2rayN.Desktop.csproj -c Release -r linux-arm64 -p:SelfContained=true -o "$OutputPathArm64"
+        cd v2rayNP
+        dotnet publish ./v2rayNP.Desktop/v2rayNP.Desktop.csproj -c Release -r linux-x64   -p:SelfContained=true -o "$OutputPath64"
+        dotnet publish ./v2rayNP.Desktop/v2rayNP.Desktop.csproj -c Release -r linux-arm64 -p:SelfContained=true -o "$OutputPathArm64"
         dotnet publish ./AmazTool/AmazTool.csproj             -c Release -r linux-x64   -p:SelfContained=true -p:PublishTrimmed=true -o "$OutputPath64"
         dotnet publish ./AmazTool/AmazTool.csproj             -c Release -r linux-arm64 -p:SelfContained=true -p:PublishTrimmed=true -o "$OutputPathArm64"
 
     - name: Upload build artifacts
       uses: actions/upload-artifact@v7.0.0
       with:
-        name: v2rayN-linux
+        name: v2rayNP-linux
         path: |
-          ${{ github.workspace }}/v2rayN/Release/linux*
+          ${{ github.workspace }}/v2rayNP/Release/linux*
 
     # release zip archive
     - name: Package release zip archive
@@ -68,7 +68,7 @@ jobs:
       uses: svenstaro/upload-release-action@v2
       if: github.event.inputs.release_tag != ''
       with:
-        file: ${{ github.workspace }}/v2rayN*.zip
+        file: ${{ github.workspace }}/v2rayNP*.zip
         tag: ${{ github.event.inputs.release_tag }}
         file_glob: true
         prerelease: true
@@ -105,8 +105,8 @@ jobs:
     - name: Restore build artifacts
       uses: actions/download-artifact@v7
       with:
-        name: v2rayN-linux
-        path: ${{ github.workspace }}/v2rayN/Release
+        name: v2rayNP-linux
+        path: ${{ github.workspace }}/v2rayNP/Release
 
     - name: Ensure script permissions
       run: chmod 755 package-debian.sh
@@ -118,17 +118,17 @@ jobs:
       run: |
         mkdir -p "$GITHUB_WORKSPACE/dist/deb"
         rsync -av "$HOME/debbuild/" "$GITHUB_WORKSPACE/dist/deb/" || true
-        find "$GITHUB_WORKSPACE/dist/deb" -name "v2rayn_*_amd64.deb" \
-          -exec mv {} "$GITHUB_WORKSPACE/dist/deb/v2rayN-linux-64.deb" \; || true
-        find "$GITHUB_WORKSPACE/dist/deb" -name "v2rayn_*_arm64.deb" \
-          -exec mv {} "$GITHUB_WORKSPACE/dist/deb/v2rayN-linux-arm64.deb" \; || true
+        find "$GITHUB_WORKSPACE/dist/deb" -name "v2raynp_*_amd64.deb" \
+          -exec mv {} "$GITHUB_WORKSPACE/dist/deb/v2rayNP-linux-64.deb" \; || true
+        find "$GITHUB_WORKSPACE/dist/deb" -name "v2raynp_*_arm64.deb" \
+          -exec mv {} "$GITHUB_WORKSPACE/dist/deb/v2rayNP-linux-arm64.deb" \; || true
         echo "==== Dist tree ===="
         ls -R "$GITHUB_WORKSPACE/dist/deb" || true
 
     - name: Upload DEB artifacts
       uses: actions/upload-artifact@v7.0.0
       with:
-        name: v2rayN-deb
+        name: v2rayNP-deb
         path: dist/deb/**/*.deb
 
     - name: Upload DEBs to release
@@ -221,8 +221,8 @@ jobs:
     - name: Restore build artifacts
       uses: actions/download-artifact@v7
       with:
-        name: v2rayN-linux
-        path: ${{ github.workspace }}/v2rayN/Release
+        name: v2rayNP-linux
+        path: ${{ github.workspace }}/v2rayNP/Release
 
     - name: Ensure script permissions
       run: chmod 755 package-rhel.sh
@@ -234,15 +234,15 @@ jobs:
       run: |
         mkdir -p "$GITHUB_WORKSPACE/dist/rpm"
         rsync -av "$HOME/rpmbuild/RPMS/" "$GITHUB_WORKSPACE/dist/rpm/" || true
-        find "$GITHUB_WORKSPACE/dist/rpm" -name "v2rayN-*-1*.x86_64.rpm"  -exec mv {} "$GITHUB_WORKSPACE/dist/rpm/v2rayN-linux-rhel-64.rpm" \;  || true
-        find "$GITHUB_WORKSPACE/dist/rpm" -name "v2rayN-*-1*.aarch64.rpm" -exec mv {} "$GITHUB_WORKSPACE/dist/rpm/v2rayN-linux-rhel-arm64.rpm" \; || true
+        find "$GITHUB_WORKSPACE/dist/rpm" -name "v2rayNP-*-1*.x86_64.rpm"  -exec mv {} "$GITHUB_WORKSPACE/dist/rpm/v2rayNP-linux-rhel-64.rpm" \;  || true
+        find "$GITHUB_WORKSPACE/dist/rpm" -name "v2rayNP-*-1*.aarch64.rpm" -exec mv {} "$GITHUB_WORKSPACE/dist/rpm/v2rayNP-linux-rhel-arm64.rpm" \; || true
         echo "==== Dist tree ===="
         ls -R "$GITHUB_WORKSPACE/dist/rpm" || true
 
     - name: Upload RPM artifacts
       uses: actions/upload-artifact@v7.0.0
       with:
-        name: v2rayN-rpm
+        name: v2rayNP-rpm
         path: dist/rpm/**/*.rpm
 
     - name: Upload RPMs to release

@@ -16,7 +16,7 @@ jobs:
       - name: Submit v2ray package to Windows Package Manager Community Repository
         run: |
 
-          $wingetPackage = "2dust.v2rayN"
+          $wingetPackage = "wenxig.v2rayNP"
           $gitToken = "${{ secrets.PT_WINGET }}"
 
           $github = Invoke-RestMethod -uri "https://api.github.com/repos/wenxig/v2rayNP/releases"

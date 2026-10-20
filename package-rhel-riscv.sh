@@ -9,8 +9,8 @@ XRAY_VER="${XRAY_VER:-}"
 SING_VER="${SING_VER:-}"
 
 MIN_KERNEL="5.10"
-PKGROOT="v2rayN-publish"
-PROJECT_HINT="v2rayN.Desktop/v2rayN.Desktop.csproj"
+PKGROOT="v2rayNP-publish"
+PROJECT_HINT="v2rayNP.Desktop/v2rayNP.Desktop.csproj"
 RPM_TOPDIR="${HOME}/rpmbuild"
 DOTNET_RISCV_VERSION="10.0.111"
 DOTNET_RISCV_BASE="https://github.com/xujiegb/dotnet-riscv/releases/download"
@@ -132,8 +132,8 @@ prepare_workspace() {
   fi
 
   PROJECT="$PROJECT_HINT"
-  [[ -f "$PROJECT" ]] || PROJECT="$(find . -maxdepth 3 -name 'v2rayN.Desktop.csproj' | head -n1 || true)"
-  [[ -f "$PROJECT" ]] || die "v2rayN.Desktop.csproj not found"
+  [[ -f "$PROJECT" ]] || PROJECT="$(find . -maxdepth 3 -name 'v2rayNP.Desktop.csproj' | head -n1 || true)"
+  [[ -f "$PROJECT" ]] || die "v2rayNP.Desktop.csproj not found"
 }
 
 choose_channel() {
@@ -150,7 +150,7 @@ choose_channel() {
   fi
 
   if [[ -t 0 ]]; then
-    echo "[?] Choose v2rayN release channel:" >&2
+    echo "[?] Choose v2rayNP release channel:" >&2
     echo "    1) Latest (stable)  [default]" >&2
     echo "    2) Pre-release (preview)" >&2
     echo "    3) Keep current (do nothing)" >&2
@@ -406,11 +406,11 @@ populate_assets_zip_mode() {
 
   url="$(bundle_url_for_rid "$rid")" || { echo "[!] Bundle unsupported RID: $rid"; return 1; }
 
-  echo "[+] Try v2rayN bundle archive: $url"
+  echo "[+] Try v2rayNP bundle archive: $url"
 
   tmp="$(mktemp -d)"
-  curl -fL "$url" -o "$tmp/v2rayn.zip" || { echo "[!] Bundle download failed"; rm -rf "$tmp"; return 1; }
-  unzip -q "$tmp/v2rayn.zip" -d "$tmp" || { echo "[!] Bundle unzip failed"; rm -rf "$tmp"; return 1; }
+  curl -fL "$url" -o "$tmp/v2raynp.zip" || { echo "[!] Bundle download failed"; rm -rf "$tmp"; return 1; }
+  unzip -q "$tmp/v2raynp.zip" -d "$tmp" || { echo "[!] Bundle unzip failed"; rm -rf "$tmp"; return 1; }
 
   if [[ -d "$tmp/bin" ]]; then
     mkdir -p "$outroot/bin"
@@ -419,7 +419,7 @@ populate_assets_zip_mode() {
     rsync -a "$tmp/" "$outroot/"
   fi
 
-  rm -f "$outroot/v2rayn.zip" 2>/dev/null || true
+  rm -f "$outroot/v2raynp.zip" 2>/dev/null || true
   find "$outroot" -type d -name "mihomo" -prune -exec rm -rf {} + 2>/dev/null || true
 
   nested_dir="$(find "$outroot" -maxdepth 1 -type d -name 'v2rayN-linux-*' | head -n1 || true)"
@@ -460,7 +460,7 @@ stage_runtime_assets() {
 
   if [[ "$FORCE_NETCORE" -eq 0 ]]; then
     if populate_assets_zip_mode "$outroot" "$rid"; then
-      echo "[*] Using v2rayN bundle archive."
+      echo "[*] Using v2rayNP bundle archive."
     else
       echo "[*] Bundle failed, fallback to separate core + rules."
       populate_assets_netcore_mode "$outroot" "$rid"
@@ -498,10 +498,10 @@ write_spec_file() {
 %undefine _debugsource_packages
 %global __requires_exclude ^liblttng-ust\.so\..*$
 
-Name:           v2rayN
+Name:           v2rayNP
 Version:        __VERSION__
 Release:        1%{?dist}
-Summary:        v2rayN (Avalonia) GUI client for Linux
+Summary:        v2rayNP (Avalonia) GUI client for Linux
 License:        GPL-3.0-only
 URL:            https://github.com/2dust/v2rayN
 BugURL:         https://github.com/2dust/v2rayN/issues
@@ -518,7 +518,7 @@ Requires:       bash >= 5.2.21
 Requires:       freetype >= 2.13
 
 %description
-v2rayN Linux for Red Hat Enterprise Linux
+v2rayNP Linux for Red Hat Enterprise Linux
 Support vless / vmess / Trojan / http / socks / Anytls / Hysteria2 / Shadowsocks / tuic / WireGuard / SSR / Mieru / ShadowQUIC / Juicity
 Support Red Hat Enterprise Linux / Fedora Linux / Rocky Linux / AlmaLinux / CentOS
 For more information, Please visit our website
@@ -530,44 +530,44 @@ https://github.com/2dust/v2rayN
 %build
 
 %install
-install -dm0755 %{buildroot}/opt/v2rayN
-cp -a * %{buildroot}/opt/v2rayN/
+install -dm0755 %{buildroot}/opt/v2rayNP
+cp -a * %{buildroot}/opt/v2rayNP/
 
-find %{buildroot}/opt/v2rayN -type d -exec chmod 0755 {} +
-find %{buildroot}/opt/v2rayN -type f -exec chmod 0644 {} +
-[ -f %{buildroot}/opt/v2rayN/v2rayN ] && chmod 0755 %{buildroot}/opt/v2rayN/v2rayN || :
+find %{buildroot}/opt/v2rayNP -type d -exec chmod 0755 {} +
+find %{buildroot}/opt/v2rayNP -type f -exec chmod 0644 {} +
+[ -f %{buildroot}/opt/v2rayNP/v2rayNP ] && chmod 0755 %{buildroot}/opt/v2rayNP/v2rayNP || :
 
 install -dm0755 %{buildroot}%{_bindir}
-install -m0755 /dev/stdin %{buildroot}%{_bindir}/v2rayn << 'EOF'
+install -m0755 /dev/stdin %{buildroot}%{_bindir}/v2raynp << 'EOF'
 #!/usr/bin/bash
 set -euo pipefail
-DIR="/opt/v2rayN"
+DIR="/opt/v2rayNP"
 
-if [[ -x "$DIR/v2rayN" ]]; then exec "$DIR/v2rayN" "$@"; fi
+if [[ -x "$DIR/v2rayNP" ]]; then exec "$DIR/v2rayNP" "$@"; fi
 
-for dll in v2rayN.Desktop.dll v2rayN.dll; do
+for dll in v2rayNP.Desktop.dll v2rayNP.dll; do
   if [[ -f "$DIR/$dll" ]]; then exec /usr/bin/dotnet "$DIR/$dll" "$@"; fi
 done
 
-echo "v2rayN launcher: no executable found in $DIR" >&2
+echo "v2rayNP launcher: no executable found in $DIR" >&2
 ls -l "$DIR" >&2 || true
 exit 1
 EOF
 
 install -dm0755 %{buildroot}%{_datadir}/applications
-install -m0644 /dev/stdin %{buildroot}%{_datadir}/applications/v2rayn.desktop << 'EOF'
+install -m0644 /dev/stdin %{buildroot}%{_datadir}/applications/v2raynp.desktop << 'EOF'
 [Desktop Entry]
 Type=Application
-Name=v2rayN
-Comment=v2rayN for Red Hat Enterprise Linux
-Exec=v2rayn
-Icon=v2rayn
+Name=v2rayNP
+Comment=v2rayNP for Red Hat Enterprise Linux
+Exec=v2raynp
+Icon=v2raynp
 Terminal=false
 Categories=Network;
 EOF
 
 install -dm0755 %{buildroot}%{_datadir}/icons/hicolor/256x256/apps
-install -m0644 %{_builddir}/__PKGROOT__/v2rayn.png %{buildroot}%{_datadir}/icons/hicolor/256x256/apps/v2rayn.png
+install -m0644 %{_builddir}/__PKGROOT__/v2raynp.png %{buildroot}%{_datadir}/icons/hicolor/256x256/apps/v2raynp.png
 
 %post
 /usr/bin/update-desktop-database %{_datadir}/applications >/dev/null 2>&1 || true
@@ -578,10 +578,10 @@ install -m0644 %{_builddir}/__PKGROOT__/v2rayn.png %{buildroot}%{_datadir}/icons
 /usr/bin/gtk-update-icon-cache -f %{_datadir}/icons/hicolor >/dev/null 2>&1 || true
 
 %files
-%{_bindir}/v2rayn
-/opt/v2rayN
-%{_datadir}/applications/v2rayn.desktop
-%{_datadir}/icons/hicolor/256x256/apps/v2rayn.png
+%{_bindir}/v2raynp
+/opt/v2rayNP
+%{_datadir}/applications/v2raynp.desktop
+%{_datadir}/icons/hicolor/256x256/apps/v2raynp.png
 SPEC
 
   sed -i "s/__VERSION__/${VERSION}/g" "$specfile"
@@ -612,16 +612,16 @@ package_binary() {
   cp -a "$pubdir/." "$workdir/$PKGROOT/"
 
   project_dir="$(cd "$(dirname "$PROJECT")" && pwd)"
-  icon_candidate="$project_dir/v2rayN.png"
+  icon_candidate="$project_dir/v2rayNP.png"
   [[ -f "$icon_candidate" ]] || { echo "Required icon not found: $icon_candidate"; return 1; }
-  cp "$icon_candidate" "$workdir/$PKGROOT/v2rayn.png"
+  cp "$icon_candidate" "$workdir/$PKGROOT/v2raynp.png"
 
   stage_runtime_assets "$workdir/$PKGROOT" "$rid"
 
   rpmdev-setuptree
   sourcedir="${RPM_TOPDIR}/SOURCES"
   specdir="${RPM_TOPDIR}/SPECS"
-  specfile="${specdir}/v2rayN.spec"
+  specfile="${specdir}/v2rayNP.spec"
 
   mkdir -p "$sourcedir" "$specdir"
   tar -C "$workdir" -czf "$sourcedir/$PKGROOT.tar.gz" "$PKGROOT"
@@ -630,7 +630,7 @@ package_binary() {
   rpmbuild -ba "$specfile" --target "$rpm_target"
 
   echo "Build done for $short. RPM at:"
-  for f in "${RPM_TOPDIR}/RPMS/${archdir}/v2rayN-${VERSION}-1"*.rpm; do
+  for f in "${RPM_TOPDIR}/RPMS/${archdir}/v2rayNP-${VERSION}-1"*.rpm; do
     [[ -e "$f" ]] || continue
     echo "  $f"
     BUILT_RPMS+=("$f")
