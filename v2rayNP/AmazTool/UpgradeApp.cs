@@ -107,7 +107,7 @@ internal class UpgradeApp
             //return;
         }
 
-        Console.WriteLine(Resx.Resource.Restartv2rayNP);
+        Console.WriteLine(Resx.Resource.Restartv2rayN);
         Utils.Waiting(2);
 
         Utils.StartV2RayN();
