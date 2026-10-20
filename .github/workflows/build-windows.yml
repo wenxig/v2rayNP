@@ -68,5 +68,5 @@ jobs:
         file: ${{ github.workspace }}/v2rayNP*.zip
         tag: ${{ github.event.inputs.release_tag }}
         file_glob: true
-        prerelease: true
+        prerelease: false
         overwrite: true

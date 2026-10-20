@@ -50,7 +50,7 @@ jobs:
     - name: Upload build artifacts
       uses: actions/upload-artifact@v7.0.0
       with:
-        name: v2rayN-windows-desktop
+        name: v2rayNP-windows-desktop
         path: |
           ${{ github.workspace }}/v2rayNP/Release/windows*
 
@@ -71,5 +71,5 @@ jobs:
         file: ${{ github.workspace }}/v2rayNP*.zip
         tag: ${{ github.event.inputs.release_tag }}
         file_glob: true
-        prerelease: true
+        prerelease: false
         overwrite: true

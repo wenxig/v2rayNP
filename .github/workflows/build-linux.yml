@@ -28,6 +28,8 @@ jobs:
       matrix:
         configuration: [Release]
     runs-on: ubuntu-24.04
+    env:
+      RELEASE_TAG: ${{ github.event.inputs.release_tag != '' && github.event.inputs.release_tag || github.ref_name }}
 
     steps:
     - name: Checkout
@@ -58,7 +60,7 @@ jobs:
 
     # release zip archive
     - name: Package release zip archive
-      if: github.event.inputs.release_tag != ''
+      if: github.event.inputs.release_tag != '' || startsWith(github.ref, 'refs/tags/')
       run: |
         chmod 755 .github/package-release-zip.sh
         .github/package-release-zip.sh "$OutputArch" "$OutputPath64"
@@ -66,12 +68,12 @@ jobs:
 
     - name: Upload zip archive to release
       uses: svenstaro/upload-release-action@v2
-      if: github.event.inputs.release_tag != ''
+      if: github.event.inputs.release_tag != '' || startsWith(github.ref, 'refs/tags/')
       with:
         file: ${{ github.workspace }}/v2rayNP*.zip
-        tag: ${{ github.event.inputs.release_tag }}
+        tag: ${{ env.RELEASE_TAG }}
         file_glob: true
-        prerelease: true
+        prerelease: false
         overwrite: true
 
   deb:
@@ -137,7 +139,7 @@ jobs:
         file: dist/deb/**/*.deb
         tag: ${{ env.RELEASE_TAG }}
         file_glob: true
-        prerelease: true
+        prerelease: false
         overwrite: true
 
   rpm:
@@ -251,5 +253,5 @@ jobs:
         file: dist/rpm/**/*.rpm
         tag: ${{ env.RELEASE_TAG }}
         file_glob: true
-        prerelease: true
+        prerelease: false
         overwrite: true

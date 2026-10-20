@@ -70,7 +70,7 @@ jobs:
         file: ${{ github.workspace }}/v2rayNP*.dmg
         tag: ${{ github.event.inputs.release_tag }}
         file_glob: true
-        prerelease: true
+        prerelease: false
         overwrite: true
 
     # release zip archive
@@ -88,5 +88,5 @@ jobs:
         file: ${{ github.workspace }}/v2rayNP*.zip
         tag: ${{ github.event.inputs.release_tag }}
         file_glob: true
-        prerelease: true
+        prerelease: false
         overwrite: true
